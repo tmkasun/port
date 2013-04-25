@@ -36,8 +36,7 @@ import time
 
 
 #global variables for use
-splitedGpsData = ''
-length_of_the_splitedGpsData = 0
+
 numberOfConnections = 0
 
 def createSocket(portNumber=9090,serverIP=""):
@@ -56,6 +55,7 @@ class newConnection(threading.Thread):
     channel , address = detailsPair
     self.channel = channel
     self.address = address
+    self.splitedGpsData = ''
     self.connectToDB()
     threading.Thread.__init__(self)
 
@@ -80,16 +80,16 @@ class newConnection(threading.Thread):
       # need to debug firmware info and alarm - move, speed, batteries, help me! or "" after F or L Signal quality    F 
       #=========================================================================
       recivedDataFromGpsDevice = self.channel.recv(2048) #2048 is the buffer size
-      splitedGpsData = recivedDataFromGpsDevice.split(',') #split string by ','
+      self.splitedGpsData = recivedDataFromGpsDevice.split(',') #split string by ','
     
       #===============================================================================
       # Decode sat longitude and latitude
       #===============================================================================
       
       try:
-        latitude = float(splitedGpsData[5][:2]) + float(splitedGpsData[5][2:])/60.0
-        longitude = float(splitedGpsData[7][:3]) + float(splitedGpsData[7][3:])/60.0
-        imei = splitedGpsData[16][5:]
+        latitude = float(self.splitedGpsData[5][:2]) + float(self.splitedGpsData[5][2:])/60.0
+        longitude = float(self.splitedGpsData[7][:3]) + float(self.splitedGpsData[7][3:])/60.0
+        imei = self.splitedGpsData[16][5:]
 
       except ValueError:
         print "Device not connected to GPS satalites (lat long passing error)"
@@ -103,29 +103,29 @@ class newConnection(threading.Thread):
       #=========================================================================
       # for debugging purpose only check weather values are in order
       #=========================================================================
-#      for index in range(lengthOfTheSplitedGpsData):
+#      for index in range(lengthOfTheself.splitedGpsData):
 #        try:
-##          print index+1,data_list[index]+" ---> "+splitedGpsData[index]
+##          print index+1,data_list[index]+" ---> "+self.splitedGpsData[index]
 #  
 #        except IndexError:
 #          print "index mismatch error"
-##          print data_list,"\n\n\n====>>",splitedGpsData
-##          print "\n\n","length data list",len(data_list),"====>>","len splited",len(splitedGpsData)
+##          print data_list,"\n\n\n====>>",self.splitedGpsData
+##          print "\n\n","length data list",len(data_list),"====>>","len splited",len(self.splitedGpsData)
 #          #self.channel.close()
 #          break
 #      
       print "Receiving GPS coordinates....(Thread Name: {})".format(self.getName())
       
       try:
-        date = splitedGpsData[11][4:] + splitedGpsData[11][2:4] + splitedGpsData[11][:2] 
-        sat_time = date + splitedGpsData[3] 
+        date = self.splitedGpsData[11][4:] + self.splitedGpsData[11][2:4] + self.splitedGpsData[11][:2] 
+        sat_time = date + self.splitedGpsData[3] 
       except IndexError:
         print "Satellite Time Error: Exception passed"
         pass  
         
       try:
         print sat_time
-        sql = """ insert into coordinates(serial,phone_number,sat_time,sat_status,latitude,longitude,speed,bearing,imei,location_area_code,cell_id) values("{}","{}","{}",'{}',{},{},{},{},"{}","{}","{}")""".format(splitedGpsData[0],splitedGpsData[1],sat_time,splitedGpsData[4],latitude,longitude,float(splitedGpsData[9]),float(splitedGpsData[10]),imei,splitedGpsData[25],splitedGpsData[26])
+        sql = """ insert into coordinates(serial,phone_number,sat_time,sat_status,latitude,longitude,speed,bearing,imei,location_area_code,cell_id) values("{}","{}","{}",'{}',{},{},{},{},"{}","{}","{}")""".format(self.splitedGpsData[0],self.splitedGpsData[1],sat_time,self.splitedGpsData[4],latitude,longitude,float(self.splitedGpsData[9]),float(self.splitedGpsData[10]),imei,self.splitedGpsData[25],self.splitedGpsData[26])
         
       except ValueError:
         sql = ""
