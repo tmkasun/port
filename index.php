@@ -195,7 +195,7 @@ if(isset($_SESSION["computer_number"])){
 		</script>
 </head>
 <!-- set webpage body background image use back*.jpg file notation resize image size with window size by "background-size:cover" style attribute -->
-<body id="body_first" style="background-image: url('./media/images/logins/back1.jpeg');background-size:cover;-moz-background-size:cover;-webkit-background-size:cover;">
+<body id="body_first" style="background-image: url('');background-size:cover;-moz-background-size:cover;-webkit-background-size:cover;">
 	<!-- div id="top_bar">
 	<a style="position: relative;left: 5px;top: 10px;font-size:10pt;">Hello </a>
 	
@@ -239,7 +239,7 @@ if(isset($_SESSION["computer_number"])){
 				<br /> 
 				 <input onkeyup="check_computer_number(this)" type="text" id="login"
 					name="username" required="required"
-					placeholder="6 digits number" autofocus
+					placeholder="Computer number" autofocus
 					style="float: left; border: 1px groove #47A0D3; border-radius: 5px; margin: 0; padding: 5px;margin-left: 10pt;" />
 				<br />
 				<br /> 
