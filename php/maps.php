@@ -15,8 +15,8 @@
 
 if(!isset($_SESSION["computer_number"])){
      header('Location: ../index.php');
-     
-     
+
+
 }
 
 //check the connection type, if running in local server import local setting else import other setting
@@ -108,8 +108,7 @@ print "<br/>";
 
 
 
-<link rel="stylesheet"
-     href="../css/leaflet.css" />
+<link rel="stylesheet" href="../css/leaflet.css" />
 
 <!------------------------------------------------ End ------------------------------------------------>
 
@@ -151,15 +150,14 @@ var currentVehicleList = []; //current browser (client) displaying imei numbers
      alert(anything);
 
      }
- 
  var map; // map object global variable
  
- tileServerList = {"localhost":"http://track.slpa.lk/tiles/virtualEarthSat/{z}/{x}/{y}.png","googleHybrid":"http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}","googleMaps":"http://khm1.google.com/kh/v=49&x=[x]&y=[y]&z=[z]","openStreetMaps":"http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"};
+ tileServerList = {"localhost":"http://track.slpa.lk/tiles/GoogleMaps/{z}/{x}/{y}.png","googleHybrid":"http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}","googleMaps":"http://khm1.google.com/kh/v=49&x=[x]&y=[y]&z=[z]","openStreetMaps":"http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"};
  
 function createMap(){
      
 	map = L.map('map').setView([7.059000, 79.96119], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
-	L.tileLayer(tileServerList["googleHybrid"], { //set tile server URL for openStreet maps 
+	tiles = L.tileLayer(tileServerList["localhost"], { //set tile server URL for openStreet maps 
 		maxZoom: 19,
         minZoom: 1,
         //zoomOffset: 1,
@@ -189,7 +187,7 @@ function createMap(){
 /* ------------------------------------ Setup map layer @ documnt loading time ------------------------------------ */
 
 var prime_mover_icon; 
-$(document).ready(createMap);
+//$(document).ready();
 
 /* ------------------------------------ end------------------------------------ */
 
@@ -230,6 +228,9 @@ function primeMover(serialNumber,imeiNumber,currentLat,currentLong,currentSatTim
 var jsonData;
 $(document).ready(
 					function (){
+
+                        // create map layer in webpage
+						createMap();
 						
 						/* ----------------------- AJAX orginal method for getting Json data ---------------------- */
 						      
@@ -296,6 +297,7 @@ function ajaxCheck(){
 							}
 								).done(
 										function (jsonObject){
+                                                       
 											jsonData = jsonObject;
 											for(items in jsonData){
 												/* debug code to check recevied values from ajax 
@@ -335,38 +337,69 @@ function ajaxCheck(){
 
  
  
+ 
 /*---------------------------------- Foo methods ----------------------------------*/
-function get_sys_users() {
+function approveVehicles(){
+	
+$.ajax({
+ url : "./features/vehicleAuthenticationStatus.php",
+                
+} ).done(
+          function (returnHttpObject){
+            //alert(returnHttpObject);
+            document.getElementById("commonMessageBoxResultBox").innerHTML = returnHttpObject;
+            $("#commonMessageBox").fadeIn("slow");
+
+               });
+
+	     
+}
+
+
+
+function showVehicleHistory() {
 	//alert("Not implimented"); //for check function call working
-     $.ajax({
-         url: "./features/retrieveVehicleList.php",
+	$("#leftSideSlidePane").show("slide",{direction:"left"});
 
-
-         }).done(function(result){
-             //alert(result);
-             document.getElementById("leftSideSlidePaneResultBox").innerHTML = result;
-             $("#leftSideSlidePane").show("slide",{direction:"left"});
-
-             });
+     $("#leftSideSlidePaneResultBox").html(loadingImage).load("./features/retrieveVehicleList.php");
+     
 }
 function changeMapTileServer(ServerName){
      switch (ServerName) {
 	case "googleMap":
-		L.TileLayer.setUrl('http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}');
-        break;
+	    tiles.setUrl("http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}");
+	    break;
 
     case "OSM":
-    	L.TileLayer.setUrl("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+        tiles.setUrl("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+    	//map._resetView(map.getCenter(), map.getZoom(), true);
+    	//$("#map").hide("slide",{direction:"left"});
         break;
+
+    case "localGoogleMaps":
+     tiles.setUrl("http://track.slpa.lk/tiles/GoogleMaps/{z}/{x}/{y}.png");
+        break;      
+    case "localVirtualEarth":
+     
+        tiles.setUrl("http://track.slpa.lk/tiles/virtualEarthSat/{z}/{x}/{y}.png");
+        break;
+
+    case "OpenStreetMap":
+            tiles.setUrl("http://track.slpa.lk/tiles/OpenStreetMap/{z}/{x}/{y}.png");
+        break;  
 
           }
 }
 
+// gloable variable url for loading imege in string
+
+var loadingImage = '<img alt="Loading......" src="../media/images/icons/loading.gif">';
+
 function changeMap() {
 	//alert("<font color = 'red'>call get_administrators function</font>"); //for check function call working
     $("#leftSideSlidePane").show("slide",{direction:"left"}); 
-    document.getElementById("leftSideSlidePaneResultBox").innerHTML = "<img alt='Google maps' width='50%' onclick=\"changeMapTileServer('googleMap')\" src='../media/images/icons/googleMaps.png'/><br/>Google Maps"
-        +"<br/><img alt='Opeen Streat Maps' width='50%' onclick=\"changeMapTileServer('OSM')\" src='../media/images/icons/openStreet.png'/><br/>Open Street Maps";
+     
+    $("#leftSideSlidePaneResultBox").html(loadingImage).load("./features/loadMapTypes.php");
 }
 /*---------------------------------- End ----------------------------------*/
 
@@ -377,6 +410,7 @@ function leftSidePaneImageOnClick(thisVehicle){
 
 	$( "#datePicker" ).datepicker({ dateFormat: "yy-mm-dd" });
     $("#commonMessageBox").fadeIn("slow");
+    $( "#datePicker" ).fadeIn("fast");
     //alert(thisVehicle.id);
     currentDataPickerVehicleImei = thisVehicle.id;
     $('#leftSideSlidePane').hide('slide',{direction:'left'});
@@ -437,7 +471,7 @@ function getVehiclePath(selectedDateObject) {
                 });
     //var polyLine = L.polyline([,]).addTo(map);
     $('#commonMessageBox').fadeOut('slow');
-    
+    $('#datePicker').fadeOut('slow');
 }
 
 
@@ -454,22 +488,26 @@ function onClickPolyLinePopupOpenner(mouseEventObject){
 </head>
 <body
      style="background-image: url('../media/images/backgrounds/map_background3.jpg'); background-size: cover; -moz-background-size: cover; -webkit-background-size: cover; margin: 0; padding: 0;">
+
      <div id="functionButtons"
           style="position: relative; width: 80%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
-          <button id="get_coordinates" class="styled-button-10"
+
+          <button id="approve_vehicles_to_map"
+               onclick="approveVehicles()" class="styled-button-10"
                style="position: relative; margin-left: 40; margin-right: 40%;">Add
                Vehicles to map</button>
-          <button id="get_sys_users" class="styled-button-8"
-               onclick="get_sys_users()">Show Vehicle History</button>
-          <button id="get_administrators" class="styled-button-8"
-               onclick="changeMap()">Change map type</button>
-          <button id="get_administrators" class="styled-button-8"
+
+          <button id="loguot_button" class="styled-button-8"
+               style="position: relative; float: right; margin: 0; padding: 0;"
                onclick="window.location.href = './logout.php' ">Logout</button>
 
-          <div id="ajax_result_div" style="position: relative;">
-               <a> Click on any function button to test the functions </a>
 
-          </div>
+          <button id="showVehicleHistory" class="styled-button-8"
+               onclick="showVehicleHistory()">Show Vehicle History</button>
+          <button id="get_administrators" class="styled-button-8"
+               onclick="changeMap()">Change map type</button>
+
+          <div id="ajax_result_div" style="position: relative;"></div>
 
 
      </div>
@@ -481,13 +519,13 @@ function onClickPolyLinePopupOpenner(mouseEventObject){
                style="position: relative; float: right; top: 0px;" /> <br />
           <br /> <br />
           <div id="leftSideSlidePaneResultBox"
-               style="overflow: auto; height: auto;"></div>
+               style="overflow: auto; height: 100%;"></div>
 
      </div>
 
      <!-- Open street maps via leaflet javascript framework-->
      <div id="map"
-          style="position: relative; width: 90%; height: 88%; float: left; margin-left: 5%; margin-right: 5%; background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
+          style="position: relative; width: 95%; height: 88%; float: left; margin-left: 3%; margin-right: 3%; background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
           OSM Layer
 
 
@@ -498,8 +536,13 @@ function onClickPolyLinePopupOpenner(mouseEventObject){
                     alt="Close" src="../media/images/logins/no.ico"
                     style="position: relative; float: right; top: 0px;" />
                <br /> <br /> <br />
+               <div id="commonMessageBoxResultBox"
+                    style="overflow: auto; height: 75%; position: relative; width: auto;">
+
+               </div>
+
                <div id="datePicker"
-                    style="position: relative; margin-left: auto; margin-right: auto; width: 40%;">
+                    style="position: relative; margin-left: auto; margin-right: auto; width: 40%; display: none;">
                     <button
                          onclick="getVehiclePath($('#datePicker').datepicker('getDate'))">Show
                          Path</button>
