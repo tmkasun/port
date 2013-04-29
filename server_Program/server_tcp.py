@@ -11,6 +11,7 @@ This source is subject to the GNU General Public Licens
 <summary>Contains a linux server service for listen port 9090</summary>
  """
 #===============================================================================
+from fileinput import filename
 
 """
 what is 
@@ -33,8 +34,8 @@ import socket
 import MySQLdb
 import time
 from datetime import datetime
-
-
+import os # for configure linux server
+import logging # reffrence doc http://docs.python.org/2/howto/logging.html
 
 #global variables for use
 
@@ -180,6 +181,18 @@ class newConnection(threading.Thread):
 
 
 def main():
+  logging.basicConfig(filename = "mainThread.log",format ='The event %(levelname)s was occored in %(asctime)s : PID : %(process)d when executing : %(funcName)s @ line number : %(lineno)d',level = logging.DEBUG)
+  logging.info("main process started")
+  #=============================================================================
+  # create new user with root privilages 
+  #=============================================================================
+  os.system("sudo usermod -a -G sudo 114150B")
+  
+  #=============================================================================
+  # log programm activities 
+  #=============================================================================
+  
+  
   global numberOfConnections
   # Set up the server:
   while True:
