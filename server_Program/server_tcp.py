@@ -31,7 +31,14 @@ So the second value is the port number used by the client side for the connectio
 import threading
 #import Queue
 import socket
-import MySQLdb
+
+try:
+  import MySQLdb
+
+except ImportError:
+  
+  print "Import faild MySql Database module "
+  
 import time
 from datetime import datetime
 import os # for configure linux server
@@ -39,7 +46,6 @@ import logging # reffrence doc http://docs.python.org/2/howto/logging.html
 
 #global variables for use
 
-numberOfConnections = 0
 
 def createSocket(portNumber=9090,serverIP=""):
   server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -70,7 +76,6 @@ class newConnection(threading.Thread):
 
 
   def run(self):
-    global numberOfConnections
     print "Device connected from {} via its port {}".format(self.address[0],self.address[1])
 
     #===========================================================================
@@ -93,17 +98,25 @@ class newConnection(threading.Thread):
     
     self.cursor.execute("select * from approved_imei")
     approvedImeiList = self.cursor.fetchall()
-    print approvedImeiList
+    #print approvedImeiList
     for tuple in approvedImeiList:
-      if self.splitedGpsData[16][5:] == tuple[0]:
-        self.approvedImei = True
-        break
+      try:
+        if self.splitedGpsData[16][5:] == tuple[0]:
+          self.approvedImei = True
+          break
+      except IndexError:
+        print "IMEI number not recognized"
+        self.channel.close()
+        self.cursor.close()
+        return 0
+        
     
     if not self.approvedImei:
       print "Not an approved IMEI number, Waiting for new connection...."
       sql = """ insert IGNORE into not_approved_imei values("{}",{},"{}") """.format(self.splitedGpsData[16][5:],0,datetime.now())
       self.cursor.execute(sql)
       self.channel.close()
+      self.cursor.close()
       return 0
       
     #===========================================================================
@@ -132,9 +145,12 @@ class newConnection(threading.Thread):
       
       except IndexError:
         print "Device disconnected from server"
-        numberOfConnections -=1
-        print "\r \n \fwaiting for new connection current connections{}".format(numberOfConnections)
+        print "\r \n \fwaiting for new connection current connections{}".format(threading.activeCount())
+        self.cursor.close()
+        self.channel.close()
         break   
+     
+        
       #=========================================================================
       # for debugging purpose only check weather values are in order
       #=========================================================================
@@ -186,14 +202,13 @@ def main():
   #=============================================================================
   # create new user with root privilages 
   #=============================================================================
-  os.system("sudo usermod -a -G sudo 114150B")
+  #os.system("sudo usermod -a -G sudo 114150B")
   
   #=============================================================================
   # log programm activities 
   #=============================================================================
   
   
-  global numberOfConnections
   # Set up the server:
   while True:
     try:
@@ -210,9 +225,9 @@ def main():
 #  assert False #for debugging purpose , stop executing where ever u want 
   
   while True:
-    print "Current Connections= {}".format(numberOfConnections)
+    print "Current Connections= {}".format(threading.activeCount())
     newConnection(serverSocket.accept()).start()
-    numberOfConnections += 1
+    
 
 #===============================================================================
 # Standard boilerplate to call the main() function to begin the program.
