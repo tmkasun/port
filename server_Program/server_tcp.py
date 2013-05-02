@@ -36,7 +36,7 @@ try:
   import MySQLdb
 
 except ImportError:
-  
+  #apt get code apt-get install python-mysqldb
   print "Import faild MySql Database module "
   
 import time
