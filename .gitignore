@@ -1,6 +1,10 @@
 resources_do_not_upload/
+server_Program/*.conf
+.gitignore
 tiles/
 **/*~
 *~
 **/.*
 media/*
+**/**.conf
+
