@@ -11,8 +11,6 @@ This source is subject to the GNU General Public Licens
 <summary>Contains a linux server service for listen port 9090</summary>
  """
 #===============================================================================
-from fileinput import filename
-
 """
 what is 
 socket.accept()
@@ -31,7 +29,7 @@ So the second value is the port number used by the client side for the connectio
 import threading
 #import Queue
 import socket
-
+from fileinput import filename
 try:
   import MySQLdb
 
@@ -43,7 +41,8 @@ import time
 from datetime import datetime
 import os # for configure linux server
 import logging # reffrence doc http://docs.python.org/2/howto/logging.html
-
+logging.basicConfig(filename = "server_tcp.log",format ='The event %(levelname)s was occored in %(asctime)s : PID : %(process)d when executing : %(funcName)s @ line number : %(lineno)d',level = logging.DEBUG)
+  
 #global variables for use
 
 
@@ -59,18 +58,18 @@ def createSocket(portNumber=9090,serverIP=""):
 
 
 class newConnection(threading.Thread):
-  def __init__(self,detailsPair):
+  def __init__(self,detailsPair,databaseIP,dbUser,dbPassword):
     channel , address = detailsPair
     self.channel = channel
     self.address = address
     self.approvedImei = False
     self.splitedGpsData = ''
-    self.connectToDB()
+    self.connectToDB(databaseIP,dbUser,dbPassword)
     threading.Thread.__init__(self)
 
-  def connectToDB(self):
+  def connectToDB(self,databaseIP,dbUser,dbPassword):
     # Open database connection
-    self.connection = MySQLdb.connect("127.0.0.1","root","kasun123")
+    self.connection = MySQLdb.connect(databaseIP,dbUser,dbPassword)
     self.connection.select_db("syscall")
     self.cursor = self.connection.cursor()
 
@@ -194,25 +193,50 @@ class newConnection(threading.Thread):
         self.connection.rollback()
   
 
-
-
+def configServer():
+  """
+  Import configuration file and set parameters 
+  """
+  try:
+    config = open(r"./server.conf","r+")
+  except IOError,e:
+    print e
+    return 0
+  configLines = []
+  try:
+    while True:
+      configLines.append(config.next())
+  except StopIteration:
+    pass
+  finally:
+    config.close()
+  configInfo = {}
+  for line in configLines:
+    if line[0] == "#" or line[0] == "\n":
+      continue
+    configLineArgumentList = line[:-1].split("=")
+    key = configLineArgumentList[0]
+    value = configLineArgumentList[1]
+    configInfo.update({key:value})
+  logging.info("Configuration done sucssesfully")
+  return configInfo
+    
 def main():
-  logging.basicConfig(filename = "mainThread.log",format ='The event %(levelname)s was occored in %(asctime)s : PID : %(process)d when executing : %(funcName)s @ line number : %(lineno)d',level = logging.DEBUG)
+  configInfoDict = configServer()
+  #=============================================================================
+  # log programm activities 
+  #=============================================================================
+  
   logging.info("main process started")
   #=============================================================================
   # create new user with root privilages 
   #=============================================================================
   #os.system("sudo usermod -a -G sudo 114150B")
   
-  #=============================================================================
-  # log programm activities 
-  #=============================================================================
-  
-  
-  # Set up the server:
+  # Set up the Socket:
   while True:
     try:
-      serverSocket = createSocket()
+      serverSocket = createSocket(int(configInfoDict.get("serverPort")),configInfoDict.get("serverIP"))
       if serverSocket:
         break
     
@@ -221,12 +245,9 @@ def main():
         time.sleep(5)
         continue
     
-  #serverSocket.close()
-#  assert False #for debugging purpose , stop executing where ever u want 
-  
   while True:
     print "Current Connections= {}".format(threading.activeCount())
-    newConnection(serverSocket.accept()).start()
+    newConnection(serverSocket.accept(),configInfoDict.get("databaseIP"),configInfoDict.get("dbUser"),configInfoDict.get("dbPassword")).start()
     
 
 #===============================================================================
@@ -241,7 +262,7 @@ if __name__ == "__main__":
   time.sleep(0.1)
   print '|      | |      | |       | |        \     |  |   |                   '
   time.sleep(0.1)
-  print '|         \____/| |          \____/   \___/\  |_  |_              v0.3'
+  print '|         \____/| |          \____/   \___/\  |_  |_              v0.4'
   time.sleep(0.1)
   print '|______         | |_______                                            '
   time.sleep(0.1)
