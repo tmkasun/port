@@ -3,12 +3,12 @@
 #===============================================================================
 """
 Copyright (c) 2013 All Right Reserved, http://www.itfac.mrt.ac.lk
-This source is subject to the GNU General Public Licens
+This source is subject to the GNU General Public Licen
 </copyright>
 <author>UOM.itfac</author>
-<email>114150B@uom.lk</email>
+<email>syscall@knnect.com</email>
 <date>2013-04-25</date>
-<summary>Contains a linux server service for listen port 9090</summary>
+<summary>Contains a linux, (server) service for listen port 9090</summary>
  """
 #===============================================================================
 """
@@ -23,7 +23,7 @@ So the second value is the port number used by the client side for the connectio
 """
 
 #===============================================================================
-# coding style CC python example: variableName, ClassName ,functionName, _specialVariableName_
+# coding style CC python ie: variableName, ClassName ,functionName, _specialVariableName_
 #===============================================================================
 
 import threading

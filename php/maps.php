@@ -152,14 +152,14 @@ var currentVehicleList = []; //current browser (client) displaying imei numbers
      }
  var map; // map object global variable
  
- tileServerList = {"localhost":"http://track.slpa.lk/tiles/GoogleMaps/{z}/{x}/{y}.png","googleHybrid":"http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}","googleMaps":"http://khm1.google.com/kh/v=49&x=[x]&y=[y]&z=[z]","openStreetMaps":"http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"};
+ tileServerList = {"cloudeMade":"http://{s}.tile.cloudmade.com/45b5101290e74ac29b24ff40cfd7e3ab/1/256/{z}/{x}/{y}.png","localhost":"http://track.slpa.lk/tiles/GoogleMaps/{z}/{x}/{y}.png","googleHybrid":"http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}","googleMaps":"http://khm1.google.com/kh/v=49&x=[x]&y=[y]&z=[z]","openStreetMaps":"http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"};
  
 function createMap(){
-     
+ 	 
 	map = L.map('map').setView([7.059000, 79.96119], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
-	tiles = L.tileLayer(tileServerList["localhost"], { //set tile server URL for openStreet maps 
-		maxZoom: 19,
-        minZoom: 1,
+	tiles = L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { //set tile server URL for openStreet maps 
+		maxZoom: 18,
+        minZoom: 0,
         //zoomOffset: 1,
           //continuousWorld : true,
 		//zoomReverse : true,
@@ -381,7 +381,7 @@ function changeMapTileServer(ServerName){
         break;      
     case "localVirtualEarth":
      
-        tiles.setUrl("http://track.slpa.lk/tiles/virtualEarthSat/{z}/{x}/{y}.png");
+        tiles.setUrl("http://track.slpa.lk/tiles/OSM_sat_tiles/{z}/{x}/{y}.png");
         break;
 
     case "OpenStreetMap":
