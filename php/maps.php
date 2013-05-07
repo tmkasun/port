@@ -152,12 +152,12 @@ var currentVehicleList = []; //current browser (client) displaying imei numbers
      }
  var map; // map object global variable
  
- tileServerList = {"cloudeMade":"http://{s}.tile.cloudmade.com/45b5101290e74ac29b24ff40cfd7e3ab/1/256/{z}/{x}/{y}.png","localhost":"http://track.slpa.lk/tiles/GoogleMaps/{z}/{x}/{y}.png","googleHybrid":"http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}","googleMaps":"http://khm1.google.com/kh/v=49&x=[x]&y=[y]&z=[z]","openStreetMaps":"http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"};
+ tileServerList = {"mapbox":"http://api.tiles.mapbox.com/v2/sysccall.map-wuiel8n4/{z}/{x}/{y}.png","cloudeMade":"http://{s}.tile.cloudmade.com/45b5101290e74ac29b24ff40cfd7e3ab/1/256/{z}/{x}/{y}.png","localhost":"http://track.slpa.lk/tiles/GoogleMaps/{z}/{x}/{y}.png","googleHybrid":"http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}","googleMaps":"http://khm1.google.com/kh/v=49&x=[x]&y=[y]&z=[z]","openStreetMaps":"http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"};
  
 function createMap(){
  	 
 	map = L.map('map').setView([7.059000, 79.96119], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
-	tiles = L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { //set tile server URL for openStreet maps 
+	tiles = L.tileLayer(tileServerList["localhost"], { //set tile server URL for openStreet maps 
 		maxZoom: 18,
         minZoom: 0,
         //zoomOffset: 1,
@@ -171,8 +171,8 @@ function createMap(){
 
 		iconSize: [48,48],
 		//shadowSize: [0,0],
-		iconAnchor: [22,94],
-		popupAnchor: [-3,-76]
+		iconAnchor: [0,+25],
+		popupAnchor: [-2,-5] //[-3,-76]
 		});
 
 	
@@ -271,7 +271,7 @@ $(document).ready(
 
 												
 														}
-											
+											map.setView([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])], 15);
 											}
 										
 										
@@ -347,6 +347,7 @@ $.ajax({
 } ).done(
           function (returnHttpObject){
             //alert(returnHttpObject);
+            $("#commonMessageBoxResultBox").html("");
             document.getElementById("commonMessageBoxResultBox").innerHTML = returnHttpObject;
             $("#commonMessageBox").fadeIn("slow");
 
@@ -407,10 +408,22 @@ function changeMap() {
  var currentDataPickerVehicleImei = 0;
  
 function leftSidePaneImageOnClick(thisVehicle){
-
-	$( "#datePicker" ).datepicker({ dateFormat: "yy-mm-dd" });
+	$( "#commonMessageBoxResultBox").html("");
+	$( "#commonMessageBoxResultBox").removeProp("class");
+	$( "#commonMessageBoxResultBox").datepicker({ dateFormat: "yy-mm-dd" });
     $("#commonMessageBox").fadeIn("slow");
-    $( "#datePicker" ).fadeIn("fast");
+    $('#datePicker').fadeIn('slow');
+    /* 
+    <button
+                         onclick="getVehiclePath($('#commonMessageBoxResultBox').datepicker('getDate'))">Show
+                         Path</button>
+    
+    */
+    $("<button/>",{
+        onClick:"getVehiclePath($('#commonMessageBoxResultBox').datepicker('getDate'))",
+        text:"Show History"
+        }).appendTo("#commonMessageBoxResultBox");
+
     //alert(thisVehicle.id);
     currentDataPickerVehicleImei = thisVehicle.id;
     $('#leftSideSlidePane').hide('slide',{direction:'left'});
@@ -484,6 +497,18 @@ function onClickPolyLinePopupOpenner(mouseEventObject){
 
 	     
 }
+
+
+function getActivities(){
+
+//alert("ok");
+$("#commonMessageBoxResultBox").html("");
+$("#commonMessageBox").fadeIn("slow");
+
+$("#commonMessageBoxResultBox").html(loadingImage).load("./features/userActivities.php");
+
+	     
+}
 </script>
 </head>
 <body
@@ -507,6 +532,12 @@ function onClickPolyLinePopupOpenner(mouseEventObject){
           <button id="get_administrators" class="styled-button-8"
                onclick="changeMap()">Change map type</button>
 
+<?php if($_SESSION["admin"] == TRUE) { ?>
+<button id="getActivities" class="styled-button-8"
+               onclick="getActivities()" style="color: red;">Show Web activities</button>
+
+
+<?php }?>
           <div id="ajax_result_div" style="position: relative;"></div>
 
 
@@ -531,21 +562,19 @@ function onClickPolyLinePopupOpenner(mouseEventObject){
 
 
           <div id="commonMessageBox"
-               style="position: relative; z-index: 4; width: 50%; height: 50%; margin-left: auto; margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none;">
+               style="position: relative; z-index: 4; width: 70%; height: 70%; margin-left: auto; margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none;">
                <img onclick="$('#commonMessageBox').fadeOut('slow')"
                     alt="Close" src="../media/images/logins/no.ico"
                     style="position: relative; float: right; top: 0px;" />
                <br /> <br /> <br />
                <div id="commonMessageBoxResultBox"
-                    style="overflow: auto; height: 75%; position: relative; width: auto;">
+                    style="overflow: auto; height: 75%; position: relative; width: auto;margin-right: auto;margin-left: auto;">
 
                </div>
 
                <div id="datePicker"
                     style="position: relative; margin-left: auto; margin-right: auto; width: 40%; display: none;">
-                    <button
-                         onclick="getVehiclePath($('#datePicker').datepicker('getDate'))">Show
-                         Path</button>
+                    
                </div>
 
           </div>
