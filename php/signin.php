@@ -51,7 +51,7 @@ include_once('./mysql/remote.php');
 #mysql_select_db("114150B_un",$connection);//select uni database from mysql engine
 $md5 = md5($_POST[password]);//secured from MYSQL injections
 //print $md5;
-$check = "select null from logins where computer_number = '$_POST[username]' and password = '$md5'";
+$check = "select loginApprovalBit from logins where computer_number = '$_POST[username]' and password = '$md5'";
 
 $result = mysql_query($check,$connection);//query send to mysql database to check username and password
 
@@ -67,7 +67,10 @@ if (!$row){
 
 
 <?php
-if($row){
+if ($row["loginApprovalBit"] == "1" ) {
+     echo "notapp";
+}
+else if($row["loginApprovalBit"] == "0" || $row["loginApprovalBit"] == "2" ){
 
 	$_SESSION["computer_number"] = $_POST["username"];
 	//administrator loging cheack
@@ -100,26 +103,11 @@ if($row){
                 window.location.href = "./maps.php";
             }
         </script>
-
-</head>
-<body id="body" style="border: 0;">
-
-	<div id="trolle"
-		style="position: absolute; float: left; margin-top: 0%; width: auto; height: auto; text-align: center; margin-left: 50%;">
-		<img width="50%" height="50%" src="./mm/dtf.gif" />
-	</div>
-	<div id="startup"
-		style="position: relative; float: left; margin: 0; margin-left: 25%; width: 50%; margin-top: 10%; height: auto; background-image: url(./mm/bg_dotted.png); margin-bottom: 25%; text-align: center;">
-
-		<img src="./mm/loading143.gif" /> <br /> Prossesing Your Request
-		......
-		<script>
-        setTimeout(strt,1200);
-    </script>
-
-	</div>
-
-	<?php
+     <?php
 }
 ?>
+
+</head>
+     </html>
+
 	<!--____________________________________________________________________________________________________________________-->
