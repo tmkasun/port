@@ -66,6 +66,7 @@ if(isset($_SESSION["computer_number"])){
 					//alert(response);
 					match_wrong_password = response.match("911");
 					match_correct_password = response.match("correct_password_#145Akcode_214QW_code_");
+                    correct_bt_nt_auth = response.match("notapp");
 					//911 for wrong password code
 					
 				if(match_wrong_password){
@@ -102,6 +103,10 @@ if(isset($_SESSION["computer_number"])){
 					
 					
 				}
+				else if(correct_bt_nt_auth){
+                         alert("Sorry you are only allowed to use Windows Application");
+
+                    }
 				else{
 					alert("Error Please Try Again");
 					$("#submit_button").fadeIn("slow");
