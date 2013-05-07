@@ -37,6 +37,9 @@ error_reporting(E_PARSE);
 
 //create table for display authentification details
 ?>
+<div id="td"
+     style="position: relative; margin: 0; margin-left: 10%; float: left; width: 80%; height: auto; padding-bottom: 10%; background: #BCBCBC; text-align: center;">
+     
 <table border="1"
      style="border-width: 1px; border-bottom-color: blue; border-style: dotted; border-radius: 10px;">
      <tr>
@@ -90,7 +93,7 @@ error_reporting(E_PARSE);
 
      ?>
 </table>
-
+</div>
      <?php
      print "Number of vehicles in the list".$number_of_vehicles;
      ?>
