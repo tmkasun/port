@@ -17,6 +17,9 @@ $result = mysql_query($get_details,$connection);
 			<td>Computer Number</td>
 			<td>Date And Time</td>
 			<td>IP Address</td>
+            <td>Host Name</td>
+            <td>Browser Details</td>
+
 		</tr>
 	</thead>
 	<?php
@@ -27,7 +30,10 @@ $result = mysql_query($get_details,$connection);
 		<td><?php print $rows["computer_number"] ?></td>
 		<td><?php print $rows["date_time"] ?></td>
 		<td><?php print $rows["ip_addr"] ?></td>
-	</tr>
+	    <td><?php print $rows["host_name"] ?></td>
+        <td><?php print $rows["browser_details"] ?></td>
+     
+     </tr>
 	<?php
 	}
 	?>

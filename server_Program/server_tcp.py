@@ -11,15 +11,30 @@ This source is subject to the GNU General Public Licen
 <summary>Contains a linux, (server) service for listen port 9090</summary>
  """
 #===============================================================================
+
 """
-what is 
-socket.accept()
+-------------------------------
+For documentation purpose
+-------------------------------
+-------------what is socket.accept()-------------
 
 Accept a connection. The socket must be bound to an address and listening for connections. The return value is a pair (conn, address) where conn is a new socket object usable to send and receive data on the connection, and address is the address bound to the socket on the other end of the connection.
 
 A pair (host, port) is used for the AF_INET address family, where host is a string representing either a hostname in Internet domain notation like 'daring.cwi.nl' or an IPv4 address like '100.50.200.5', and port is an integer.
 
 So the second value is the port number used by the client side for the connection. When a TCP/IP connection is established, the client picks an outgoing port number to communicate with the server; the server return packets are to be addressed to that port number.
+
+-------------Luhn algorithm-------------
+From Wikipedia, the free encyclopedia
+
+The Luhn algorithm or Luhn formula, also known as the "modulus 10" or "mod 10" algorithm, is a simple checksum formula used to validate a variety of identification numbers, 
+such as credit card numbers, IMEI numbers, National Provider Identifier numbers in US and Canadian Social Insurance Numbers. 
+It was created by IBM scientist Hans Peter Luhn and described in U.S. Patent No. 2,950,048, filed on January 6, 1954, and granted on August 23, 1960.
+
+The algorithm is in the public domain and is in wide use today. It is specified in ISO/IEC 7812-1.[1] It is not intended to be a cryptographically secure hash function;
+it was designed to protect against accidental errors,
+not malicious attacks. Most credit cards and many government identification numbers use the algorithm as a simple method of distinguishing valid numbers from collections of random digits.
+
 """
 
 #===============================================================================
@@ -73,12 +88,23 @@ class newConnection(threading.Thread):
     self.connection.select_db("syscall")
     self.cursor = self.connection.cursor()
 
+  def isValidLuhnChecksum(self,card_number):
+    def digits_of(n):
+        return [int(d) for d in str(n)]
+    digits = digits_of(card_number)
+    odd_digits = digits[-1::-2]
+    even_digits = digits[-2::-2]
+    checksum = 0
+    checksum += sum(odd_digits)
+    for d in even_digits:
+        checksum += sum(digits_of(d*2))
+    return checksum % 10 == 0
 
   def run(self):
     print "Device connected from {} via its port {}".format(self.address[0],self.address[1])
-
+ 
     #===========================================================================
-    # to be impliment for track startup and switch off time of GPS device , when device switch swithc on/off 
+    # for track startup and switch off time of GPS device , when device switch swithc on/off #to be impliment  
     #===========================================================================
 #    self.cursor.execute(""" insert into vehicleStatus(imei,latestConnectionCreatedDate,currentOnlineStatus) values({imei},UTC_TIMESTAMP(),1) on duplicate key update latestConnectionCreatedDate = UTC_TIMESTAMP(),currentOnlineStatus = 1  """).format()
     
@@ -88,38 +114,59 @@ class newConnection(threading.Thread):
     #===========================================================================
     
     recivedDataFromGpsDevice = self.channel.recv(2048) #2048 is the buffer size
-    self.splitedGpsData = recivedDataFromGpsDevice.split(',') #split string by ','
-  
-
+    
+    try:
+      self.splitedGpsData = recivedDataFromGpsDevice.split(',') #split string by ','
+      imei = self.splitedGpsData[16][5:]
+    except IndexError as e:
+      print "exception passed",e
+      self.channel.shutdown(2)
+      self.channel.close()
+      self.cursor.close()
+      return 0
+      
+    
     #===========================================================================
+    # Validate IMEI # and
     # check weather imei number is approved or not if it is not in approved_imei numbsers list connection will be closed
     #===========================================================================
     
+    if not self.isValidLuhnChecksum(imei):
+      print imei #only for debuging 
+      logging.warn("invalid IMEI >"+imei)
+      self.channel.shutdown(2)
+      self.channel.close()
+      self.cursor.close()
+      return 0
+      
     self.cursor.execute("select * from approved_imei")
     approvedImeiList = self.cursor.fetchall()
-    #print approvedImeiList
+    print approvedImeiList
+    print imei
+    #assert False
     for tuple in approvedImeiList:
       try:
-        if self.splitedGpsData[16][5:] == tuple[0]:
+        if imei == tuple[0]:
           self.approvedImei = True
           break
       except IndexError:
         print "IMEI number not recognized"
+        self.channel.shutdown(2)
         self.channel.close()
         self.cursor.close()
         return 0
-        
     
     if not self.approvedImei:
       print "Not an approved IMEI number, Waiting for new connection...."
       sql = """ insert IGNORE into not_approved_imei values("{}",{},"{}") """.format(self.splitedGpsData[16][5:],0,datetime.now())
       self.cursor.execute(sql)
+      self.channel.shutdown(2)
       self.channel.close()
       self.cursor.close()
       return 0
       
     #===========================================================================
-    # create function for store GPS data
+    # create function for store GPS data #futher work
     #===========================================================================
       
     while True:
@@ -142,12 +189,16 @@ class newConnection(threading.Thread):
         print "Device not connected to GPS satalites (lat long passing error)"
         continue #go for the next coordinate 
       
-      except IndexError:
-        print "Device disconnected from server"
-        print "\r \n \fwaiting for new connection current connections{}".format(threading.activeCount())
-        self.cursor.close()
-        self.channel.close()
-        break   
+      except IndexError as ie:
+        if not recivedDataFromGpsDevice:
+          print "Device disconnected from server" #but can't say device is disconnected have to modify this (according to a test result)
+          print "\r \n \fwaiting for new connection current connections{}".format(threading.activeCount())
+          self.cursor.close()
+          self.channel.shutdown(2)
+          self.channel.close()
+          return 0
+        print "Recived TCP packet error >",ie
+        continue 
      
         
       #=========================================================================
@@ -262,7 +313,7 @@ if __name__ == "__main__":
   time.sleep(0.1)
   print '|      | |      | |       | |        \     |  |   |                   '
   time.sleep(0.1)
-  print '|         \____/| |          \____/   \___/\  |_  |_              v0.4'
+  print '|         \____/| |          \____/   \___/\  |_  |_              v0.5'
   time.sleep(0.1)
   print '|______         | |_______                                            '
   time.sleep(0.1)

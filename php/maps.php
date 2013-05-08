@@ -26,7 +26,7 @@ if($_SERVER[REMOTE_ADDR] == '127.0.0.1'){
 }
 else
 include_once('./mysql/remote.php');
-print "<br/>";
+//print "<br/>";
 ?>
 <!DOCTYPE html>
 <html
@@ -227,8 +227,10 @@ function primeMover(serialNumber,imeiNumber,currentLat,currentLong,currentSatTim
 
 var jsonData;
 $(document).ready(
+          
 					function (){
-
+						//$("#functionButtons").toggle( { effect: "slide", direction: "up" ,distance:30});                    
+                      
                         // create map layer in webpage
 						createMap();
 						
@@ -285,8 +287,8 @@ $(document).ready(
  
 /*---------------------------------- ajaxCheck method----------------------------------*/
 
-function ajaxCheck(){
-						
+function ajaxCheck(){    
+     					$("#serverStatusImage").attr("src","../media/images/icons/serverStatus/status_red.png");
 						/* ----------------------- AJAX orginal method for getting Json data ---------------------- */
 						
 						$.ajax({
@@ -297,8 +299,9 @@ function ajaxCheck(){
 							}
 								).done(
 										function (jsonObject){
-                                                       
-											jsonData = jsonObject;
+                                            //alert(jsonObject); 
+                                            $("#serverStatusImage").attr("src","../media/images/icons/serverStatus/status_green.png");
+     										jsonData = jsonObject;
 											for(items in jsonData){
 												/* debug code to check recevied values from ajax 
 												alert(" Serial "+ jsonData[items]["serial"]+" IMEI "+ jsonData[items]["imei"]+" Latitude "+ jsonData[items]["latitude"]+" longitude "+ jsonData[items]["longitude"]+" Sat_time "+ jsonData[items]["sat_time"]);
@@ -509,35 +512,86 @@ $("#commonMessageBoxResultBox").html(loadingImage).load("./features/userActiviti
 
 	     
 }
+
+
+function setDecision(imeiNumber,decisionMade){
+//alert(imeiNumber+decisionMade);
+
+     $.post("./features/vehicleAuthenticationStatus.php",{"decision":decisionMade,"imei":imeiNumber}).done(
+          function(returnData){
+              if(decisionMade == "approve"){
+                  alert("<"+imeiNumber+">"+" will allowed to connect to main server")
+
+                  }
+        	  approveVehicles();
+              });
+     
+	     
+}
 </script>
 </head>
 <body
-     style="background-image: url('../media/images/backgrounds/map_background3.jpg'); background-size: cover; -moz-background-size: cover; -webkit-background-size: cover; margin: 0; padding: 0;">
+     style="background-image: url('../media/images/backgrounds/map_background6.jpg'); margin: 0; padding: 0;">
+<!-- for full page background style="background-image: url('../media/images/backgrounds/map_background3.jpg'); background-size: cover; -moz-background-size: cover; -webkit-background-size: cover; margin: 0; padding: 0;" -->
+<!-- Open street maps via leaflet javascript framework-->
+     <div id="map"
+          style="position: absolute; width: 95%; height: 100%; float: left; margin-left: 3%; margin-right: 3%; background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
+          OSM Layer
+
+
+
+          <div id="commonMessageBox"
+               style="position: relative; z-index: 4; width: 70%; height: 70%; margin-left: auto; margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none;">
+               <img onclick="$('#commonMessageBox').fadeOut('slow')"
+                    alt="Close" src="../media/images/logins/no.ico"
+                    style="position: relative; float: right; top: 0px;" />
+               <br /> <br /> <br />
+               <div id="commonMessageBoxResultBox"
+                    style="overflow: auto; height: 75%; position: relative; width: auto; margin-right: auto; margin-left: auto;">
+
+               </div>
+
+               <div id="datePicker"
+                    style="position: relative; margin-left: auto; margin-right: auto; width: 40%; display: none;">
+
+               </div>
+
+          </div>
+     </div>
+
+     <img style="position: fixed; float: right; margin: 0; padding: 0;"
+          id="serverStatusImage" alt="serverStatus"
+          src="../media/images/icons/serverStatus/status_yellow.png">
+
 
      <div id="functionButtons"
           style="position: relative; width: 80%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
 
-          <button id="approve_vehicles_to_map"
+          
+          
+<?php if($_SESSION["admin"] == TRUE) { ?>
+          <button style="color: red;" id="approve_vehicles_to_map"
                onclick="approveVehicles()" class="styled-button-10"
-               style="position: relative; margin-left: 40; margin-right: 40%;">Add
+               >Add
                Vehicles to map</button>
+          
+          <button id="getActivities" class="styled-button-8"
+               onclick="getActivities()" style="color: red;">Show Web
+               activities</button>
 
-          <button id="loguot_button" class="styled-button-8"
-               style="position: relative; float: right; margin: 0; padding: 0;"
-               onclick="window.location.href = './logout.php' ">Logout</button>
 
+               <?php }?>
 
           <button id="showVehicleHistory" class="styled-button-8"
                onclick="showVehicleHistory()">Show Vehicle History</button>
           <button id="get_administrators" class="styled-button-8"
                onclick="changeMap()">Change map type</button>
 
-<?php if($_SESSION["admin"] == TRUE) { ?>
-<button id="getActivities" class="styled-button-8"
-               onclick="getActivities()" style="color: red;">Show Web activities</button>
+               <button id="loguot_button" class="styled-button-8"
+               style="float: right;"
+               
+               onclick="window.location.href = './logout.php' ">Logout</button>
 
-
-<?php }?>
           <div id="ajax_result_div" style="position: relative;"></div>
 
 
@@ -554,32 +608,7 @@ $("#commonMessageBoxResultBox").html(loadingImage).load("./features/userActiviti
 
      </div>
 
-     <!-- Open street maps via leaflet javascript framework-->
-     <div id="map"
-          style="position: relative; width: 95%; height: 88%; float: left; margin-left: 3%; margin-right: 3%; background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
-          OSM Layer
-
-
-
-          <div id="commonMessageBox"
-               style="position: relative; z-index: 4; width: 70%; height: 70%; margin-left: auto; margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none;">
-               <img onclick="$('#commonMessageBox').fadeOut('slow')"
-                    alt="Close" src="../media/images/logins/no.ico"
-                    style="position: relative; float: right; top: 0px;" />
-               <br /> <br /> <br />
-               <div id="commonMessageBoxResultBox"
-                    style="overflow: auto; height: 75%; position: relative; width: auto;margin-right: auto;margin-left: auto;">
-
-               </div>
-
-               <div id="datePicker"
-                    style="position: relative; margin-left: auto; margin-right: auto; width: 40%; display: none;">
-                    
-               </div>
-
-          </div>
-     </div>
-
+     
      <script type="text/javascript">
 		
 
@@ -588,6 +617,17 @@ $("#commonMessageBoxResultBox").html(loadingImage).load("./features/userActiviti
 	</script>
      <!-- Open street maps via leaflet javascript framework  end -->
 
+
+
+     <img id="serverStatusImage" style="display: none;"
+          alt="serverStatus"
+          src="../media/images/icons/serverStatus/status_yellow.png" />
+     <img id="serverStatusImage" style="display: none;"
+          alt="serverStatus"
+          src="../media/images/icons/serverStatus/status_red.png" />
+     <img id="serverStatusImage" style="display: none;"
+          alt="serverStatus"
+          src="../media/images/icons/serverStatus/status_green.png" />
 </body>
 
 </html>

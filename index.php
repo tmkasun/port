@@ -283,6 +283,7 @@ if(isset($_SESSION["computer_number"])){
 		style="position: absolute; bottom: 0px; float: right; right: 0px; color: #898989; font-size: 10pt;"><?php print "Last modified: " . date ("F d Y H:i", getlastmod()); ?>
 		<!-- &copy;-ḱß﹩◎ƒ☂ --> </a>
 
+
 </body>
 
 </html>

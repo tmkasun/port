@@ -23,12 +23,12 @@ if(!isset($_SESSION["computer_number"])){
 ?>
 <html>
 
-<img alt='Google maps' width='50%' onclick="changeMapTileServer('googleMap')" src='../media/images/icons/googleMaps.png'/><br/>Google Maps<br/>
-<img alt='Opeen Streat Maps' width='50%' onclick="changeMapTileServer('OSM')" src='../media/images/icons/openStreet.png'/><br/>Open Street Maps <br/>
+<img alt='Google maps' width='50%' onclick="changeMapTileServer('googleMap')" src='../media/images/icons/googleMaps.png'/><br/><span style="color: fuchsia;">Google Maps</span><br/>
+<img alt='Opeen Streat Maps' width='50%' onclick="changeMapTileServer('OSM')" src='../media/images/icons/openStreet.png'/><br/><span style="color: fuchsia;">Open Street Maps </span><br/>
 
-<img alt='Local GoogleMaps' width='50%' onclick="changeMapTileServer('localGoogleMaps')" src='../media/images/icons/network_local.png'/><br/>Googel Maps (Local)<br/>
-<img alt='Local virtualEarth' width='50%' onclick="changeMapTileServer('localVirtualEarth')" src='../media/images/icons/network_local.png'/><br/>Virtual Earth (Local)<br/>
-<img alt='Local OpenStreetMap' width='50%' onclick="changeMapTileServer('OpenStreetMap')" src='../media/images/icons/network_local.png'/><br/>Open Street Maps (Local)<br/>
+<img alt='Local GoogleMaps' width='50%' onclick="changeMapTileServer('localGoogleMaps')" src='../media/images/icons/network_local.png'/><br/><span style="color: fuchsia;">Googel Maps (Local)</span><br/>
+<img alt='Local virtualEarth' width='50%' onclick="changeMapTileServer('localVirtualEarth')" src='../media/images/icons/network_local.png'/><br/><span style="color: fuchsia;">Virtual Earth (Local)</span><br/>
+<img alt='Local OpenStreetMap' width='50%' onclick="changeMapTileServer('OpenStreetMap')" src='../media/images/icons/network_local.png'/><br/><span style="color: fuchsia;">Open Street Maps (Local)</span><br/>
 
 
 </html>

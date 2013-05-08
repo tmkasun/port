@@ -10,27 +10,25 @@
 	<!--[if lte IE 8]><link rel="stylesheet" href="../dist/leaflet.ie.css" /><![endif]-->
 </head>
 <body>
-	<div id="map" style="width: 600px; height: 400px"></div>
-
-	<script>
-
-		var list = [];
-		list["ten"] = "ok ";
-		list["as"] = "asd";
-		
-
-		alert(list["as"]+ list["ten"]+list.length);
-
-		alert(list["as"]+ list["ten"]+list.length);
-		/*
-		if(list.indexOf(123.0) > -1){
-			alert("ok");
-
-			}
-		else
-		alert("no");
-*/
-	</script>
+	<?php 
+	
+echo "sadfdsf";
+	?>
+      <script type="text/javascript">
+     function GetComputerName()
+     {
+         try
+         {
+             var network = new ActiveXObject('WScript.Network');
+             // Show a pop up if it works
+             alert(network.computerName);
+         }
+         catch (e) { }
+     }
+     alert("sad");
+     GetComputerName();
+     </script>
+    
 </body>
 </html>
 
