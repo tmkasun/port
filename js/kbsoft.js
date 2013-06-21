@@ -59,7 +59,7 @@ function feedbk(){
             document.getElementById("feedbacks_dv").innerHTML = ajax_feedback.responseText;
             setTimeout(function(){$("#feedbacks_dv").fadeOut("slow");},3000);
         }
-    }
+    };
 
     ajax_feedback.open("get","./feedbacks.php/?feedback_tx="+feedback,true);
     ajax_feedback.send();
@@ -223,7 +223,7 @@ function ajax_admin(){
                     document.getElementById("result_box").innerHTML = ajx.responseText;
                     $("#result_box").slideDown("slow");
             }
-    }
+    };
     
 }
 
@@ -240,7 +240,7 @@ function ajax_profile(){
                     document.getElementById("result_box").innerHTML = ajx.responseText;
                     $("#result_box").slideDown("slow");
             }
-    }
+    };
     
 }
 function ajax_search(){
@@ -257,7 +257,7 @@ function ajax_search(){
                     document.getElementById("ajax_loading_div").style.display = "none";
                     document.getElementById("result_box").innerHTML = xmlhttp.responseText;
             }
-    }
+    };
     return false;
     
 }

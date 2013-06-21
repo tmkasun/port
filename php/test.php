@@ -10,25 +10,13 @@
 	<!--[if lte IE 8]><link rel="stylesheet" href="../dist/leaflet.ie.css" /><![endif]-->
 </head>
 <body>
-	<?php 
-	
-echo "sadfdsf";
-	?>
-      <script type="text/javascript">
-     function GetComputerName()
-     {
-         try
-         {
-             var network = new ActiveXObject('WScript.Network');
-             // Show a pop up if it works
-             alert(network.computerName);
-         }
-         catch (e) { }
-     }
-     alert("sad");
-     GetComputerName();
-     </script>
-    
+
+<script type="text/javascript">
+
+var list[];
+
+</script>
+
 </body>
 </html>
 

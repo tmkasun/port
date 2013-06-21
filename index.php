@@ -56,6 +56,7 @@ if(isset($_SESSION["computer_number"])){
 			}			
 
 		//block tring after 3 attempt end--
+		
 			//ajax supported loging method
 			var signin_ajax = new XMLHttpRequest();
 			function ajax_return(){
@@ -278,9 +279,16 @@ if(isset($_SESSION["computer_number"])){
 	</div>
 	<a
 		style="position: absolute; bottom: 0px; float: right; color: #898989; font-size: 10pt;">V
-		1.0 </a>
+		1.1 </a>
+		<div style="position: absolute; bottom: 0px;  right: 0px; color: #898989; font-size: 10pt;">
+		<a  rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/deed.en_US"><img  alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/88x31.png" /></a>
+		<span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Server Program</span> by 
+		<a xmlns:cc="http://creativecommons.org/ns#" href="slpa.knnect.com" property="cc:attributionName" rel="cc:attributionURL">SysCall</a> 
+		is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/deed.en_US">Creative Commons Attribution-NonCommercial 3.0 Unported License</a>.
+		Based on a work at <a xmlns:dct="http://purl.org/dc/terms/" href="track.slpa.lk" rel="dct:source">track.slpa.lk</a>.Permissions beyond the scope of this license may be available at <a xmlns:cc="http://creativecommons.org/ns#" href="track.slpa.lk/cc" rel="cc:morePermissions">track.slpa.lk/cc</a>.
+</div>
 	<a
-		style="position: absolute; bottom: 0px; float: right; right: 0px; color: #898989; font-size: 10pt;"><?php print "Last modified: " . date ("F d Y H:i", getlastmod()); ?>
+		style="position: absolute; bottom: 0px; float: right; right: 0px; color: #898989; font-size: 10pt;">
 		<!-- &copy;-ḱß﹩◎ƒ☂ --> </a>
 
 

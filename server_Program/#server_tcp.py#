@@ -1,14 +1,14 @@
 #! /usr/bin/python
 
 #===============================================================================
-# PortAuthority project  (syscall 001)
+# Port Authority project  (SysCall 001)
 # 
 # portp/server/port-listner/main
 # 
-# A uthor: syscall
+# Author: SysCall
 # Creation date: 01th january 2013 #@bug: not sure
 # 
-# © Moratuwa University 2013
+# Â© Moratuwa University 2013
 # 
 # # # Modification history
 # Version     Modifier     Date         Change         Reason

@@ -131,6 +131,8 @@ include_once('./mysql/remote.php');
 /* ------------------------------------ current browser (client) displaying imei numbers ------------------------------------ */
 
 var currentVehicleList = []; //current browser (client) displaying imei numbers
+var totalNumberOfPrimovers = 0;
+var currentOnlinePrimovers = 0;
 //currentVehicleList.push("newVehicleimeiNumber");
 
 /* ------------------------------------ end------------------------------------ */
@@ -157,7 +159,7 @@ var currentVehicleList = []; //current browser (client) displaying imei numbers
 function createMap(){
  	 
 	map = L.map('map').setView([7.059000, 79.96119], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
-	tiles = L.tileLayer(tileServerList["localhost"], { //set tile server URL for openStreet maps 
+	tiles = L.tileLayer(tileServerList["openStreetMaps"], { //set tile server URL for openStreet maps 
 		maxZoom: 18,
         minZoom: 0,
         //zoomOffset: 1,
@@ -165,8 +167,8 @@ function createMap(){
 		//zoomReverse : true,
 		attribution: 'Srilanka Port Authority'
 			}).addTo(map);
-	prime_mover_icon = L.icon({
-		iconUrl : "../media/images/map/prime_mover_icon.png",
+	prime_mover_icon_offline = L.icon({
+		iconUrl : "../media/images/map/prime_mover_icon_offline.png",
 		//shadowUrl: '',
 
 		iconSize: [48,48],
@@ -175,7 +177,15 @@ function createMap(){
 		popupAnchor: [-2,-5] //[-3,-76]
 		});
 
-	
+	prime_mover_icon_online = L.icon({
+		iconUrl : "../media/images/map/prime_mover_icon_online.png",
+		//shadowUrl: '',
+
+		iconSize: [48,48],
+		//shadowSize: [0,0],
+		iconAnchor: [0,+25],
+		popupAnchor: [-2,-5] //[-3,-76]
+		});
 	
 }
 
@@ -186,7 +196,8 @@ function createMap(){
 
 /* ------------------------------------ Setup map layer @ documnt loading time ------------------------------------ */
 
-var prime_mover_icon; 
+var prime_mover_icon_offline; 
+var prime_mover_icon_online;
 //$(document).ready();
 
 /* ------------------------------------ end------------------------------------ */
@@ -195,7 +206,7 @@ var prime_mover_icon;
 
 /* ------------------------------------ javaScript prime mover object ------------------------------------ */
 
-function primeMover(serialNumber,imeiNumber,currentLat,currentLong,currentSatTime,vehicleNumber,markerObject){
+function primeMover(serialNumber,imeiNumber,currentLat,currentLong,currentSatTime,vehicleNumber,markerObject,currentSpeed){
 	
 	this.vehicleRegistrationNumber = vehicleNumber;
 	this.imeiNumber = imeiNumber;
@@ -203,6 +214,7 @@ function primeMover(serialNumber,imeiNumber,currentLat,currentLong,currentSatTim
 	this.currentLat = currentLat;
 	this.currentLong = currentLong;
 	this.currentSatTime = currentSatTime;
+     this.currentSpeed = currentSpeed;
 	this.marker = markerObject;
 	this.foo = function foo(){ // or can use foo; and then declare function
 		
@@ -239,8 +251,8 @@ $(document).ready(
 						$.ajax({
 							url:"maps_ajax.php",
 							dataType : "json",
-							type : "GET",
-							data : ""
+							type : "POST",
+							data : {"firstTime":"yes"}
 							}
 								).done(
 										function (jsonObject){
@@ -252,28 +264,35 @@ $(document).ready(
 												*/
 
 												/* ------------------------------------- Prevent addnig already exsisted vehicle to the map (no overlapping tow vehicles)-------------------------------------*/
-												if(jsonData[items]["imei"] in currentVehicleList){
-													//alert("Already In The Vehicle List");
+												
+                                                            if(jsonData[items]["imei"] in currentVehicleList){
 													currentVehicleList[jsonData[items]["imei"]].marker.setLatLng([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])]);
-													alert("New Lat Long has been set");
-
+													
 													break;
 													}
 												
 												var imeiNumberAsKey = String(jsonData[items]["imei"]);
-												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["serial"], jsonData[items]["imei"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker");
+												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["serial"], jsonData[items]["imei"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
 												//alert(currentVehicleList[imeiNumberAsKey].imeiNumber);
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
 												message = '<?php if($_SESSION["admin"] == TRUE) echo "Administrator Features";else echo "Normal User Features";  ?>';//Display administrator elements 
-												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon}).addTo(map);
-												popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"+jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul>"+"<font style='color:blue'>"+message+"</font>";
-												currentVehicleList[imeiNumberAsKey].marker.bindPopup(popupCSSdisplay);//.openPopup() for open popup at the begining
-												setInterval(ajaxCheck, 1000);
+												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_offline}).addTo(map);
+												//popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"+jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul>"+"<font style='color:blue'>"+message+"</font>";
+												popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"
+                                                                      +jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul><br/>"
+                                                                      +"<font style='color:blue'>"+message+"</font>"
+                                                                      +"<br/> Current speed is <span style='color:green'> "+currentVehicleList[jsonData[items]["imei"]].currentSpeed+"</span>Kmph";
 
+                                                            
+                                                            currentVehicleList[imeiNumberAsKey].marker.bindPopup(popupCSSdisplay);//.openPopup() for open popup at the begining
+												totalNumberOfPrimovers +=1;
 												
 														}
 											map.setView([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])], 15);
+                                            $("#totalRegisterdPrimovers").html(totalNumberOfPrimovers); 
+	                                        setInterval(ajaxCheck, 1000);
+                                                       
 											}
 										
 										
@@ -287,7 +306,8 @@ $(document).ready(
  
 /*---------------------------------- ajaxCheck method----------------------------------*/
 
-function ajaxCheck(){    
+function ajaxCheck(){   
+	
      					$("#serverStatusImage").attr("src","../media/images/icons/serverStatus/status_red.png");
 						/* ----------------------- AJAX orginal method for getting Json data ---------------------- */
 						
@@ -299,10 +319,14 @@ function ajaxCheck(){
 							}
 								).done(
 										function (jsonObject){
-                                            //alert(jsonObject); 
+                                            //alert(jsonObject);
+                                            currentOnlinePrimovers = 0;
                                             $("#serverStatusImage").attr("src","../media/images/icons/serverStatus/status_green.png");
      										jsonData = jsonObject;
+                                            offlinePrimovers = currentVehicleList;
+                                            
 											for(items in jsonData){
+												currentOnlinePrimovers +=1;
 												/* debug code to check recevied values from ajax 
 												alert(" Serial "+ jsonData[items]["serial"]+" IMEI "+ jsonData[items]["imei"]+" Latitude "+ jsonData[items]["latitude"]+" longitude "+ jsonData[items]["longitude"]+" Sat_time "+ jsonData[items]["sat_time"]);
 												*/
@@ -310,25 +334,35 @@ function ajaxCheck(){
 												/* ------------------------------------- Prevent addnig already exsisted vehicle to the map (no overlapping tow vehicles)-------------------------------------*/
 												if(jsonData[items]["imei"] in currentVehicleList){
 													//alert("Already In The Vehicle List"+jsonData[items]["imei"]);
-													currentVehicleList[jsonData[items]["imei"]].marker.setLatLng([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])]);
+	                                                currentVehicleList[jsonData[items]["imei"]].marker.setLatLng([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])]);
+													currentVehicleList[jsonData[items]["imei"]].currentSpeed =  jsonData[items]["speed"];     
+													currentVehicleList[jsonData[items]["imei"]].marker.setIcon(prime_mover_icon_online);                    
 													//alert("New Lat Long has been set");
 													message = '<?php if($_SESSION["admin"] == TRUE) echo "Administrator Features";else echo "Normal User Features";  ?>';
-													popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"+jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul><br/>"+"<font style='color:blue'>"+message+"</font>";
-													currentVehicleList[jsonData[items]["imei"]].marker._popup.setContent(popupCSSdisplay);
+													popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"
+                                                                      +jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul><br/>"
+                                                                      +"<font style='color:blue'>"+message+"</font>"
+                                                                      +"<br/> Current speed is <span style='color:green'> "+currentVehicleList[jsonData[items]["imei"]].currentSpeed+"</span>Kmph";
 
+
+                    													currentVehicleList[jsonData[items]["imei"]].marker._popup.setContent(popupCSSdisplay);
 													continue;
 													}
 												/* Add new vehicle to map if it is not in the currentVehicleList list*/
 												var imeiNumberAsKey = String(jsonData[items]["imei"]);
-												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["serial"], jsonData[items]["imei"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker");
+												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["serial"], jsonData[items]["imei"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
 												//alert(currentVehicleList[imeiNumberAsKey].imeiNumber);
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
 
-												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon}).addTo(map);
+												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_online}).addTo(map);
 												currentVehicleList[imeiNumberAsKey].marker.bindPopup("<b>GPS/GPRS Device imei Number</b><br>Vehicle Registration Number");//.openPopup() for open popup at the begining
 												//alert("Vehicle Add Compleated");
+												
 														}
+											$("#currentOnlinePrimovers").html(currentOnlinePrimovers);
+                                             
+
 											
 											}
 										
@@ -520,7 +554,7 @@ function setDecision(imeiNumber,decisionMade){
      $.post("./features/vehicleAuthenticationStatus.php",{"decision":decisionMade,"imei":imeiNumber}).done(
           function(returnData){
               if(decisionMade == "approve"){
-                  alert("<"+imeiNumber+">"+" will allowed to connect to main server")
+                  alert("<"+imeiNumber+">"+" will allowed to connect to main server");
 
                   }
         	  approveVehicles();
@@ -532,8 +566,8 @@ function setDecision(imeiNumber,decisionMade){
 </head>
 <body
      style="background-image: url('../media/images/backgrounds/map_background6.jpg'); margin: 0; padding: 0;">
-<!-- for full page background style="background-image: url('../media/images/backgrounds/map_background3.jpg'); background-size: cover; -moz-background-size: cover; -webkit-background-size: cover; margin: 0; padding: 0;" -->
-<!-- Open street maps via leaflet javascript framework-->
+     <!-- for full page background style="background-image: url('../media/images/backgrounds/map_background3.jpg'); background-size: cover; -moz-background-size: cover; -webkit-background-size: cover; margin: 0; padding: 0;" -->
+     <!-- Open street maps via leaflet javascript framework-->
      <div id="map"
           style="position: absolute; width: 95%; height: 100%; float: left; margin-left: 3%; margin-right: 3%; background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
           OSM Layer
@@ -565,16 +599,15 @@ function setDecision(imeiNumber,decisionMade){
 
 
      <div id="functionButtons"
-          style="position: relative; width: 80%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
+          style="position: relative; width: 85%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
 
-          
-          
-<?php if($_SESSION["admin"] == TRUE) { ?>
+
+
+          <?php if($_SESSION["admin"] == TRUE) { ?>
           <button style="color: red;" id="approve_vehicles_to_map"
-               onclick="approveVehicles()" class="styled-button-10"
-               >Add
+               onclick="approveVehicles()" class="styled-button-10">Add
                Vehicles to map</button>
-          
+
           <button id="getActivities" class="styled-button-8"
                onclick="getActivities()" style="color: red;">Show Web
                activities</button>
@@ -586,10 +619,10 @@ function setDecision(imeiNumber,decisionMade){
                onclick="showVehicleHistory()">Show Vehicle History</button>
           <button id="get_administrators" class="styled-button-8"
                onclick="changeMap()">Change map type</button>
+               <a id="currentVehicleStatus" style="color: red;font-size: small;">Total Primovers <span id = "totalRegisterdPrimovers" style="color: activecaption;font-size: x-large;"></span> Online Primovers <span id = "currentOnlinePrimovers" style="color: aqua;font-size: x-large;"></span>  </a>
 
-               <button id="loguot_button" class="styled-button-8"
+          <button id="loguot_button" class="styled-button-8"
                style="float: right;"
-               
                onclick="window.location.href = './logout.php' ">Logout</button>
 
           <div id="ajax_result_div" style="position: relative;"></div>
@@ -608,7 +641,7 @@ function setDecision(imeiNumber,decisionMade){
 
      </div>
 
-     
+
      <script type="text/javascript">
 		
 
