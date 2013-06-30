@@ -1,8 +1,9 @@
-<?php session_start();
+﻿<?php session_start();
 
 if(isset($_SESSION["computer_number"])){
      header('Location: ./php/maps.php');
-     
+
+  //testing Dinuka    
      
 }
 
