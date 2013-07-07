@@ -154,7 +154,7 @@ var currentOnlinePrimovers = 0;
      }
  var map; // map object global variable
  
- tileServerList = {"mapbox":"http://api.tiles.mapbox.com/v2/sysccall.map-wuiel8n4/{z}/{x}/{y}.png","cloudeMade":"http://{s}.tile.cloudmade.com/45b5101290e74ac29b24ff40cfd7e3ab/1/256/{z}/{x}/{y}.png","localhost":"http://track.slpa.lk/tiles/GoogleMaps/{z}/{x}/{y}.png","googleHybrid":"http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}","googleMaps":"http://khm1.google.com/kh/v=49&x=[x]&y=[y]&z=[z]","openStreetMaps":"http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"};
+ tileServerList = {"mapbox":"http://api.tiles.mapbox.com/v2/sysccall.map-wuiel8n4/{z}/{x}/{y}.png","cloudeMade":"http://{s}.tile.cloudmade.com/45b5101290e74ac29b24ff40cfd7e3ab/1/256/{z}/{x}/{y}.png","localhost":"http://slpa.local.knnect.com/tiles/GoogleMaps/{z}/{x}/{y}.png","googleHybrid":"http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}","googleMaps":"http://khm1.google.com/kh/v=49&x=[x]&y=[y]&z=[z]","openStreetMaps":"http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"};
  
 function createMap(){
  	 
@@ -415,15 +415,15 @@ function changeMapTileServer(ServerName){
         break;
 
     case "localGoogleMaps":
-     tiles.setUrl("http://track.slpa.lk/tiles/GoogleMaps/{z}/{x}/{y}.png");
+     tiles.setUrl("http://slpa.local.knnect.com/tiles/GoogleMaps/{z}/{x}/{y}.png");
         break;      
     case "localVirtualEarth":
      
-        tiles.setUrl("http://track.slpa.lk/tiles/OSM_sat_tiles/{z}/{x}/{y}.png");
+        tiles.setUrl("http://slpa.local.knnect.com/tiles/OSM_sat_tiles/{z}/{x}/{y}.png");
         break;
 
     case "OpenStreetMap":
-            tiles.setUrl("http://track.slpa.lk/tiles/OpenStreetMap/{z}/{x}/{y}.png");
+            tiles.setUrl("http://slpa.local.knnect.com/tiles/OpenStreetMap/{z}/{x}/{y}.png");
         break;  
 
           }

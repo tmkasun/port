@@ -6,6 +6,6 @@ tiles/
 **/*~
 *~
 **/.*
-media/*
+media/
 **/**.conf
 
