@@ -55,7 +55,7 @@ def haversineDistance(oldLatitude,oldLongitude,newLatitude,newLongitude):
 # Getting the time difference of the last record and the newly arrived records
 #================================================================================
 def timeDifference(oldTime,newTime):
-    #tobe implemented
+    #to be implemented
     return 11
 
 #================================================================================
@@ -64,20 +64,10 @@ def timeDifference(oldTime,newTime):
 #================================================================================
 def checkOptimize(oldTime,newTime,oldLat,oldLon,newLat,newLon):
     _minTime_ = 10 # minimum time is 10 seconds
-    _minDistance_ = 10 # minimum distance allowed is 10 meters    
+    _minDistance_ = 10 # minimum distance allowed is 10 meters
     distance = haversineDistance(oldLat,oldLon,newLat,newLon)
     dTime = timeDifference(oldTime,newTime)
     if distance<=_minDistance_ and dTime<=_minTime_:
         return 1
     else:
         return 0
-
-    
-
-    
-    
-    
-
-
-
-    
