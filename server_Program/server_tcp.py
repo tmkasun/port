@@ -1,5 +1,6 @@
 #! /usr/bin/python
 from dis import dis
+import sys
 
 #===============================================================================
 # PortAuthority project  (syscall 001)
@@ -63,7 +64,9 @@ not malicious attacks. Most credit cards and many government identification numb
 
 import threading
 # import Queue
-import socket
+from gpsString import *
+from newConnection import *
+import socket #documentation http://docs.python.org/2/howto/sockets.html , http://docs.python.org/2/library/socket.html
 from fileinput import filename
 try:
 	# try to install MySQLdb module
@@ -71,7 +74,7 @@ try:
 
 except ImportError:
   # apt get code apt-get install python-mysqldb
-  print "Import faild MySql Database module "
+  print "Import failed MySql Database module "
 
 import time
 from datetime import datetime
@@ -81,67 +84,71 @@ logging.basicConfig(filename="server_tcp.log", format='The event %(levelname)s w
 
 # global variables for use
 
-
-def createSocket(portNumber=9090, serverIP=""):
-  server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  serverIP = ""
-  port = portNumber
-  server.bind((serverIP, port))
-  server.listen(5)
-  server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-  print "Socket created on IP {} port {} ".format(serverIP, port)
-  return server
-
-# CSV string which we reciving from GPS device is considered as an object
-class gpsString:
-	def __init__(self, recivedString):
-		#=========================================================================
-		# need to debug firmware info and alarm - move, speed, batteries, help me! or "" after F or L Signal quality		F
-		#=========================================================================
-		self.splitedGpsData = recivedDataFromGpsDevice.split(',')	# split string by ','
-		
+def main():
+	startupAnimation()
+	configInfoDict = configServer()
+  
+  # log programm activities
+	logging.info("main process started")
 	
+  # Set up the Socket:
+	while True:
+		try:
+			serverSocket = createSocket(int(configInfoDict.get("serverPort")), configInfoDict.get("serverIP"))
+			if serverSocket:
+				break
+			
+		except socket.error:
+			print "Delaying connection for 5 seconds due to previously failed connection attempt..."
+			time.sleep(5)
+			continue
 
+	while True:
+		print "Current Connections= {}".format(threading.activeCount()-1)
+		newConnection(serverSocket.accept(), configInfoDict.get("databaseIP"), configInfoDict.get("dbUser"), configInfoDict.get("dbPassword")).start()
+
+
+#new Connection object for every connection creat between GPS/GPRS device and local server
 class newConnection(threading.Thread):
   def __init__(self, detailsPair, databaseIP, dbUser, dbPassword):
     channel , address = detailsPair
     self.channel = channel
     self.address = address
-    self.approvedImei = False
+    #self.approvedImei = False # this has been moved to gpsObject class
     self.splitedGpsData = ''
     self.connectToDB(databaseIP, dbUser, dbPassword)
     threading.Thread.__init__(self)
-	
-  def disconnect(self,reson="No reson specified"):
-		logging.warn("Connection has been disconnected due to >" + reson)
-		self.channel.shutdown(2)
-		self.channel.close()
-		self.cursor.close()
-		return 0
-
-		
+  
   def connectToDB(self, databaseIP, dbUser, dbPassword):
     # Open database connection
     self.connection = MySQLdb.connect(databaseIP, dbUser, dbPassword)
     self.connection.select_db("syscall")
     self.cursor = self.connection.cursor()
-
-  def isValidLuhnChecksum(self, card_number):
-    def digits_of(n):
-        return [int(d) for d in str(n)]
-    digits = digits_of(card_number)
-    odd_digits = digits[-1::-2]
-    even_digits = digits[-2::-2]
-    checksum = 0
-    checksum += sum(odd_digits)
-    for d in even_digits:
-        checksum += sum(digits_of(d * 2))
-    return checksum % 10 == 0
-
+  
+  def disconnect(self,reson="No reson specified"):
+    logging.warn("Connection has been disconnected due to >" + reson)
+    if self.cursor:
+     	self.cursor.close()
+    if self.channel:
+     	self.channel.shutdown(2)
+    	self.channel.close()
+    return False
+   
+  def reciveGpsData(self):  		
+		try:
+			recivedDataFromGpsDevice = self.channel.recv(4096)	# 4096 is the buffer size
+			#print recivedDataFromGpsDevice # for debuging only
+			
+		except socket.error as e:
+			logging.error(e)
+		
+		return recivedDataFromGpsDevice
+		
+		
+  	
+  
   # this method is called when thread is created
   def run(self):
-    print "Device connected from {} via its port {}".format(self.address[0], self.address[1])
-
     #===========================================================================
     # for track startup and switch off time of GPS device , when device switch swithc on/off #to be impliment
     #===========================================================================
@@ -151,92 +158,78 @@ class newConnection(threading.Thread):
     # to be implimented log incompatible IMEI patterns request while checking IMEI patter befor continuing
     # allow viewing server connection log via web page
     #===========================================================================
-
-    recivedDataFromGpsDevice = self.channel.recv(2048)  # 2048 is the buffer size
-
-    try:
-      self.splitedGpsData = recivedDataFromGpsDevice.split(',')  # split string by ','
-      imei = self.splitedGpsData[16][5:]
-    except IndexError as e:
-      print "exception passed", e
-      self.disconnect(e)
-      return 0
-
-		# impliment object close method when disconnecting the connection
-    #===========================================================================
-    # Validate IMEI # and
-    # check weather imei number is approved or not if it is not in approved_imei numbsers list connection will be closed
-    #===========================================================================
-
-    if not self.isValidLuhnChecksum(imei):
-      print imei  # only for debuging
-      self.disconnect("invalid"+imie)
-      return 0
-
-    self.cursor.execute("select * from approved_imei")
-    approvedImeiList = self.cursor.fetchall()
-    print approvedImeiList
-    print imei
-    # assert False
-    for tuple in approvedImeiList:
-      try:
-        if imei == tuple[0]:
-          self.approvedImei = True
-          break
-      except IndexError:
-        print "IMEI number not recognized"
-        self.disconnect("IMEI number not recognized")
-        return 0
-
-    if not self.approvedImei:
-      print "Not an approved IMEI number, Waiting for new connection...."
-      
-      #save imie number in the database for the approval from an administrator
-      sql = """ insert IGNORE into not_approved_imei values("{}",{},"{}") """.format(self.splitedGpsData[16][5:], 0, datetime.now())
-      self.cursor.execute(sql)
-      
-      self.disconnect("Not an approved IMEI number")
-      return 0
-
-    #===========================================================================
+    print "Device connected from {} via its port {}".format(self.address[0], self.address[1])
+    
+    gpsObject = gpsString(self.reciveGpsData())
+    
+    print "---------Initial check complete---------\n gpsObject is {}".format(gpsObject.isValidGpsString) #for debuging use only
+    
+    #check this algo short curcuite matter?
+    if not (gpsObject.isValidGpsString and gpsObject.validateVehicleFromDB(self.cursor)):#pass the connection cursor to validator
+    	print "Recived GPS String is invalid" # for debuging purpose
+    	self.disconnect("Recived GPS String is invalid")
+    	return False
+    
+    print "-----Continue to recive data IMEI number is valid and approved -----"
+    
     # finally if everything went correctly , set online status 1 to that truck
-    #===========================================================================
-    connectionImei = imei  # this `connectionImei` i s created to use on when device disconnected from device
-    setOnlineFlag = """insert into vehicle_status values("{}",now(),null,1) ON DUPLICATE KEY update connected_on = now() , current_status = 1""".format(imei)
+    connectionImei = gpsObject.imei  # this `connectionImei` i s created to use on when device disconnected from device
+    #current_status = 1 means online 0 means offline
+    setOnlineFlag = """insert into vehicle_status values("{}",now(),null,1) ON DUPLICATE KEY update connected_on = now() , current_status = 1""".format(gpsObject.imei)
     self.cursor.execute(setOnlineFlag)
-
+    reTryCount = 0
     while True:
-      recivedDataFromGpsDevice = self.channel.recv(2048)  # 2048 is the buffer size
-      gpsDataObject = self.gpsString(recivedDataFromGpsDevice)
+      #recivedDataFromGpsDevice = self.channel.recv(2048)  # 2048 is the buffer size
+      gpsObject = gpsString(self.reciveGpsData())
+      
+      if not gpsObject.isValidGpsString:
+      	reTryCount +=1
+      	print "Device has been disconnected from remote end retrying {}".format(reTryCount)
+      	if reTryCount > 2:
+      		setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
+        	self.cursor.execute(setOnlineFlag)
+	       	self.disconnect("Device has been disconnected from remote end")
+	      	print "Retrying Faild"
+	      	return False
+      	continue
+      	
+      elif not gpsObject.isConnectedToSatellites:
+      	print "Device is not connected to GPS Satellites"
+      	continue #waiting to connect device to GPS Satellites
+      
+      #print "imei = {} \n isValidGpsString = {} \n isConnectedToSatellites = {}".format(gpsObject.imei,gpsObject.isValidGpsString,gpsObject.isConnectedToSatellites)
+      #continue
+      #assert False
+
       
       #===============================================================================
       # Decode sat longitude and latitude
       #===============================================================================
 
-      try:
-        latitude = float(self.splitedGpsData[5][:2]) + float(self.splitedGpsData[5][2:]) / 60.0
-        longitude = float(self.splitedGpsData[7][:3]) + float(self.splitedGpsData[7][3:]) / 60.0
-        imei = self.splitedGpsData[16][5:]
-        # for better reliability, even can use `connectionImei`
+#       try:
+#         latitude = float(self.splitedGpsData[5][:2]) + float(self.splitedGpsData[5][2:]) / 60.0
+#         longitude = float(self.splitedGpsData[7][:3]) + float(self.splitedGpsData[7][3:]) / 60.0
+#         imei = self.splitedGpsData[16][5:]
+#         # for better reliability, even can use `connectionImei`
+# 
+#       except ValueError:
+#         print "Device not connected to GPS satalites (lat long passing error)"
+#         continue  # go for the next coordinate
+# 
+#       except IndexError as ie:
+#         if not recivedDataFromGpsDevice:
+#           print "Device disconnected from server"  # but can't say device is disconnected have to modify this (according to a test result)
+#           print "\r \n \fwaiting for new connection current connections{}".format(threading.activeCount())
+#           setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
+#           self.cursor.execute(setOnlineFlag)
+#           self.cursor.close()
+#           self.channel.shutdown(2)
+#           self.channel.close()
+#           return 0
+#         print "Recived TCP packet error >", ie
+#         continue
 
-      except ValueError:
-        print "Device not connected to GPS satalites (lat long passing error)"
-        continue  # go for the next coordinate
-
-      except IndexError as ie:
-        if not recivedDataFromGpsDevice:
-          print "Device disconnected from server"  # but can't say device is disconnected have to modify this (according to a test result)
-          print "\r \n \fwaiting for new connection current connections{}".format(threading.activeCount())
-          setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
-          self.cursor.execute(setOnlineFlag)
-          self.cursor.close()
-          self.channel.shutdown(2)
-          self.channel.close()
-          return 0
-        print "Recived TCP packet error >", ie
-        continue
-
-
+			
       #=========================================================================
       # for debugging purpose only check weather values are in order
       #=========================================================================
@@ -253,16 +246,16 @@ class newConnection(threading.Thread):
 #
       print "Receiving GPS coordinates....(Thread Name: {})".format(self.getName())
 
-      try:
-        date = self.splitedGpsData[11][4:] + self.splitedGpsData[11][2:4] + self.splitedGpsData[11][:2]
-        sat_time = date + self.splitedGpsData[3]
-      except IndexError:
-        print "Satellite Time Error: Exception passed"
-        pass
+#       try:
+#         date = self.splitedGpsData[11][4:] + self.splitedGpsData[11][2:4] + self.splitedGpsData[11][:2]
+#         sat_time = date + self.splitedGpsData[3]
+#       except IndexError:
+#         print "Satellite Time Error: Exception passed"
+#         pass
 
       try:
-        print sat_time
-        sql = """ insert into coordinates(serial,phone_number,sat_time,sat_status,latitude,longitude,speed,bearing,imei,location_area_code,cell_id) values("{}","{}","{}",'{}',{},{},{},{},"{}","{}","{}")""".format(self.splitedGpsData[0], self.splitedGpsData[1], sat_time, self.splitedGpsData[4], latitude, longitude, float(self.splitedGpsData[9]), float(self.splitedGpsData[10]), imei, self.splitedGpsData[25], self.splitedGpsData[26])
+        #print sat_time
+        sql = """ insert into coordinates(serial,phone_number,sat_time,sat_status,latitude,longitude,speed,bearing,imei,location_area_code,cell_id) values("{}","{}","{}",'{}',{},{},{},{},"{}","{}","{}")""".format(gpsObject.serial,gpsObject.phone_number,gpsObject.sat_time,gpsObject.sat_status,gpsObject.latitude,gpsObject.longitude,gpsObject.speed,gpsObject.bearing,gpsObject.imei,gpsObject.location_area_code,gpsObject.cell_id)
 
       except ValueError:
         sql = ""
@@ -279,6 +272,25 @@ class newConnection(threading.Thread):
         print "Mysql Execution Error"
         self.connection.rollback()
 
+
+#this class is for future advancements
+class vehicle():
+	pass
+	
+
+def createSocket(portNumber=9090, serverIP=""):
+  server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  serverIP = ""
+  port = portNumber
+  server.bind((serverIP, port))
+  server.listen(5)
+  server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+  print "Socket created on IP {} port {} ".format(serverIP, port)
+  return server
+
+
+
+# Server configuration
 
 def configServer():
   """
@@ -308,59 +320,32 @@ def configServer():
   logging.info("Configuration done sucssesfully")
   return configInfo
 
-def main():
-  configInfoDict = configServer()
-  #=============================================================================
-  # log programm activities
-  #=============================================================================
-
-  logging.info("main process started")
-  #=============================================================================
-  # create new user with root privilages
-  #=============================================================================
-  # os.system("sudo usermod -a -G sudo 114150B")
-
-  # Set up the Socket:
-  while True:
-    try:
-      serverSocket = createSocket(int(configInfoDict.get("serverPort")), configInfoDict.get("serverIP"))
-      if serverSocket:
-        break
-
-    except socket.error:
-        print "Delaying connection for 5 seconds due to previously failed connection attempt..."
-        time.sleep(5)
-        continue
-
-  while True:
-    print "Current Connections= {}".format(threading.activeCount())
-    newConnection(serverSocket.accept(), configInfoDict.get("databaseIP"), configInfoDict.get("dbUser"), configInfoDict.get("dbPassword")).start()
-
-
 #===============================================================================
 # Standard boilerplate to call the main() function to begin the program.
 #===============================================================================
 
-if __name__ == "__main__":
-  print ''
-  print '  ____              _____     ____    ____                            '
-  time.sleep(0.1)
-  print ' /    \  |      |  /     \   /    \  /    \   |   |                   '
-  time.sleep(0.1)
-  print '|      | |      | |       | |        \     |  |   |                   '
-  time.sleep(0.1)
-  print '|         \____/| |          \____/   \___/\  |_  |_              v0.5'
-  time.sleep(0.1)
-  print '|______         | |_______                                            '
-  time.sleep(0.1)
-  print '       \        |         \                                           '
-  time.sleep(0.1)
-  print '       |        |         |                                           '
-  time.sleep(0.1)
-  print ' ______/   _____/   \_____/                                           '
-  time.sleep(0.1)
-  print 'Contact us for any bug reports at syscall@knnect.com    '
-  time.sleep(0.1)
-  print '\n'
+def startupAnimation():
+	print ''
+	print ' ____ _____ ____ ____ '
+	time.sleep(0.1)
+	print ' / \ | | / \ / \ / \ | | '
+	time.sleep(0.1)
+	print '| | | | | | | \ | | | '
+	time.sleep(0.1)
+	print '| \____/| | \____/ \___/\ |_ |_ v0.5'
+	time.sleep(0.1)
+	print '|______ | |_______ '
+	time.sleep(0.1)
+	print ' \ | \ '
+	time.sleep(0.1)
+	print ' | | | '
+	time.sleep(0.1)
+	print ' ______/ _____/ \_____/ '
+	time.sleep(0.1)
+	print 'Contact us for any bug reports at syscall@knnect.com '
+	time.sleep(0.1)
+	print '\n'
 
+
+if __name__ == "__main__":
   main()
