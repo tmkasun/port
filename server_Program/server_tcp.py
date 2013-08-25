@@ -143,21 +143,9 @@ class newConnection(threading.Thread):
 			logging.error(e)
 		
 		return recivedDataFromGpsDevice
-		
-		
-  	
-  
   # this method is called when thread is created
   def run(self):
-    #===========================================================================
-    # for track startup and switch off time of GPS device , when device switch swithc on/off #to be impliment
-    #===========================================================================
-#    self.cursor.execute(""" insert into vehicleStatus(imei,latestConnectionCreatedDate,currentOnlineStatus) values({imei},UTC_TIMESTAMP(),1) on duplicate key update latestConnectionCreatedDate = UTC_TIMESTAMP(),currentOnlineStatus = 1  """).format()
-
-    #===========================================================================
-    # to be implimented log incompatible IMEI patterns request while checking IMEI patter befor continuing
     # allow viewing server connection log via web page
-    #===========================================================================
     print "Device connected from {} via its port {}".format(self.address[0], self.address[1])
     
     gpsObject = gpsString(self.reciveGpsData())
@@ -196,62 +184,8 @@ class newConnection(threading.Thread):
       elif not gpsObject.isConnectedToSatellites:
       	print "Device is not connected to GPS Satellites"
       	continue #waiting to connect device to GPS Satellites
-      
-      #print "imei = {} \n isValidGpsString = {} \n isConnectedToSatellites = {}".format(gpsObject.imei,gpsObject.isValidGpsString,gpsObject.isConnectedToSatellites)
-      #continue
-      #assert False
 
-      
-      #===============================================================================
-      # Decode sat longitude and latitude
-      #===============================================================================
-
-#       try:
-#         latitude = float(self.splitedGpsData[5][:2]) + float(self.splitedGpsData[5][2:]) / 60.0
-#         longitude = float(self.splitedGpsData[7][:3]) + float(self.splitedGpsData[7][3:]) / 60.0
-#         imei = self.splitedGpsData[16][5:]
-#         # for better reliability, even can use `connectionImei`
-# 
-#       except ValueError:
-#         print "Device not connected to GPS satalites (lat long passing error)"
-#         continue  # go for the next coordinate
-# 
-#       except IndexError as ie:
-#         if not recivedDataFromGpsDevice:
-#           print "Device disconnected from server"  # but can't say device is disconnected have to modify this (according to a test result)
-#           print "\r \n \fwaiting for new connection current connections{}".format(threading.activeCount())
-#           setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
-#           self.cursor.execute(setOnlineFlag)
-#           self.cursor.close()
-#           self.channel.shutdown(2)
-#           self.channel.close()
-#           return 0
-#         print "Recived TCP packet error >", ie
-#         continue
-
-			
-      #=========================================================================
-      # for debugging purpose only check weather values are in order
-      #=========================================================================
-#      for index in range(lengthOfTheself.splitedGpsData):
-#        try:
-# #          print index+1,data_list[index]+" ---> "+self.splitedGpsData[index]
-#
-#        except IndexError:
-#          print "index mismatch error"
-# #          print data_list,"\n\n\n====>>",self.splitedGpsData
-# #          print "\n\n","length data list",len(data_list),"====>>","len splited",len(self.splitedGpsData)
-#          #self.channel.close()
-#          break
-#
       print "Receiving GPS coordinates....(Thread Name: {})".format(self.getName())
-
-#       try:
-#         date = self.splitedGpsData[11][4:] + self.splitedGpsData[11][2:4] + self.splitedGpsData[11][:2]
-#         sat_time = date + self.splitedGpsData[3]
-#       except IndexError:
-#         print "Satellite Time Error: Exception passed"
-#         pass
 
       try:
         #print sat_time
