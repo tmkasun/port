@@ -321,9 +321,10 @@ function ajaxCheck(){
                                             $("#serverStatusImage").attr("src","../media/images/icons/serverStatus/status_green.png");
      										jsonData = jsonObject;
                                             offlinePrimovers = currentVehicleList;
-                                            
+                                            latestRecivedImeiNumbers = [];
 											for(items in jsonData){
 												currentOnlinePrimovers +=1;
+												latestRecivedImeiNumbers.push(jsonData[items]["imei"]);  
 												/* debug code to check recevied values from ajax 
 												alert(" Serial "+ jsonData[items]["serial"]+" IMEI "+ jsonData[items]["imei"]+" Latitude "+ jsonData[items]["latitude"]+" longitude "+ jsonData[items]["longitude"]+" Sat_time "+ jsonData[items]["sat_time"]);
 												*/
@@ -356,6 +357,13 @@ function ajaxCheck(){
 												currentVehicleList[imeiNumberAsKey].marker.bindPopup("<b>GPS/GPRS Device imei Number</b><br>Vehicle Registration Number");//.openPopup() for open popup at the begining
 												//alert("Vehicle Add Compleated");
 												
+														}
+														for(imeiNumberIndex in currentVehicleList){
+															if($.inArray(currentVehicleList[imeiNumberIndex].imeiNumber,latestRecivedImeiNumbers) == -1){
+																//alert("This imei"+currentVehicleList[imeiNumberIndex].imeiNumber+"not active");
+																currentVehicleList[imeiNumberIndex].marker.setIcon(prime_mover_icon_offline);
+																
+															} 
 														}
 											$("#currentOnlinePrimovers").html(currentOnlinePrimovers);
                                              

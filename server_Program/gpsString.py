@@ -58,9 +58,13 @@ class gpsString:
       self.resonForInvalid = "Invalid String or Connection lost with Client Unexpecedly"
       self.isValidGpsString = False
       return None # this returen is for not execute the below potion of the code otherwise useless
-      
+    
     try:
       self.splitedGpsData = recivedString.split(',') # split string by ','
+      #this if condition is only for debugging to prevent phone battry low alert ;)
+      if len(self.splitedGpsData) == 28:
+        self.splitedGpsData.pop(16)
+      
       self.imei = self.splitedGpsData[16][5:]  
     except IndexError as e:
       print "eexception passed ({}) IMEI split error or wrong position in IMEI in GPS string".format(e)
