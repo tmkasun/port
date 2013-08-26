@@ -70,7 +70,7 @@ import socket #documentation http://docs.python.org/2/howto/sockets.html , http:
 from fileinput import filename
 try:
 	# try to install MySQLdb module
-  import MySQLdb
+  import MySQLdb #Documentation http://mysql-python.sourceforge.net/MySQLdb.html
 
 except ImportError:
   # apt get code apt-get install python-mysqldb
@@ -127,6 +127,7 @@ class newConnection(threading.Thread):
   
   def disconnect(self,reson="No reson specified"):
     logging.warn("Connection has been disconnected due to >" + reson)
+    self.connection.commit()
     if self.cursor:
      	self.cursor.close()
     if self.channel:
@@ -164,7 +165,10 @@ class newConnection(threading.Thread):
     connectionImei = gpsObject.imei  # this `connectionImei` i s created to use on when device disconnected from device
     #current_status = 1 means online 0 means offline
     setOnlineFlag = """insert into vehicle_status values("{}",now(),null,1) ON DUPLICATE KEY update connected_on = now() , current_status = 1""".format(gpsObject.imei)
-    self.cursor.execute(setOnlineFlag)
+    print setOnlineFlag
+    print "Vehicle Flag set to online"
+    print self.cursor.execute(setOnlineFlag)
+    self.connection.commit() #commit changes to DB imediatly 
     reTryCount = 0
     while True:
       #recivedDataFromGpsDevice = self.channel.recv(2048)  # 2048 is the buffer size
@@ -176,7 +180,9 @@ class newConnection(threading.Thread):
       	if reTryCount > 2:
       		setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
         	self.cursor.execute(setOnlineFlag)
-	       	self.disconnect("Device has been disconnected from remote end")
+        	self.connection.commit()
+	       	self.disconnect("Device has been disconnected from remote end DB Flag set To Disconnected")
+	       	print ("Device has been disconnected from remote end DB Flag set To Disconnected")
 	      	print "Retrying Faild"
 	      	return False
       	continue

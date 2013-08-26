@@ -21,11 +21,8 @@ if(!isset($_SESSION["computer_number"])){
 
 //check the connection type, if running in local server import local setting else import other setting
 //this is for compatibility from local and remote use
-if($_SERVER[REMOTE_ADDR] == '127.0.0.1'){
-     include_once('./mysql/local.php');
-}
-else
-include_once('./mysql/remote.php');
+
+include_once('./mysql/local.php');
 //print "<br/>";
 ?>
 <!DOCTYPE html>

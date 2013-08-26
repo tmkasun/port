@@ -52,6 +52,7 @@ class gpsString:
     self.resonForInvalid = None
     self.isApprovedImei = False
     self.isConnectedToSatellites = False
+    print recivedString # for debugging purpose
     # need to debug firmware info and alarm - move, speed, batteries, help me! or "" after F or L Signal quality    F
     if len(recivedString) < 1:
       self.resonForInvalid = "Invalid String or Connection lost with Client Unexpecedly"

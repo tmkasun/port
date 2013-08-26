@@ -18,21 +18,15 @@ die("Please Login");
 
 //check the connection type, if running in local server import local setting else import other setting
 //this is for compatibility from local and remote use
-if($_SERVER[REMOTE_ADDR] == '127.0.0.1'){
-	include_once('./mysql/local.php');
-}
-else
-include_once('./mysql/remote.php');
+include_once('./mysql/local.php');
 
 $select_currect_vehicles = "select * from (select imei,sat_time,serial,latitude,longitude,speed from coordinates order BY imei,sat_time desc) as mid where mid.imei in (select imei from vehicle_status where current_status = 1) group by mid.imei";
 
 
 if(isset($_POST["firstTime"])){
 $select_currect_vehicles = "select * from (select imei,sat_time,serial,latitude,longitude,speed from coordinates order BY imei,sat_time desc) as mid group by mid.imei";
-     
-     
 }
-
+//die($select_currect_vehicles);
 
 $query_result = mysql_query($select_currect_vehicles,$connection);
 error_reporting(E_PARSE);
