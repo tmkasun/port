@@ -261,6 +261,7 @@ if(isset($_SESSION["computer_number"])){
 				<img  id="error" style="text-align: right;" width="16" height="16"
 					style="border: 0px;"></img> <span class="label">Sign in</span>
 			</submit>
+			<!--end of form -->
 		</form>
 <!-- Loging form tag(DOM) End -->
 		
