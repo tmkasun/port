@@ -4,8 +4,8 @@
 
 /*
  * Message for developers:
- *
- *
+ *#code1 = for Srilanka Port Authority
+ *#code2 = SLPA
  *
  *
  *
@@ -32,14 +32,14 @@ include_once('./mysql/local.php');
 <head>
 <link rel="shortcut icon" href="../media/fav_icon/fav.png" />
 <link rel="stylesheet" href="../css/jquery-ui.css" />
-<title>Welcome to SLPA Vehicle Tracking System</title>
+<title>Welcome to #code2 Vehicle Tracking System</title>
 <meta name="keywords"
      content="srilanka port authority, SLPA,UOM,FIT,vehicle tracking system" />
 <!--  SEO meta contents keywords -->
 <meta name="author"
      content="University Of Moratuwa Faculty Of Information Technology" />
 <meta name="description"
-     content="Vehicle Tracking System for Srilanka Port Authority" />
+     content="Vehicle Tracking System #code1" />
 <meta charset="UTF-8" />
 <!------------------------ End ------------------------>
 

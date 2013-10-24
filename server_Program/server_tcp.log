@@ -2988,3 +2988,6 @@ The event ERROR was occored in 2013-08-26 20:59:55,047 : PID : 3080 when executi
 The event ERROR was occored in 2013-08-26 21:03:01,831 : PID : 3080 when executing : __init__ @ line number : 83
 The event WARNING was occored in 2013-08-26 21:05:19,665 : PID : 3080 when executing : disconnect @ line number : 129
 The event WARNING was occored in 2013-08-26 21:05:56,343 : PID : 3080 when executing : disconnect @ line number : 129
+The event INFO was occored in 2013-09-24 18:40:56,249 : PID : 3798 when executing : configServer @ line number : 260
+The event INFO was occored in 2013-09-24 18:40:56,273 : PID : 3798 when executing : main @ line number : 92
+The event WARNING was occored in 2013-09-24 18:42:50,552 : PID : 3798 when executing : disconnect @ line number : 129
