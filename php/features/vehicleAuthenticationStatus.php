@@ -51,7 +51,38 @@ if(isset($_POST["decision"])){
 
 print "<br/>";
 
+$approved_imei_display = "select * from approved_imei order by approved_on";
+$query_result_approved = mysql_query($approved_imei_display,$connection);
 
+$results_approved = array();
+		$r=0;
+		while ($row = mysql_fetch_array($query_result_approved,MYSQL_NUM)) { 
+		  $c=0;
+		  foreach($row as $rs){
+			$results_approved[$r][$c]=$rs;
+			 $c++;
+		  }
+		  $r++;
+		}
+		
+		$count_approved = sizeof($results_approved);
+		
+$not_approved_imei_display = "select imei, first_connected_on from not_approved_imei where review_status = 1  order by first_connected_on desc";
+$query_result_not_approved = mysql_query($not_approved_imei_display,$connection);
+
+$results_not_approved = array();
+		$r=0;
+		while ($row = mysql_fetch_array($query_result_not_approved,MYSQL_NUM)) { 
+		  $c=0;
+		  foreach($row as $rs){
+			$results_not_approved[$r][$c]=$rs;
+			 $c++;
+		  }
+		  $r++;
+		}
+		
+		$count_not_approved = sizeof($results_not_approved);
+		
 $vehicle_authentication_check = "select * from not_approved_imei where review_status = 0  order by first_connected_on desc";
 
 $query_result = mysql_query($vehicle_authentication_check,$connection);
@@ -77,6 +108,8 @@ error_reporting(E_PARSE);
                <th
                     style="border-width: 1px; border-color: blue; border-style: solid; border-radius: 10px;">First
                     connected on</th>
+               <th
+                    style="border-width: 1px; border-color: blue; border-style: solid; border-radius: 10px;">Approved on</th>
           </tr>
 
 
@@ -92,7 +125,7 @@ error_reporting(E_PARSE);
           <tr>
                <td><?php print $row["imei"]?>
                </td>
-               <td><?php print "need a algorithem for this"?>
+               <td><?php print "Approval is Pnding"?>
                </td>
                <td><?php 
                if ($row["review_status"]== 0){
@@ -116,8 +149,31 @@ error_reporting(E_PARSE);
           ?></td>
                <td><?php print $row["first_connected_on"]?>
                </td>
+               <td>Pending</td>
           </tr>
-
+          <?php
+          
+		  for($i = 0 ; $i < $count_approved ; $i++)
+		  {
+			  echo "<tr><td>";
+			  echo $results_approved[$i][0];
+			  echo "</td><td>Approved</td><td>";
+			  echo "<img src='../media/images/icons/vehicleApproval/ok.png'/>";
+			  echo "</td><td>----</td><td>";
+			  echo $results_approved[$i][1];
+			  echo "</td></tr>";
+		  }
+		   for($j = 0 ; $j < $count_not_approved; $j++)
+		  {
+			  echo "<tr><td>";
+			  echo $results_not_approved[$j][0];
+			  echo "</td><td>Not Approved</td><td>";
+			  echo "<img src='../media/images/icons/vehicleApproval/ok.png'/>";
+			  echo "</td><td>";
+			  echo $results_not_approved[$j][1];
+			  echo "</td><td>----</td></tr>";
+		  }
+?>
 
           <?php
 

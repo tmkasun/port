@@ -218,8 +218,7 @@ if(isset($_SESSION["computer_number"])){
 		</span>
 	</font>
 	</div -->
-<div style="background:#000;width:350px; height:260px;font:0px sans-serif;text-align:left;position: absolute;"><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" id="cdtw" width="350" height="240" style="outline:none"><param name="movie" value="http://countingdownto.com/c/w.swf" /><param name="flashvars" value="eid=360591" /><param name="allowscriptaccess" value="always" /><param name="bgcolor" value="#000000" /><embed name="cdtw" src="http://countingdownto.com/c/w.swf" flashvars="eid=360591" type="application/x-shockwave-flash" width="350" height="240" allowscriptaccess="always" bgcolor="#000000" style="outline:none"></embed></object><br/> <a href="http://countingdownto.com" style="font:bold 8px Arial;padding-left:19px;color:#444;">COUNTDOWN CLOCK WEBSITE</a></div>
-			
+
 	<p align="center">
 		<b><a style="font-size: 18pt; color: #FFBD12;">Welcome
 				to SLPA Vehicle Tracking System</a> </b>
@@ -235,7 +234,7 @@ if(isset($_SESSION["computer_number"])){
 		<h1 id="Sign_in" style="display: none;">Sign in</h1>
 		
 <!-- Loging form tag(DOM) start -->
-		<form id="login_form" name="signin" action="/php/signin.php" method="post"
+		<form id="login_form" name="signin"  action="/php/signin.php" method="post"
 			onsubmit="<!-- return ajax_signin() -->" style="display: none;">
 			
 			<!-- Computer number in SL Port has been used as unique identifier for user login -->
@@ -261,16 +260,20 @@ if(isset($_SESSION["computer_number"])){
 					src="./media/images/logins/login_loading.gif" />
 			
 			<!-- input type = "submit"  style="visibility: hidden;"/ -->
-			<button class="action bluebtn" type="button" id="submit_button" name="submit"
-				class="def_button" target="_self" onclick="ajax_signin()" style="position: relative;float: left;">
+			<!--<input type="image" class="action bluebtn"  id="error" name="submit" style="text-align: left;" width="16" height="16"
+					style="border: 1px;"
+				class="def_button" target="_self" onclick="ajax_signin()" style="position: relative;float: left;" value=''  />
+               <span  style="color:#0080C0; font-size:24px" >Sign in</span>
+			-->
+             <button class="action bluebtn" type="button" id="submit_button" name="submit"
+                                class="def_button" target="_self" onclick="ajax_signin()" style="position: relative;float: left;">
+                                
+                                <img id="error" style="text-align: right;" width="16" height="16"
+                                        style="border: 0px;"></img> <span class="label">Sign in</span>
+                        </button>	
 				
-				<img  id="error" style="text-align: right;" width="16" height="16"
-					style="border: 0px;"></img> <span class="label">Sign in</span>
-			</button>
 		</form>
-		
 <!-- Loging form tag(DOM) End -->
-		
 		
 
 		<?php if($_POST["pass_stat"]) print $_POST["pass_stat"];?>
@@ -280,8 +283,6 @@ if(isset($_SESSION["computer_number"])){
 
 
 	</div>
-	
-			
 	<a
 		style="position: absolute; bottom: 0px; float: right; color: #898989; font-size: 10pt;">V
 		1.1 </a>
