@@ -154,10 +154,10 @@ class newConnection(threading.Thread):
     print "---------Initial check complete---------\n gpsObject is {}".format(gpsObject.isValidGpsString) #for debuging use only
     
     #check this algo short curcuite matter?
-    if not (gpsObject.isValidGpsString and gpsObject.validateVehicleFromDB(self.cursor)):#pass the connection cursor to validator
-    	print "Recived GPS String is invalid" # for debuging purpose
-    	self.disconnect("Recived GPS String is invalid")
-    	return False
+   # if not (gpsObject.isValidGpsString and gpsObject.validateVehicleFromDB(self.cursor)):#pass the connection cursor to validator
+    #	print "Recived GPS String is invalid" # for debuging purpose
+    #	self.disconnect("Recived GPS String is invalid")
+    #	return False
     
     print "-----Continue to recive data IMEI number is valid and approved -----"
     
@@ -174,22 +174,22 @@ class newConnection(threading.Thread):
       #recivedDataFromGpsDevice = self.channel.recv(2048)  # 2048 is the buffer size
       gpsObject = gpsString(self.reciveGpsData())
       
-      if not gpsObject.isValidGpsString:
-      	reTryCount +=1
-      	print "Device has been disconnected from remote end retrying {}".format(reTryCount)
-      	if reTryCount > 2:
-      		setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
-        	self.cursor.execute(setOnlineFlag)
-        	self.connection.commit()
-	       	self.disconnect("Device has been disconnected from remote end DB Flag set To Disconnected")
-	       	print ("Device has been disconnected from remote end DB Flag set To Disconnected")
-	      	print "Retrying Faild"
-	      	return False
-      	continue
+#      if not gpsObject.isValidGpsString:
+ #     	reTryCount +=1
+  #    	print "Device has been disconnected from remote end retrying {}".format(reTryCount)
+   #   	if reTryCount > 2:
+    #  		setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
+     #   	self.cursor.execute(setOnlineFlag)
+      #  	self.connection.commit()
+	   #    	self.disconnect("Device has been disconnected from remote end DB Flag set To Disconnected")
+	  #     	print ("Device has been disconnected from remote end DB Flag set To Disconnected")
+	 #     	print "Retrying Faild"
+	    #  	return False
+     # 	continue
       	
-      elif not gpsObject.isConnectedToSatellites:
-      	print "Device is not connected to GPS Satellites"
-      	continue #waiting to connect device to GPS Satellites
+     # elif not gpsObject.isConnectedToSatellites:
+      #	print "Device is not connected to GPS Satellites"
+      #	continue #waiting to connect device to GPS Satellites
 
       print "Receiving GPS coordinates....(Thread Name: {})".format(self.getName())
 
