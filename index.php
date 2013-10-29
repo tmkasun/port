@@ -3,7 +3,7 @@
 if(isset($_SESSION["computer_number"])){
      header('Location: ./php/maps.php');
 
-  //testing Dinuka    
+   
      
 }
 
@@ -255,12 +255,13 @@ if(isset($_SESSION["computer_number"])){
 					src="./media/images/logins/login_loading.gif" />
 			
 			<!-- input type = "submit"  style="visibility: hidden;"/ -->
-			<button class="action bluebtn" type="button" id="submit_button" name="submit"
+			<input type="submit" class="action bluebtn" id="submit_button" name="submit"
 				class="def_button" target="_self" onclick="ajax_signin()" style="position: relative;float: left;">
 				
 				<img  id="error" style="text-align: right;" width="16" height="16"
 					style="border: 0px;"></img> <span class="label">Sign in</span>
-			</button>
+			</submit>
+		 
 		</form>
 <!-- Loging form tag(DOM) End -->
 		
