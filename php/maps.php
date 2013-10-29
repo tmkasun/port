@@ -31,23 +31,26 @@ include_once('./mysql/local.php');
 <!------------------------ Html Document definitions and page setups ------------------------>
 <head>
 <link rel="shortcut icon" href="../media/fav_icon/fav.png" />
-<link rel="stylesheet" href="../css/jquery-ui.css" />
-<title>Welcome to #code2 Vehicle Tracking System</title>
+
+<title>Welcome to SLPA Vehicle Tracking System</title>
 <meta name="keywords"
      content="srilanka port authority, SLPA,UOM,FIT,vehicle tracking system" />
 <!--  SEO meta contents keywords -->
 <meta name="author"
      content="University Of Moratuwa Faculty Of Information Technology" />
 <meta name="description"
-     content="Vehicle Tracking System #code1" />
+     content="Vehicle Tracking System for Srilanka Port Authority" />
 <meta charset="UTF-8" />
 <!------------------------ End ------------------------>
 
 
-
+	<style type="text/css">
+.specialDate { background-color: #6F0 !important; }
+</style>
 
 <style type="text/css">
 .styled-button-8 {
+	cursor:pointer;
 	background: #25A6E1;
 	background: -moz-linear-gradient(top, #25A6E1 0%, #188BC0 100%);
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #25A6E1),
@@ -69,6 +72,7 @@ include_once('./mysql/local.php');
 }
 
 .styled-button-10 {
+	cursor:pointer;
 	background: #5CCD00;
 	background: -moz-linear-gradient(top, #5CCD00 0%, #4AA400 100%);
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5CCD00),
@@ -92,20 +96,15 @@ include_once('./mysql/local.php');
 
 
 
-
-
-
-
-
-
-
+<!-- JQuery ui styles -->
+<link rel="stylesheet" href="../css/jquery-ui.css" />
 
 <!-- CSS style sheet for Leaflet API from online CDN -->
-
-
-
-
 <link rel="stylesheet" href="../css/leaflet.css" />
+
+<!-- CSS style sheet for date and time picker -->
+<link rel="stylesheet" href="../css/jquery-ui-timepicker-addon.css" />
+
 
 <!------------------------------------------------ End ------------------------------------------------>
 
@@ -121,6 +120,7 @@ include_once('./mysql/local.php');
 
 <script src="../js/jquery-ui-1.9.2.js"></script>
 
+<script src="../js/jquery-ui-timepicker-addon.js"></script>
 <!------------------------------------------------ End ------------------------------------------------>
 
 <script type="text/javascript">
@@ -203,11 +203,10 @@ var prime_mover_icon_online;
 
 /* ------------------------------------ javaScript prime mover object ------------------------------------ */
 
-function primeMover(serialNumber,imeiNumber,currentLat,currentLong,currentSatTime,vehicleNumber,markerObject,currentSpeed){
+function primeMover(imeiNumber,currentLat,currentLong,currentSatTime,vehicleNumber,markerObject,currentSpeed){
 	
 	this.vehicleRegistrationNumber = vehicleNumber;
 	this.imeiNumber = imeiNumber;
-	this.serialNumber = serialNumber;
 	this.currentLat = currentLat;
 	this.currentLong = currentLong;
 	this.currentSatTime = currentSatTime;
@@ -269,7 +268,7 @@ $(document).ready(
 													}
 												
 												var imeiNumberAsKey = String(jsonData[items]["imei"]);
-												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["serial"], jsonData[items]["imei"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
+												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["imei"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
 												//alert(currentVehicleList[imeiNumberAsKey].imeiNumber);
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
@@ -348,7 +347,7 @@ function ajaxCheck(){
 													}
 												/* Add new vehicle to map if it is not in the currentVehicleList list*/
 												var imeiNumberAsKey = String(jsonData[items]["imei"]);
-												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["serial"], jsonData[items]["imei"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
+												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["imei"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
 												//alert(currentVehicleList[imeiNumberAsKey].imeiNumber);
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
@@ -382,6 +381,7 @@ function ajaxCheck(){
  
 /*---------------------------------- Foo methods ----------------------------------*/
 function approveVehicles(){
+	$("#vehicle_history_div").hide(); ///need to replace with commen clear function
 	
 $.ajax({
  url : "./features/vehicleAuthenticationStatus.php",
@@ -401,6 +401,9 @@ $.ajax({
 
 
 function showVehicleHistory() {
+	
+	$("#vehicle_history_div").hide();
+	
 	//alert("Not implimented"); //for check function call working
 	$("#leftSideSlidePane").show("slide",{direction:"left"});
 
@@ -448,38 +451,93 @@ function changeMap() {
 
 /*---------------------------------- leftSidePaneImageOnClick ----------------------------------*/
  var currentDataPickerVehicleImei = 0;
- 
+ var datesArray=['18/09/2013']
 function leftSidePaneImageOnClick(thisVehicle){
+	
 	$( "#commonMessageBoxResultBox").html("");
+	$( "#commonMessageBoxResultBox").hide();
 	$( "#commonMessageBoxResultBox").removeProp("class");
-	$( "#commonMessageBoxResultBox").datepicker({ dateFormat: "yy-mm-dd" });
-    $("#commonMessageBox").fadeIn("slow");
-    $('#datePicker').fadeIn('slow');
-    /* 
-    <button
-                         onclick="getVehiclePath($('#commonMessageBoxResultBox').datepicker('getDate'))">Show
-                         Path</button>
-    
-    */
-    $("<button/>",{
-        onClick:"getVehiclePath($('#commonMessageBoxResultBox').datepicker('getDate'))",
-        text:"Show History"
-        }).appendTo("#commonMessageBoxResultBox");
+	
+	$.ajax({
+		type : "POST",
+		url: "./features/detailedVehicleHistroy.php",
+		dataType : "JSON",
+		data : { imei: thisVehicle.id}
 
-    //alert(thisVehicle.id);
-    currentDataPickerVehicleImei = thisVehicle.id;
-    $('#leftSideSlidePane').hide('slide',{direction:'left'});
-    return 0;
-    //[7.060190,79.96199],[7.072187,79.96799]
-    //var polyLine = L.polyline([[7.072487,79.96699]],{color:"red"}).addLatLng([7.060015,79.96121]).addTo(map);
+		}
+		).done(function(jsonObject){
+		ul = $("<ul>");
+		for ( var date in jsonObject) {
+		//alert( "Data Loaded: " + jsonObject[date].dates );
+		li = $("<li>");
+		li.html(jsonObject[date].dates);
+		$(ul).append(li);
+		}
+		$("#histroy_dates").html("");
+		$("#histroy_dates").append(ul);
+
+		} 	
+);		
+
+
+	$("#vehicle_history_div").fadeIn("slow");
+	
+	$("#commonMessageBox").fadeIn("slow");
+	init_date_time(thisVehicle);
+	
+
     
 }
+
+function init_date_time (thisVehicle) {
+  
+		$('#datePicker').fadeIn('slow');
+
+
+		$("#time_picker_1").timepicker({
+			
+		});
+		$(".ui-datepicker-title:eq(1)").html("End time");
+		$("#time_picker_2").timepicker({
+		
+		});
+		
+		$(".ui-datepicker-title:eq(3)").html("Starting time");
+				$("#datePicker").datetimepicker({
+			dateFormat: "yy-mm-dd",
+			
+			
+		});
+		
+		/*
+		 <button
+		 onclick="getVehiclePath($('#commonMessageBoxResultBox').datepicker('getDate'))">Show
+		 Path</button>
+
+		 */
+		$("<button/>", {
+			onClick : "getVehiclePath($('#datePicker').datetimepicker('getDate'),$('#time_picker_2').timepicker('getDate').val(),$('#time_picker_1').timepicker('getDate').val())",
+			text : "Show History"
+		}).appendTo("#datePicker");
+
+		alert(thisVehicle.id);
+		currentDataPickerVehicleImei = thisVehicle.id;
+		$('#leftSideSlidePane').hide('slide', {
+			direction : 'left'
+		});
+		return 0;
+		//[7.060190,79.96199],[7.072187,79.96799]
+		//var polyLine = L.polyline([[7.072487,79.96699]],{color:"red"}).addLatLng([7.060015,79.96121]).addTo(map);
+
+}
+
 
 /*---------------------------------- End ----------------------------------*/
  
 /*---------------------------------- getVehiclePath ----------------------------------*/
-function getVehiclePath(selectedDateObject) {
-	 //alert(selectedDateObject);
+function getVehiclePath(selectedDateObject,start,end) {
+	
+	alert(start+end+selectedDateObject);
      var year = selectedDateObject.getFullYear();
      var month = String(selectedDateObject.getUTCMonth()+1);
      var date = String(selectedDateObject.getDate());
@@ -487,17 +545,17 @@ function getVehiclePath(selectedDateObject) {
          month = "0"+month;
      if (date.length <2)
          date = "0"+date;
-     //alert(year+">>>"+month+">>>"+date+">>>>>>"+currentDataPickerVehicleImei);
+     alert(year+">>>"+month+">>>"+date+">>>>>>"+currentDataPickerVehicleImei);
      
 	$.ajax({
         type : "GET",
         url: "./features/getVehiclePath.php",
         dataType : "JSON",
-        data : {"deviceImeiNumber":currentDataPickerVehicleImei,"year":year,"month":month,"date":date}
+        data : {"deviceImeiNumber":currentDataPickerVehicleImei,"year":year,"month":month,"date":date,"start":start,"end":end}
 
         }
             ).done(function(jsonObject){
-                //alert(jsonObject[0]["latitude"]);
+                //alert(jsonObject);
                 //return 0;
                 var startingPointLatLng = new L.LatLng(jsonObject[0]["latitude"],jsonObject[0]["longitude"]);
                 var polyLineDistanceInMeters = 0;
@@ -543,6 +601,7 @@ function onClickPolyLinePopupOpenner(mouseEventObject){
 
 function getActivities(){
 
+	$("#vehicle_history_div").hide();
 //alert("ok");
 $("#commonMessageBoxResultBox").html("");
 $("#commonMessageBox").fadeIn("slow");
@@ -579,23 +638,48 @@ function setDecision(imeiNumber,decisionMade){
 
 
 
-          <div id="commonMessageBox"
-               style="position: relative; z-index: 4; width: 70%; height: 70%; margin-left: auto; margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none;">
-               <img onclick="$('#commonMessageBox').fadeOut('slow')"
-                    alt="Close" src="../media/images/logins/no.ico"
-                    style="position: relative; float: right; top: 0px;" />
-               <br /> <br /> <br />
+<div id="commonMessageBox"
+			style="position: relative; z-index: 4; width: 85%; height: 85%; margin-left: auto; margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none;">
+
+				<img onclick="$('#commonMessageBox').fadeOut('slow')"
+				alt="Close" src="../media/images/logins/no.ico"
+				style="position: relative; float: right; top: 0px;cursor: pointer;" />
+				<br /> <br />
+				<div id="vehicle_history_div" style="display: none;z-index: 999999">
+
+					<div id="datePicker"
+					style="position: relative;float: left;left: 50px;">
+
+					</div>
+					<div id="time_picker_1" style="float: right;">
+
+					</div>
+					<div id="time_picker_2" style="float: right;top: 0px;">
+
+					</div>
+					<div id="histroy_dates" style="float: right;height: 300px;background-color: green;overflow: scroll;overflow-style: auto;width: 200px;">
+
+					</div>
+
+</div>
+
+               
+               
+               
+               
+               <br /> 
                <div id="commonMessageBoxResultBox"
                     style="overflow: auto; height: 75%; position: relative; width: auto; margin-right: auto; margin-left: auto;">
 
                </div>
 
-               <div id="datePicker"
-                    style="position: relative; margin-left: auto; margin-right: auto; width: 40%; display: none;">
-
-               </div>
 
           </div>
+          
+
+          
+          
+          
      </div>
 
      <img style="position: fixed; float: right; margin: 0; padding: 0;"

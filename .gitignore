@@ -1,11 +1,6 @@
-server_Program/server.conf
-resources_do_not_upload/
-server_Program/*.conf
-.gitignore
-tiles/
-**/*~
-*~
-**/.*
+resources_do_not_upload/*
+.gitignore*
+tiles/*
 media/
-**/**.conf
+.*
 

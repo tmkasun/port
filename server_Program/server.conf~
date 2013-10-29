@@ -19,7 +19,7 @@ dbPassword=kasun123
 
 #set tracker type,this value will check with predefined trackers list by the programm, 
 #if you need to add new device to list please contact system administrators (syscall@knnect.com)
-trackerType=MVT380
+trackerType=tk102
 
 
 

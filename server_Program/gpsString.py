@@ -54,7 +54,7 @@ class gpsString:
     self.isConnectedToSatellites = False
     print recivedString # for debugging purpose
     # need to debug firmware info and alarm - move, speed, batteries, help me! or "" after F or L Signal quality    F
-    if len(recivedString) < 1:
+    if len(recivedString) < 1 :
       self.resonForInvalid = "Invalid String or Connection lost with Client Unexpecedly"
       self.isValidGpsString = False
       return None # this returen is for not execute the below potion of the code otherwise useless
@@ -65,7 +65,7 @@ class gpsString:
       if len(self.splitedGpsData) == 28:
         self.splitedGpsData.pop(16)
       
-      self.imei = self.splitedGpsData[16][5:]  
+      self.imei = self.splitedGpsData[1]#[16][5:] #tk102  
     except IndexError as e:
       print "eexception passed ({}) IMEI split error or wrong position in IMEI in GPS string".format(e)
       logging.error("exception passed for IMEI split error or wrong position in IMEI in GPS string")
@@ -75,22 +75,29 @@ class gpsString:
     self.isValidGpsString = True
 
     try:    
-      self.latitude = float(self.splitedGpsData[5][:2]) + float(self.splitedGpsData[5][2:]) / 60.0
-      self.longitude = float(self.splitedGpsData[7][:3]) + float(self.splitedGpsData[7][3:]) / 60.0
+      self.latitude = float(self.splitedGpsData[4])#float(self.splitedGpsData[5][:2]) + float(self.splitedGpsData[5][2:]) / 60.0
+      self.longitude = float(self.splitedGpsData[5])#float(self.splitedGpsData[7][:3]) + float(self.splitedGpsData[7][3:]) / 60.0
       self.isConnectedToSatellites = True
     except ValueError:
       print "Device not connected to GPS satalites (lat long passing error)"
       logging.error("Device not connected to GPS satalites (lat long passing error)")
       return None
-    self.date = self.splitedGpsData[11][4:] + self.splitedGpsData[11][2:4] + self.splitedGpsData[11][:2]
-    self.sat_time = self.date + self.splitedGpsData[3]
-    self.serial = self.splitedGpsData[0]
-    self.phone_number = self.splitedGpsData[1] 
-    self.sat_status = self.splitedGpsData[4]
-    self.speed = float(self.splitedGpsData[9])
-    self.bearing = float(self.splitedGpsData[10]) 
-    self.location_area_code = self.splitedGpsData[25] 
-    self.cell_id = self.splitedGpsData[26]
+    self.date = self.splitedGpsData[6]#self.splitedGpsData[11][4:] + self.splitedGpsData[11][2:4] + self.splitedGpsData[11][:2]
+    self.sat_time = self.splitedGpsData[6]#self.date + self.splitedGpsData[3]
+    #self.serial = self.splitedGpsData[0] # serial = sat_time = date
+    #self.phone_number = self.splitedGpsData[1] #useless data
+    self.sat_status = self.splitedGpsData[7] #self.splitedGpsData[4]
+    self.speed = float(self.splitedGpsData[10])#float(self.splitedGpsData[9]) # speed in km/h
+    self.bearing = int(self.splitedGpsData[11]) #float(self.splitedGpsData[10]) # Heading, in unit of degree. decimal digit (0~359)
+
+#ID of the base station including
+#MCC|MNC|LAC|CI
+#Note: for SMS report, the Base ID is empty.
+#MCC and MNC are decimal digits;
+#LAC and CI are hexadecimal digits.
+    cell_info = self.splitedGpsData[16].split("|")
+    self.location_area_code = cell_info[2]#self.splitedGpsData[25] 
+    self.cell_id = cell_info[3]#self.splitedGpsData[26]
     print self.splitedGpsData # for debuging purpose
 
 
@@ -98,7 +105,7 @@ class gpsString:
   #this validation is for advance use, this validation is checking for the IMEI pattern
   # Check weather the IMIE number has desired pattern   
   def validateImie(self):
-    if not self.isValidLuhnChecksum(imei):
+    if not self.isValidLuhnChecksum(imei): # need to debug were this imei coming from :P
       print imei  # only for debuging
       self.disconnect("invalid" + imie)
       return False
