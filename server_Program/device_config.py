@@ -151,6 +151,7 @@ def startConfig(socket,address,imei):
             if reply[2] == command:
                 print "Got a reply = {}".format(reply)
                 break
+            print "Got reply but not relevent :(  = {}".format(reply)
             
         print "Command execute succesfully :) \n"
                 
