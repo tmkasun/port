@@ -63,9 +63,9 @@ def main():
 			time.sleep(5)
 			continue
 
-    while True:
-        print "Waiting for new device to connect"
-        newConnection(serverSocket.accept()).start()
+    
+    print "Waiting for new device to connect"
+    newConnection(serverSocket.accept()).start()
 
 
 
@@ -105,13 +105,14 @@ class newConnection(threading.Thread):
         print "Waiting for incoming messages from device....."
         recived_data = self.reciveGpsData()        
         print recived_data
+        self.connectionImei = recived_data.split(",")[1]
         print "Device with {} IMEI number connect to server".format(recived_data.split(",")[1])
         print "Do you want to continue with this device(y/n)?"
         answer = raw_input()   
         print answer.lower()
         if answer.lower() == 'y':
             print "Yes selected"
-            startConfig(self.channel,self.address)
+            startConfig(self.channel,self.address,self.connectionImei)
                
         elif answer.lower() == 'n':
             print "No selected"
@@ -122,23 +123,72 @@ class newConnection(threading.Thread):
         return
 
 
-def startConfig(socket,address):
-    print "Connection details IP:Port {}".format(address)
-    socket.settimeout(20)    
+def startConfig(socket,address,imei):
+    print "{} Connection details IP:Port {}".format(imei,address)
+    socket.settimeout(0)    
     while True:
-        print "Enter command to send to device(blank to exit)"
-        command = raw_input()
+        command = raw_input("Enter command to send to device{A10 to F11 commands available}(blank to exit)")
         
         if command == '':
             return False
-        sent_bytes = socket.send(command)
-        print "number of characters in command {} number of bytes sent = {}".format(len(command),sent_bytes)
-        print "Waiting for reply......(20 seconds)"
-        try:        
-            reply = socket.recv(4096)
-        except :
-            print "No data recived :("
-        
+        command = command.upper()
+        data = ""
+        while True:
+            item = raw_input("Enter data to {} command(blank to exit)").format(command)
+            if item == '':
+                break
+            data += ","+item
+        send_command = generateCommand(command,data,imei)
+        sent_bytes = socket.send(send_command)
+        print "number of characters in command {} number of bytes sent = {}".format(len(send_command),sent_bytes)
+        print "Waiting for reply......"
+        while True:
+            try:        
+                reply = socket.recv(4096).split(",")
+            except :
+                print "No data recived :("
+                continue
+            
+            if reply[2] == command:
+                print "Got a reply = {}".format(reply)
+            
+            print "Command execute succesfully :) \n"
+                
+
+
+""" 
+From what I understand, you basically have to do the following:
+1. Find the ASCII code of all the characters from the first @ all the way to the * before the checksum
+2. Add all the ASCII codes together and convert to hex
+3. Take the two rightmost digits of the hex number, and that will be your checksum
+
+Here is a walk through of the sample you provided:
+"""
+def generateCommand(command,data,imei):
+    #A10 to F11 commands available sample $$<packageflag><L>,<IMEI>,<command>,<data><*checksum>\r\n
+    import random 
+    #generate package flag
+    random_int = random.randint(65,122)
+    hex_value = hex(random_int)
+    package_flag = hex_value[2:].decode('hex')
+    #2 bytes. Header of the package from server to tracker. 
+    header = '@@'    
+    ending_character = "\r\n" #2 bytes. Ending character in ASCII (0x0d,0x0a)
+    
+    #Length from its following separator ‘,’ to the ending character ‘\r\n’. It is decimal digit.
+    length = str(len(imei+command+data+ending_character)+3) # 3 is checksum len = 2 + star(*)
+    
+    #generate check sum
+    int_sum = 0
+    checksum_string = header+ package_flag + length + command + data + "*"
+    for character in checksum_string:
+        int_sum += ord(character)
+    hex_value_of_checksum = hex(int_sum)
+    #end generate checksum
+    value_need_to_append_to_command = '*'+hex_value_of_checksum[-2:]
+    command_string = header+package_flag+length+','+imei+','+command+data+value_need_to_append_to_command+ending_character
+    print command_string
+    return command_string
 
 def startupAnimation():
 	print ''
