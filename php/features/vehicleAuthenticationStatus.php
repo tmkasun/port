@@ -32,9 +32,11 @@ if(isset($_POST["decision"])){
      switch ($_POST["decision"]) {
           case "approve":
                $set_approval = "insert into approved_imei values('$_POST[imei]',now())";
-               $update_review_flag = "update not_approved_imei set review_status = 1 where imei = '$_POST[imei]'";
+              // $update_review_flag = "update not_approved_imei set review_status = 1 where imei = '$_POST[imei]'";
+			   $delete_review_flag = "delete from not_approved_imei where imei = '$_POST[imei]'";
+			   			   
                mysql_query($set_approval,$connection);
-               mysql_query($update_review_flag,$connection);
+               mysql_query($delete_review_flag,$connection);
                print "approve >".$_POST["imei"]."ok >".$query_result;
                break;
 
