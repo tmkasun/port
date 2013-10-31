@@ -277,7 +277,7 @@ $(document).ready(
 												
                                                             if(jsonData[items]["imei"] in currentVehicleList){
 													currentVehicleList[jsonData[items]["imei"]].marker.setLatLng([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])]);
-													
+													currentVehicleList[jsonData[items]["imei"]].marker.setIconAngle(parseInt(jsonData[items]["bearing"]));
 													break;
 													}
 												
@@ -346,6 +346,7 @@ function ajaxCheck(){
 												if(jsonData[items]["imei"] in currentVehicleList){
 													//alert("Already In The Vehicle List"+jsonData[items]["imei"]);
 	                                                currentVehicleList[jsonData[items]["imei"]].marker.setLatLng([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])]);
+	                                                currentVehicleList[jsonData[items]["imei"]].marker.setIconAngle(parseInt(jsonData[items]["bearing"]));
 													currentVehicleList[jsonData[items]["imei"]].currentSpeed =  jsonData[items]["speed"];     
 													currentVehicleList[jsonData[items]["imei"]].marker.setIcon(prime_mover_icon_online);                    
 													//alert("New Lat Long has been set");
