@@ -121,8 +121,6 @@ class newConnection(threading.Thread):
   def __init__(self, detailsPair, databaseIP, dbUser, dbPassword):
     channel , address = detailsPair
     self.channel = channel
-    self.channel.setblocking(0) # set channel(or socket) to non-blocking mode
-    self.channel.settimeout(14) # wait 15 second blocked if not receve data rise exception
     self.connectionImei = None
     self.address = address
     #self.approvedImei = False # this has been moved to gpsObject class
@@ -170,6 +168,10 @@ class newConnection(threading.Thread):
     
     gpsObject = gpsString(self.reciveGpsData())
     
+    # Change mode to blocking after connecting device 
+    self.channel.setblocking(0) # set channel(or socket) to non-blocking mode
+    self.channel.settimeout(14) # wait 15 second blocked if not receve data rise exception
+
     print "---------Initial check complete---------\n gpsObject is {}".format(gpsObject.isValidGpsString) #for debuging use only
     
     #check this algo short curcuite matter?
