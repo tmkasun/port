@@ -6,6 +6,7 @@ if(isset($_SESSION["computer_number"])){
      
 }
 
+include_once("./features/googleAnalyticsTracking.php")
 
 
 ?>

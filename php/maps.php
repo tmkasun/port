@@ -23,6 +23,7 @@ if(!isset($_SESSION["computer_number"])){
 //this is for compatibility from local and remote use
 
 include_once('./mysql/local.php');
+include_once("./features/googleAnalyticsTracking.php")
 //print "<br/>";
 ?>
 <!DOCTYPE html>
