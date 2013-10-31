@@ -33,7 +33,7 @@ error_reporting(E_PARSE);
 
 while($row = mysql_fetch_array($query_result)){
 	//$table_data[] = $row;
-	$table_data[]= array("imei"=>$row['imei'],"sat_time"=>$row['sat_time'],"latitude"=>$row['latitude'],"longitude"=>$row['longitude'],"speed" => $row["speed"],"bearing" => $row["bearing"] );
+	$table_data[]= array("imei"=>$row['imei'],"sat_time"=>$row['sat_time'],"latitude"=>$row['latitude'],"longitude"=>$row['longitude'],"speed" => $row["speed"],"bearing" => (int)$row["bearing"] );
 }
 echo json_encode($table_data);
 //header('Content-Type: application/json');
