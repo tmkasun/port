@@ -3570,3 +3570,5 @@ The event ERROR was occored in 2013-10-28 18:00:36,681 : PID : 16325 when execut
 The event WARNING was occored in 2013-10-28 18:00:36,727 : PID : 16325 when executing : disconnect @ line number : 140
 The event WARNING was occored in 2013-10-28 18:05:06,579 : PID : 16325 when executing : disconnect @ line number : 140
 The event WARNING was occored in 2013-10-28 18:05:42,528 : PID : 16325 when executing : disconnect @ line number : 140
+The event INFO was occored in 2013-10-31 11:08:58,291 : PID : 13724 when executing : configServer @ line number : 276
+The event INFO was occored in 2013-10-31 11:08:58,301 : PID : 13724 when executing : main @ line number : 100

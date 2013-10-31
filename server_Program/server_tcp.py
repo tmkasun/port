@@ -149,7 +149,6 @@ class newConnection(threading.Thread):
   def reciveGpsData(self):
     try_count = 0
     while True:
-        
         try:
               try_count +=1
               print "{}try to read data from device".format(try_count)
@@ -162,12 +161,8 @@ class newConnection(threading.Thread):
               print "Error connection to vehicle (disconnect without FIN packet) error = {}".format(e)
               if try_count < 4:
                   continue
-#             setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(self.connectionImei)
-#             self.cursor.execute(setOnlineFlag)
-#             self.connection.commit()
-#             self.disconnect("Recived GPS String is invalid")
               return ''
-	#return recivedDataFromGpsDevice
+              
 # this method is called when thread is created
   def run(self):
     # allow viewing server connection log via web page
@@ -179,9 +174,9 @@ class newConnection(threading.Thread):
     
     #check this algo short curcuite matter?
     if not (gpsObject.isValidGpsString and gpsObject.validateVehicleFromDB(self.cursor)):#pass the connection cursor to validator
-    	print "Recived GPS String is invalid" # for debuging purpose
-    	self.disconnect("Recived GPS String is invalid")
-    	return False
+        	print "Recived GPS String is invalid" # for debuging purpose
+        	self.disconnect("Recived GPS String is invalid")
+        	return False
     
     print "-----Continue to recive data IMEI number is valid and approved -----"
     
@@ -199,8 +194,8 @@ class newConnection(threading.Thread):
       gpsObject = gpsString(self.reciveGpsData())
       
       if not gpsObject.isValidGpsString:
-      	print "Device has been disconnected from remote end no retrying "
-  	     setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
+          print "Device has been disconnected from remote end no retrying "
+          setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
           self.cursor.execute(setOnlineFlag)
           self.connection.commit()
           self.disconnect("Device has been disconnected from remote end DB Flag set To Disconnected")
