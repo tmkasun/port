@@ -159,7 +159,7 @@ class newConnection(threading.Thread):
         except socket.error as e:
               logging.error(e)
               print "Error connection to vehicle (disconnect without FIN packet) error = {}".format(e)
-              if try_count < 4:
+              if try_count < 2:
                   continue
               return ''
               
