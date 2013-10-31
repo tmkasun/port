@@ -286,7 +286,7 @@ $(document).ready(
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
 												message = '<?php if($_SESSION["admin"] == TRUE) echo "Administrator Features";else echo "Normal User Features";  ?>';//Display administrator elements 
-												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_offline,iconAngle: 90}).addTo(map);
+												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_offline,iconAngle: parseInt(jsonData[items]["bearing"])}).addTo(map);
 												//popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"+jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul>"+"<font style='color:blue'>"+message+"</font>";
 												popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"
                                                                       +jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul><br/>"
@@ -365,7 +365,7 @@ function ajaxCheck(){
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
 
-												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_online,iconAngle: 90}).addTo(map);
+												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_online,iconAngle: parseInt(jsonData[items]["bearing"])}).addTo(map);
 												currentVehicleList[imeiNumberAsKey].marker.bindPopup("<b>GPS/GPRS Device imei Number</b><br>Vehicle Registration Number");//.openPopup() for open popup at the begining
 												//alert("Vehicle Add Compleated");
 												
@@ -591,7 +591,7 @@ function getVehiclePath(selectedDateObject,start,end) {
 					//alert("done1");
 					animatedMarker = L.animatedMarker(polyLine.getLatLngs(),{
 						icon:prime_mover_icon_offline,
-						iconAngle: 60
+						
 					});
 					map.addLayer(animatedMarker);
                     polyLine.addTo(map);
