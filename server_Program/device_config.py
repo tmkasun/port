@@ -142,6 +142,7 @@ def startConfig(socket,address,imei):
         print "number of characters in command {} number of bytes sent = {}".format(len(send_command),sent_bytes)
         print "Waiting for reply......"
         while True:
+            sent_bytes = socket.send(send_command)
             try:        
                 reply = socket.recv(4096).split(",")
             except :
