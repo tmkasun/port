@@ -109,8 +109,21 @@ include_once('./mysql/local.php');
 <!------------------------------------------------ End ------------------------------------------------>
 
 <!-------------------------- JavaScript file for Leaflet API from online CDN -------------------------->
-
+<!-- local file -->
 <script src="../js/leaflet.js"></script>
+
+<!-- Load file from Leaflet CDN -->
+<!-- <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script> -->
+
+
+
+
+<!-- Documentation https://github.com/openplans/Leaflet.AnimatedMarker -->
+<script src="../js/AnimatedMarker.js"></script>
+
+<!-- Rotate marker (vehicle) according to its recevied heading -->
+<script src="../js/Marker.Rotate.js"></script>
+
 
 <!------------------------------------------------ End ------------------------------------------------>
 
@@ -273,7 +286,7 @@ $(document).ready(
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
 												message = '<?php if($_SESSION["admin"] == TRUE) echo "Administrator Features";else echo "Normal User Features";  ?>';//Display administrator elements 
-												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_offline}).addTo(map);
+												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_offline,iconAngle: 90}).addTo(map);
 												//popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"+jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul>"+"<font style='color:blue'>"+message+"</font>";
 												popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"
                                                                       +jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul><br/>"
@@ -352,7 +365,7 @@ function ajaxCheck(){
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
 
-												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_online}).addTo(map);
+												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_online,iconAngle: 90}).addTo(map);
 												currentVehicleList[imeiNumberAsKey].marker.bindPopup("<b>GPS/GPRS Device imei Number</b><br>Vehicle Registration Number");//.openPopup() for open popup at the begining
 												//alert("Vehicle Add Compleated");
 												
@@ -520,7 +533,7 @@ function init_date_time (thisVehicle) {
 			text : "Show History"
 		}).appendTo("#datePicker");
 
-		alert(thisVehicle.id);
+		//alert(thisVehicle.id);
 		currentDataPickerVehicleImei = thisVehicle.id;
 		$('#leftSideSlidePane').hide('slide', {
 			direction : 'left'
@@ -537,7 +550,7 @@ function init_date_time (thisVehicle) {
 /*---------------------------------- getVehiclePath ----------------------------------*/
 function getVehiclePath(selectedDateObject,start,end) {
 	
-	alert(start+end+selectedDateObject);
+	//alert(start+end+selectedDateObject);
      var year = selectedDateObject.getFullYear();
      var month = String(selectedDateObject.getUTCMonth()+1);
      var date = String(selectedDateObject.getDate());
@@ -559,7 +572,7 @@ function getVehiclePath(selectedDateObject,start,end) {
                 //return 0;
                 var startingPointLatLng = new L.LatLng(jsonObject[0]["latitude"],jsonObject[0]["longitude"]);
                 var polyLineDistanceInMeters = 0;
-                var polyLine = L.polyline([],{color:"red"});//.addLatLng([7.060015,79.96121]).addTo(map);
+                var polyLine = L.polyline([],{color:get_random_color()});//.addLatLng([7.060015,79.96121]).addTo(map);
                 var currentLatLng = startingPointLatLng;
                 for ( var sections in jsonObject) {
                 		for ( var pass in sections) {
@@ -574,9 +587,16 @@ function getVehiclePath(selectedDateObject,start,end) {
                               
 					}
 					
-				}
+				}	
+					//alert("done1");
+					animatedMarker = L.animatedMarker(polyLine.getLatLngs(),{
+						icon:prime_mover_icon_offline,
+						iconAngle: 60
+					});
+					map.addLayer(animatedMarker);
                     polyLine.addTo(map);
                     polyLine.on("click",onClickPolyLinePopupOpenner);
+                    //alert("done2");
                     //var polyLinePopUp
                     var polyLinePopupContent = "<a style = 'color:red'>Total Distance = "+polyLineDistanceInMeters.toFixed(1) +"(in meters)("+(polyLineDistanceInMeters/1000).toFixed(1)+"Km)</a>";
                     polyLine.bindPopup(polyLinePopupContent).openPopup();
@@ -625,6 +645,64 @@ function setDecision(imeiNumber,decisionMade){
               });
      
 	     
+}
+
+
+
+//------------------------------ Generate random colos on the fly Use get_random_color() in place of "#0000FF" ----------------------
+
+function get_random_color() {
+    
+    // var letters = '0123456789ABCDEF'.split('');
+    // var color = '#';
+    // for (var i = 0; i < 6; i++ ) {
+        // color += letters[Math.round(Math.random() * 15)];
+    // }
+    // return color;
+    
+    
+
+// take 3 random values, presumably this will be similar to MD5 bytes
+var r = Math.floor(Math.random() * 255);
+var g = Math.floor(Math.random() * 50); // optimize for generating more red colors 
+var b = Math.floor(Math.random() * 50); // optimize for generating more red colors 
+ 
+// floor again
+r = Math.floor(r);
+g = Math.floor(g);
+b = Math.floor(b);
+ 
+if (r < 50 && g < 50 && b < 50) r += 150;
+ 
+//if (r > 150 && g > 150 && b > 150) r -= 100;
+ 
+if (Math.abs(r - g) < 50 && Math.abs(r - b) < 50 && Math.abs(g - b) < 50) {
+//if (r > 50) r -= 50;// optimize for generating more red colors 
+if (g > 50) g -= 50;
+//if (b < 200) b += 50; // optimize for generating more red colors 
+}
+ 
+var rstr = r.toString(16);
+var gstr = g.toString(16);
+var bstr = b.toString(16);
+ 
+// pad 0's -- probably a better way, but this was easy enough.
+if (rstr.length === 1) {
+rstr = "0" + rstr;
+}
+if (gstr.length === 1) {
+gstr = "0" + gstr;
+}
+if (bstr.length === 1) {
+bstr = "0" + bstr;
+}
+ alert('#'+rstr + gstr + bstr);
+return '#'+rstr + gstr + bstr;
+
+    
+    
+    
+    
 }
 </script>
 </head>
