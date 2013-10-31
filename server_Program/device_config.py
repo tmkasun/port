@@ -125,7 +125,6 @@ class newConnection(threading.Thread):
 
 def startConfig(socket,address,imei):
     print "{} Connection details IP:Port {}".format(imei,address)
-    socket.settimeout(0)    
     while True:
         command = raw_input("Enter command to send to device{A10 to F11 commands available}(blank to exit)")
         
@@ -134,7 +133,7 @@ def startConfig(socket,address,imei):
         command = command.upper()
         data = ""
         while True:
-            item = raw_input("Enter data to {} command(blank to exit)").format(command)
+            item = raw_input("Enter data to {} command(blank to exit)".format(command))
             if item == '':
                 break
             data += ","+item
@@ -151,8 +150,9 @@ def startConfig(socket,address,imei):
             
             if reply[2] == command:
                 print "Got a reply = {}".format(reply)
+                break
             
-            print "Command execute succesfully :) \n"
+        print "Command execute succesfully :) \n"
                 
 
 
