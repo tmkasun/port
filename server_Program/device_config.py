@@ -174,8 +174,7 @@ def generateCommand(command,data,imei):
     #2 bytes. Header of the package from server to tracker. 
     header = '@@'    
     ending_character = "\r\n" #2 bytes. Ending character in ASCII (0x0d,0x0a)
-    
-    #Length from its following separator ‘,’ to the ending character ‘\r\n’. It is decimal digit.
+
     length = str(len(imei+command+data+ending_character)+3) # 3 is checksum len = 2 + star(*)
     
     #generate check sum
