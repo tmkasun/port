@@ -187,7 +187,7 @@ def generateCommand(command,data,imei):
     #end generate checksum
     value_need_to_append_to_command = '*'+hex_value_of_checksum[-2:]
     command_string = header+package_flag+length+','+imei+','+command+data+value_need_to_append_to_command+ending_character
-    print command_string
+    print repr(command_string)
     return command_string
 
 def startupAnimation():
