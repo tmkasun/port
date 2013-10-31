@@ -147,20 +147,27 @@ class newConnection(threading.Thread):
     return False
    
   def reciveGpsData(self):
-
-	try:
-		recivedDataFromGpsDevice = self.channel.recv(4096)	# 4096 is the buffer size
-		#print recivedDataFromGpsDevice # for debuging only
-			
-	except socket.error as e:
-          logging.error(e)
-          print "Error connection to vehicle (disconnect without FIN packet) error = {} no re-try".format(e)
-#          setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(self.connectionImei)
-#          self.cursor.execute(setOnlineFlag)
-#          self.connection.commit()
-#          self.disconnect("Recived GPS String is invalid")
-          return ''
-	return recivedDataFromGpsDevice
+    try_count = 0
+    while True:
+        
+        try:
+              try_count +=1
+              print "{}try to read data from device".format(try_count)
+              recivedDataFromGpsDevice = self.channel.recv(4096)	# 4096 is the buffer size
+              return recivedDataFromGpsDevice
+              #print recivedDataFromGpsDevice # for debuging only
+    			
+        except socket.error as e:
+              logging.error(e)
+              print "Error connection to vehicle (disconnect without FIN packet) error = {}".format(e)
+              if try_count < 4:
+                  continue
+#             setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(self.connectionImei)
+#             self.cursor.execute(setOnlineFlag)
+#             self.connection.commit()
+#             self.disconnect("Recived GPS String is invalid")
+              return ''
+	#return recivedDataFromGpsDevice
 # this method is called when thread is created
   def run(self):
     # allow viewing server connection log via web page
@@ -187,23 +194,19 @@ class newConnection(threading.Thread):
     print "Vehicle Flag set to online"
     print self.cursor.execute(setOnlineFlag)
     self.connection.commit() #commit changes to DB imediatly 
-    reTryCount = 0
     while True:
       #recivedDataFromGpsDevice = self.channel.recv(2048)  # 2048 is the buffer size
       gpsObject = gpsString(self.reciveGpsData())
       
       if not gpsObject.isValidGpsString:
-      	reTryCount +=1
-      	print "Device has been disconnected from remote end retrying {}".format(reTryCount)
-      	if reTryCount > 2:
-               setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
-               self.cursor.execute(setOnlineFlag)
-               self.connection.commit()
-               self.disconnect("Device has been disconnected from remote end DB Flag set To Disconnected")
-               print ("Device has been disconnected from remote end DB Flag set To Disconnected")
-               print "Retrying Faild"
-               return False
-      	continue
+      	print "Device has been disconnected from remote end no retrying "
+  	     setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
+          self.cursor.execute(setOnlineFlag)
+          self.connection.commit()
+          self.disconnect("Device has been disconnected from remote end DB Flag set To Disconnected")
+          print ("Device has been disconnected from remote end DB Flag set To Disconnected")
+          return False
+      	
       	
       elif not gpsObject.isConnectedToSatellites:
       	print "Device is not connected to GPS Satellites"

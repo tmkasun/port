@@ -72,8 +72,9 @@ class newConnection(threading.Thread):
     return False
    
   def reciveGpsData(self):
-
+     
 	try:
+          print "receving data"
 		recivedDataFromGpsDevice = self.channel.recv(4096)	# 4096 is the buffer size
 		#print recivedDataFromGpsDevice # for debuging only
 			
