@@ -9,7 +9,13 @@ http://code.activestate.com/recipes/408859-socketrecv-three-ways-to-turn-it-into
 import threading
 import socket
 import time
+try:
+	# try to install MySQLdb module
+  import MySQLdb #Documentation http://mysql-python.sourceforge.net/MySQLdb.html
 
+except ImportError:
+  # apt get code apt-get install python-mysqldb
+  print "Import failed MySql Database module "
 
 
 def createSocket(portNumber=9091, serverIP=""):
@@ -62,6 +68,7 @@ class newConnection(threading.Thread):
     self.channel = channel
     self.connectionImei = None
     self.address = address
+    self.connectToDB()
     #self.approvedImei = False # this has been moved to gpsObject class
     threading.Thread.__init__(self)
   
@@ -70,16 +77,34 @@ class newConnection(threading.Thread):
      	self.channel.shutdown(2)
     self.channel.close()
     return False
-   
+
+  def connectToDB(self, databaseIP="127.0.0.1", dbUser="root", dbPassword="kasun123"):
+    # Open database connection
+    self.connection = MySQLdb.connect(databaseIP, dbUser, dbPassword)
+    self.connection.select_db("syscall")
+    self.cursor = self.connection.cursor()
+  
+  def disconnect(self,reson="No reson specified"):
+    
+    self.connection.commit()
+    if self.cursor:
+     	self.cursor.close()
+    if self.channel:
+     	self.channel.shutdown(2)
+    self.channel.close()
+    return False 
+
+
+  
   def reciveGpsData(self):
      
 	try:
           print "receving data"
-		recivedDataFromGpsDevice = self.channel.recv(4096)	# 4096 is the buffer size
+          recivedDataFromGpsDevice = self.channel.recv(4096)	# 4096 is the buffer size
 		#print recivedDataFromGpsDevice # for debuging only
 			
 	except:
-          print "Error connection to vehicle (disconnect without FIN packet) error = {} no re-try".format(e)
+          print "Error connection to vehicle (disconnect without FIN packet) error no re-try"
 #          setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(self.connectionImei)
 #          self.cursor.execute(setOnlineFlag)
 #          self.connection.commit()
@@ -87,11 +112,25 @@ class newConnection(threading.Thread):
 	return recivedDataFromGpsDevice
 # this method is called when thread is created
   def run(self):
+    
     while True:
         print "*** New device connected from {} ***".format(self.address)
         print "Waiting for incoming messages from device....."
         recived_data = self.reciveGpsData()        
         print recived_data
+        insertBarcodeData = """update job_details set time_of_departure = now() where barcode_number = '{}' """.format(recived_data)
+        print insertBarcodeData
+        
+        try:
+            # Execute the SQL command
+            self.cursor.execute(insertBarcodeData)
+            self.connection.commit() #commit changes to DB imediatly
+            
+        except :
+            # Roll back in case there is any error
+            print insertBarcodeData
+            print "Mysql Execution Error"
+            self.connection.rollback()
 
 def startupAnimation():
 	print ''
