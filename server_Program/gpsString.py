@@ -83,7 +83,19 @@ class gpsString:
       logging.error("Device not connected to GPS satalites (lat long passing error)")
       return None
     self.date = self.splitedGpsData[6]#self.splitedGpsData[11][4:] + self.splitedGpsData[11][2:4] + self.splitedGpsData[11][:2]
-    self.sat_time = self.splitedGpsData[6]#self.date + self.splitedGpsData[3]
+    #update +5:30 time zone fix setting device time zone not working :() 
+    time = self.splitedGpsData[6]#self.date + self.splitedGpsData[3]
+    hours = int(time[6:8])
+    minutes = time[8:10]
+    seconds = time[10:12]
+    minutes = int(minutes) + 30
+    if minutes >= 60:
+        minutes = minutes%60
+        hours +=1    
+    hours = str(hours + 5)
+    minutes = str(minutes)
+    
+    self.sat_time = time[:6]+hours+minutes+seconds
     #self.serial = self.splitedGpsData[0] # serial = sat_time = date
     #self.phone_number = self.splitedGpsData[1] #useless data
     self.sat_status = self.splitedGpsData[7] #self.splitedGpsData[4]
