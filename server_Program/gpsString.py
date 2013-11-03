@@ -92,8 +92,9 @@ class gpsString:
     if minutes >= 60:
         minutes = minutes%60
         hours +=1    
-    hours = str(hours + 5)
-    minutes = str(minutes)
+    hours = hours + 5
+    minutes = "%02d" %(minutes,)
+    hours = "%02d" %(hours,)
     
     self.sat_time = time[:6]+hours+minutes+seconds
     #self.serial = self.splitedGpsData[0] # serial = sat_time = date
