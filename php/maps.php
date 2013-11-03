@@ -182,9 +182,9 @@ function createMap(){
 		iconUrl : "../media/images/map/prime_mover_icon_offline.png",
 		//shadowUrl: '',
 
-		iconSize: [48,48],
+		iconSize: [24,24],
 		//shadowSize: [0,0],
-		iconAnchor: [0,+25],
+		iconAnchor: [+12,+12],
 		popupAnchor: [-2,-5] //[-3,-76]
 		});
 
@@ -192,9 +192,9 @@ function createMap(){
 		iconUrl : "../media/images/map/prime_mover_icon_online.png",
 		//shadowUrl: '',
 
-		iconSize: [48,48],
+		iconSize: [24,24],
 		//shadowSize: [0,0],
-		iconAnchor: [0,+25],
+		iconAnchor: [+12,+12],
 		popupAnchor: [-2,-5] //[-3,-76]
 		});
 	
@@ -256,6 +256,9 @@ $(document).ready(
                         // create map layer in webpage
 						createMap();
 						
+						//Fired changeIconSize method when the map zoom changes. to change the marker size accordingly
+						//map.on('zoomend', changeIconSize);
+						
 						/* ----------------------- AJAX orginal method for getting Json data ---------------------- */
 						      
 						$.ajax({
@@ -297,10 +300,11 @@ $(document).ready(
                                                             
                                                             currentVehicleList[imeiNumberAsKey].marker.bindPopup(popupCSSdisplay);//.openPopup() for open popup at the begining
 												totalNumberOfPrimovers +=1;
-												
+													
 														}
 											map.setView([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])], 15);
                                             $("#totalRegisterdPrimovers").html(totalNumberOfPrimovers); 
+                                            
 	                                        setInterval(ajaxCheck, 1000);
                                                        
 											}
@@ -706,6 +710,8 @@ return '#'+rstr + gstr + bstr;
     
     
 }
+
+
 </script>
 </head>
 <body
@@ -844,7 +850,84 @@ return '#'+rstr + gstr + bstr;
 
 
 
+<script>
+	
+	/*
+	 
+	 * 
+	 * 
+	 * /*---------------------changeIconSize method - to change the marker size when the map zoom level has changed ----------------
+	function changeIconSize(){
+	
+	
+		iconSize: [24,24],
+		//shadowSize: [0,0],
+		iconAnchor: [+12,+12],
+		popupAnchor: [-2,-5] //[-3,-76]
+		});
+		
+		var currentZoom = map.getZoom();
+		var maxZoom = map.getMaxZoom();
+		var defaultIconSize = new L.Point(24, 24);
+		var transformation = new L.Transformation(1, 0, 1, 0);
+		var newIconSize = transformation.transform(defaultIconSize, sizeFactor(currentZoom));
+		var ancorSize = Math.round(12*currentZoom/maxZoom)
+		var newIconAnchor = new L.Point(ancorSize, ancorSize);
+		
+		
+		for (var vehicle in currentVehicleList){
+			
+			
+			prime_mover_icon_online = L.icon({
+					iconUrl : "../media/images/map/prime_mover_icon_online.png",
+					//shadowUrl: '',
+			
+					iconSize: [24,24],
+					//shadowSize: [0,0],
+					iconAnchor: [+12,+12],
+					popupAnchor: [-2,-5] //[-3,-76]
+					});
 
+			new_icon = prime_mover_icon_online;
+			
+			if (vehicle in offlinePrimovers){
+			prime_mover_icon_offline = L.icon({
+				iconUrl : "../media/images/map/prime_mover_icon_offline.png",
+				iconSize: newIconSize,
+				iconAnchor: newIconAnchor,
+				popupAnchor: [-2,-5] //[-3,-76]
+					});
+			new_icon = prime_mover_icon_offline;
+			alert(vehicle);
+			
+			}
+			
+
+			currentVehicleList[vehicle].marker.setIcon(new_icon);
+		}
+		return 0;
+}
+
+
+
+function sizeFactor(zoom) {
+	  if (zoom <= 8) return 0.3;
+	  else if (zoom == 9) return 0.4;
+	  else if (zoom == 10) return 0.5;
+	  else if (zoom == 11) return 0.7;
+	  else if (zoom == 12) return 0.85;
+	  else if (zoom == 13) return 1.0;
+	  else if (zoom == 14) return 1.3;
+	  else if (zoom == 15) return 1.6;
+	  else if (zoom == 16) return 1.9;
+	  else // zoom >= 17
+	  return 2.2;
+}
+	 * 
+	 * 
+	 * */
+	
+</script>
 
 
 

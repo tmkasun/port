@@ -92,7 +92,9 @@ class gpsString:
     if minutes >= 60:
         minutes = minutes%60
         hours +=1    
+    #add +5 hours to UTC 0:0
     hours = hours + 5
+    # convert single digit number to tow digits
     minutes = "%02d" %(minutes,)
     hours = "%02d" %(hours,)
     
