@@ -196,6 +196,8 @@ class newConnection(threading.Thread):
       gpsObject = gpsString(self.reciveGpsData())
       
       if not gpsObject.isValidGpsString:
+          #ping = self.channel.send("1") # FIXME have to ping to server and confirm its disconnected befor we drop connection
+          
           print "Device has been disconnected from remote end no retrying "
           setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
           self.cursor.execute(setOnlineFlag)

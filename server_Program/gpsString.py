@@ -85,6 +85,7 @@ class gpsString:
     self.date = self.splitedGpsData[6]#self.splitedGpsData[11][4:] + self.splitedGpsData[11][2:4] + self.splitedGpsData[11][:2]
     #update +5:30 time zone fix setting device time zone not working :() 
     time = self.splitedGpsData[6]#self.date + self.splitedGpsData[3]
+    date =  int(time[4:6])   
     hours = int(time[6:8])
     minutes = time[8:10]
     seconds = time[10:12]
@@ -94,11 +95,16 @@ class gpsString:
         hours +=1    
     #add +5 hours to UTC 0:0
     hours = hours + 5
+    if hours >= 24:
+        hours = hours%24
+        date += 1
+        
     # convert single digit number to tow digits
     minutes = "%02d" %(minutes,)
     hours = "%02d" %(hours,)
+    date = "%02d" %(date,)
     
-    self.sat_time = time[:6]+hours+minutes+seconds
+    self.sat_time = time[:4]+date+hours+minutes+seconds
     #self.serial = self.splitedGpsData[0] # serial = sat_time = date
     #self.phone_number = self.splitedGpsData[1] #useless data
     self.sat_status = self.splitedGpsData[7] #self.splitedGpsData[4]

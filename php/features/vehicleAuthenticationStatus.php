@@ -34,6 +34,8 @@ if(isset($_POST["decision"])){
                $set_approval = "insert into approved_imei values('$_POST[imei]',now())";
               // $update_review_flag = "update not_approved_imei set review_status = 1 where imei = '$_POST[imei]'";
 			   $delete_review_flag = "delete from not_approved_imei where imei = '$_POST[imei]'";
+			   $add_vehicle_details = "insert into vehicle_details(assigned_imei_number,vehicle_registration_number,vehicle_owner) values('$_POST[imei]','$_POST[vehicle_registration_number]','$_POST[vehicle_owner]')";
+			   mysql_query($add_vehicle_details,$connection);
 			   			   
                mysql_query($set_approval,$connection);
                mysql_query($delete_review_flag,$connection);

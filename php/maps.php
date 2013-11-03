@@ -102,6 +102,7 @@ include_once("./features/googleAnalyticsTracking.php")
 
 <!-- CSS style sheet for Leaflet API from online CDN -->
 <link rel="stylesheet" href="../css/leaflet.css" />
+<link rel="stylesheet" href="../css/leaflet.label.css" />
 
 <!-- CSS style sheet for date and time picker -->
 <link rel="stylesheet" href="../css/jquery-ui-timepicker-addon.css" />
@@ -112,7 +113,7 @@ include_once("./features/googleAnalyticsTracking.php")
 <!-------------------------- JavaScript file for Leaflet API from online CDN -------------------------->
 <!-- local file -->
 <script src="../js/leaflet.js"></script>
-
+<script src="../js/leaflet.label.js"></script>
 <!-- Load file from Leaflet CDN -->
 <!-- <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script> -->
 
@@ -255,6 +256,9 @@ $(document).ready(
                       
                         // create map layer in webpage
 						createMap();
+						$( "#commonMessageBox" ).draggable({
+							cancel: "#commonMessageBox > div"
+						});
 						
 						//Fired changeIconSize method when the map zoom changes. to change the marker size accordingly
 						//map.on('zoomend', changeIconSize);
@@ -429,6 +433,9 @@ function showVehicleHistory() {
      $("#leftSideSlidePaneResultBox").html(loadingImage).load("./features/retrieveVehicleList.php");
      
 }
+
+
+
 function changeMapTileServer(ServerName){
      switch (ServerName) {
 	case "googleMap":
@@ -475,7 +482,7 @@ function leftSidePaneImageOnClick(thisVehicle){
 	
 	$( "#commonMessageBoxResultBox").html("");
 	$( "#commonMessageBoxResultBox").hide();
-	$( "#commonMessageBoxResultBox").removeProp("class");
+	//$( "#commonMessageBoxResultBox").removeProp("class");
 	
 	$.ajax({
 		type : "POST",
@@ -500,17 +507,16 @@ function leftSidePaneImageOnClick(thisVehicle){
 
 
 	$("#vehicle_history_div").fadeIn("slow");
-	
+	$( "#commonMessageBoxResultBox").fadeIn("slow");
 	$("#commonMessageBox").fadeIn("slow");
 	init_date_time(thisVehicle);
 	
 
     
 }
-
+var firstTime = true;
 function init_date_time (thisVehicle) {
-  
-		$('#datePicker').fadeIn('slow');
+  		$('#datePicker').fadeIn('slow');
 
 
 		$("#time_picker_1").timepicker({
@@ -522,10 +528,9 @@ function init_date_time (thisVehicle) {
 		});
 		
 		$(".ui-datepicker-title:eq(3)").html("Starting time");
-				$("#datePicker").datetimepicker({
+		
+		$("#datePicker").datepicker({
 			dateFormat: "yy-mm-dd",
-			
-			
 		});
 		
 		/*
@@ -534,10 +539,21 @@ function init_date_time (thisVehicle) {
 		 Path</button>
 
 		 */
+
+		
+		$("<button/>", {
+			onClick : "getVehiclePath($('#datePicker').datetimepicker('getDate'),$('#time_picker_2').timepicker('getDate').val(),$('#time_picker_1').timepicker('getDate').val())",
+			text : "Show History"
+		}).replaceWith("#datePicker button");
+		
+		/* FIXME bad method to use firstTime flag need to remove this tempory fix */
+		if (firstTime){
 		$("<button/>", {
 			onClick : "getVehiclePath($('#datePicker').datetimepicker('getDate'),$('#time_picker_2').timepicker('getDate').val(),$('#time_picker_1').timepicker('getDate').val())",
 			text : "Show History"
 		}).appendTo("#datePicker");
+		firstTime = false;
+		}
 
 		//alert(thisVehicle.id);
 		currentDataPickerVehicleImei = thisVehicle.id;
@@ -564,7 +580,7 @@ function getVehiclePath(selectedDateObject,start,end) {
          month = "0"+month;
      if (date.length <2)
          date = "0"+date;
-     alert(year+">>>"+month+">>>"+date+">>>>>>"+currentDataPickerVehicleImei);
+     //alert(year+">>>"+month+">>>"+date+">>>>>>"+currentDataPickerVehicleImei);
      
 	$.ajax({
         type : "GET",
@@ -578,7 +594,7 @@ function getVehiclePath(selectedDateObject,start,end) {
                 //return 0;
                 var startingPointLatLng = new L.LatLng(jsonObject[0]["latitude"],jsonObject[0]["longitude"]);
                 var polyLineDistanceInMeters = 0;
-                var polyLine = L.polyline([],{color:get_random_color()});//.addLatLng([7.060015,79.96121]).addTo(map);
+                var polyLine = L.polyline([],{weight: 12,color:get_random_color()});//.addLatLng([7.060015,79.96121]).addTo(map);
                 var currentLatLng = startingPointLatLng;
                 for ( var sections in jsonObject) {
                 		for ( var pass in sections) {
@@ -600,13 +616,15 @@ function getVehiclePath(selectedDateObject,start,end) {
 						
 					});
 					map.addLayer(animatedMarker);
-                    polyLine.addTo(map);
-                    polyLine.on("click",onClickPolyLinePopupOpenner);
+					var polyLinePopupContent = "<a style = 'color:red'>Total Distance = "+polyLineDistanceInMeters.toFixed(1) +"(in meters)("+(polyLineDistanceInMeters/1000).toFixed(1)+"Km)</a>";
+                    polyLine.bindLabel(polyLinePopupContent);
+					polyLine.addTo(map);
                     //alert("done2");
                     //var polyLinePopUp
-                    var polyLinePopupContent = "<a style = 'color:red'>Total Distance = "+polyLineDistanceInMeters.toFixed(1) +"(in meters)("+(polyLineDistanceInMeters/1000).toFixed(1)+"Km)</a>";
-                    polyLine.bindPopup(polyLinePopupContent).openPopup();
-                    L.circle(startingPointLatLng,50,{color:"green",stroke:true,fillColor:"red",weight:2}).addTo(map).bindPopup("Starting Point @ "+jsonObject[0]["sat_time"]+" Time").openPopup();
+                    var startingPointCircle = L.circle(startingPointLatLng,50,{color:"green",stroke:true,fillColor:"red",weight:2});
+                    startingPointCircle.addTo(map).bindPopup("Starting Point @ "+jsonObject[0]["sat_time"]+" Time").openPopup();
+                	polyLine.on('click', function () { map.removeLayer(polyLine);animatedMarker.stop();map.removeLayer(animatedMarker);map.removeLayer(startingPointCircle);});
+                    
                 });
     //var polyLine = L.polyline([,]).addTo(map);
     $('#commonMessageBox').fadeOut('slow');
@@ -618,7 +636,7 @@ function getVehiclePath(selectedDateObject,start,end) {
 /*---------------------------------- End ----------------------------------*/
 
 function onClickPolyLinePopupOpenner(mouseEventObject){
-     alert(mouseEventObject.latlng);
+     //alert(mouseEventObject.latlng);
 
 
 	     
@@ -637,23 +655,35 @@ $("#commonMessageBoxResultBox").html(loadingImage).load("./features/userActiviti
 	     
 }
 
+var imeiNum ;
+var decision ;
 
 function setDecision(imeiNumber,decisionMade){
 //alert(imeiNumber+decisionMade);
-
-     $.post("./features/vehicleAuthenticationStatus.php",{"decision":decisionMade,"imei":imeiNumber}).done(
-          function(returnData){
-              if(decisionMade == "approve"){
-                  alert("<"+imeiNumber+">"+" will allowed to connect to main server");
-
-                  }
-        	  approveVehicles();
-              });
+	 imeiNum = imeiNumber;
+	 decision = decisionMade;
+	 $("#commonMessageBoxResultBox").html(loadingImage).load("./features/newVehicleRegistration.php?imei="+imeiNumber);
+	 return 0;
      
 	     
 }
 
 
+function registerNewVehicle(){
+	//alert(imeiNum + decision + $("#vehicle_registration_number").val() + $("#vehicle_owner").val() );
+	vehicle_registration_number = $("#vehicle_registration_number").val();
+	vehicle_owner = $("#vehicle_owner").val();
+	
+	 $.post("./features/vehicleAuthenticationStatus.php",{"decision":decision,"imei":imeiNum,"vehicle_registration_number":vehicle_registration_number,"vehicle_owner":vehicle_owner}).done(
+	  function(returnData){
+	      if(decision == "approve"){
+	          alert("<"+imeiNum+">"+" will allowed to connect to main server");
+	
+	          }
+		  approveVehicles();
+	      });
+
+}
 
 //------------------------------ Generate random colos on the fly Use get_random_color() in place of "#0000FF" ----------------------
 
@@ -702,7 +732,7 @@ gstr = "0" + gstr;
 if (bstr.length === 1) {
 bstr = "0" + bstr;
 }
- alert('#'+rstr + gstr + bstr);
+ //alert('#'+rstr + gstr + bstr);
 return '#'+rstr + gstr + bstr;
 
     
@@ -718,19 +748,19 @@ return '#'+rstr + gstr + bstr;
      style="background-image: url('../media/images/backgrounds/map_background6.jpg'); margin: 0; padding: 0;">
      <!-- for full page background style="background-image: url('../media/images/backgrounds/map_background3.jpg'); background-size: cover; -moz-background-size: cover; -webkit-background-size: cover; margin: 0; padding: 0;" -->
      <!-- Open street maps via leaflet javascript framework-->
-     <div id="map"
-          style="position: absolute; width: 95%; height: 100%; float: left; margin-left: 3%; margin-right: 3%; background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
-          OSM Layer
 
-
-
-<div id="commonMessageBox"
-			style="position: relative; z-index: 4; width: 85%; height: 85%; margin-left: auto; margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none;">
+			<div id="commonMessageBox"
+			style="position: absolute; z-index: 4; width: 85%; height: 85%; margin-left: auto;
+			 margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; 
+			 box-shadow: 0px 0px 20px 5px #000000; display: none;top: 20px;left: 20px;cursor: move;">
 
 				<img onclick="$('#commonMessageBox').fadeOut('slow')"
-				alt="Close" src="../media/images/logins/no.ico"
-				style="position: relative; float: right; top: 0px;cursor: pointer;" />
-				<br /> <br />
+				alt="Close" src="../media/images/logins/close.png"
+				width="24" height="24"
+				alt="Close"
+				style="position: relative; float: right; top: -10px;cursor: pointer;right: -10px" />
+				<br />
+				<br />
 				<div id="vehicle_history_div" style="display: none;z-index: 999999">
 
 					<div id="datePicker"
@@ -747,74 +777,80 @@ return '#'+rstr + gstr + bstr;
 
 					</div>
 
-</div>
+				</div>
 
-               
-               
-               
-               
-               <br /> 
-               <div id="commonMessageBoxResultBox"
-                    style="overflow: auto; height: 75%; position: relative; width: auto; margin-right: auto; margin-left: auto;">
+				<br />
+				<div id="commonMessageBoxResultBox"
+				style="overflow: auto; height: 75%; position: relative; width: auto; margin-right: auto; margin-left: auto;">
 
-               </div>
+				</div>
 
-
-          </div>
-          
-
-          
-          
-          
-     </div>
-
-     <img style="position: fixed; float: right; margin: 0; padding: 0;"
-          id="serverStatusImage" alt="serverStatus"
-          src="../media/images/icons/serverStatus/status_yellow.png">
-
-
-     <div id="functionButtons"
-          style="position: relative; width: 85%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
+			</div>
+<div id="map"
+		style="position: absolute; width: 95%; height: 100%; float: left; margin-left: 3%; margin-right: 3%; 
+		background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
+			OSM Layer
 
 
 
-          <?php if($_SESSION["admin"] == TRUE) { ?>
-          <button style="color: red;" id="approve_vehicles_to_map"
-               onclick="approveVehicles()" class="styled-button-10">Add
-               Vehicles to map</button>
+		</div>
 
-          <button id="getActivities" class="styled-button-8"
-               onclick="getActivities()" style="color: red;">Show Web
-               activities</button>
+		<img style="position: fixed; float: right; margin: 0; padding: 0;"
+		id="serverStatusImage" alt="serverStatus"
+		src="../media/images/icons/serverStatus/status_yellow.png">
 
+		<div id="functionButtons"
+		style="position: relative; width: 85%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
 
-               <?php }?>
+			<?php if($_SESSION["admin"] == TRUE) {
+			?>
+			<button style="color: red;" id="approve_vehicles_to_map"
+			onclick="approveVehicles()" class="styled-button-10">
+				Add
+				Vehicles to map
+			</button>
 
-          <button id="showVehicleHistory" class="styled-button-8"
-               onclick="showVehicleHistory()">Show Vehicle History</button>
-          <button id="get_administrators" class="styled-button-8"
-               onclick="changeMap()">Change map type</button>
-               <a id="currentVehicleStatus" style="color: red;font-size: small;">Total Primovers <span id = "totalRegisterdPrimovers" style="color: activecaption;font-size: x-large;"></span> Online Primovers <span id = "currentOnlinePrimovers" style="color: aqua;font-size: x-large;"></span>  </a>
+			<button id="getActivities" class="styled-button-8"
+			onclick="getActivities()" style="color: red;">
+				Show Web
+				activities
+			</button>
 
-          <button id="loguot_button" class="styled-button-8"
-               style="float: right;"
-               onclick="window.location.href = './logout.php' ">Logout</button>
+			<?php }
+			?>
 
-          <div id="ajax_result_div" style="position: relative;"></div>
+			<button id="showVehicleHistory" class="styled-button-8"
+			onclick="showVehicleHistory()">
+				Show Vehicle History
+			</button>
+			<button id="get_administrators" class="styled-button-8"
+			onclick="changeMap()">
+				Change map type
+			</button>
+			<a id="currentVehicleStatus" style="color: red;font-size: small;">Total Primovers <span id = "totalRegisterdPrimovers" style="color: activecaption;font-size: x-large;"></span> Online Primovers <span id = "currentOnlinePrimovers" style="color: aqua;font-size: x-large;"></span> </a>
 
+			<button id="loguot_button" class="styled-button-8"
+			style="float: right;"
+			onclick="window.location.href = './logout.php' ">
+				Logout
+			</button>
 
-     </div>
-     <div id="leftSideSlidePane"
-          style="position: fixed; float: left; height: 91%; width: 10%; background-color: red; z-index: 2; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none;">
-          <img
-               onclick="$('#leftSideSlidePane').hide('slide',{direction:'left'})"
-               alt="Close" src="../media/images/logins/no.ico"
-               style="position: relative; float: right; top: 0px;" /> <br />
-          <br /> <br />
-          <div id="leftSideSlidePaneResultBox"
-               style="overflow: auto; height: 100%;"></div>
+			<div id="ajax_result_div" style="position: relative;"></div>
 
-     </div>
+		</div>
+		<div id="leftSideSlidePane"
+		style="position: fixed; float: left; height: 91%; width: 10%; background-color: red; z-index: 2; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none;">
+			<img
+			onclick="$('#leftSideSlidePane').hide('slide',{direction:'left'})"
+			alt="Close" src="../media/images/logins/no.ico"
+			style="position: relative; float: right; top: 0px;" />
+			<br />
+			<br />
+			<br />
+			<div id="leftSideSlidePaneResultBox"
+			style="overflow: auto; height: 100%;"></div>
+
+		</div>
 
 
      <script type="text/javascript">
