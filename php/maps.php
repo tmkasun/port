@@ -773,6 +773,7 @@ return '#'+rstr + gstr + bstr;
 					<div id="time_picker_2" style="float: right;top: 0px;">
 
 					</div>
+					<br />
 					<div id="histroy_dates" style="float: right;height: 300px;background-color: green;overflow: scroll;overflow-style: auto;width: 200px;">
 
 					</div>
