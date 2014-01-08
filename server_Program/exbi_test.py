@@ -56,14 +56,6 @@ The algorithm is in the public domain and is in wide use today. It is specified 
 it was designed to protect against accidental errors,
 not malicious attacks. Most credit cards and many government identification numbers use the algorithm as a simple method of distinguishing valid numbers from collections of random digits.
 
-
-
--------------------Benefits of Asynchronous Sockets and Linux epoll----------------------
-
-When a program uses blocking sockets it often uses one thread (or even a dedicated process) to carry out the communication on each of those sockets.
-The main program thread will contain the listening server socket which accepts incoming connections from clients. 
-It will accept these connections one at a time, passing the newly created socket off to a separate thread which will then interact with the client. 
-Because each of these threads only communicates with one client, any blockage does not prohibit other threads from carrying out their respective tasks.
 """
 
 #===============================================================================
@@ -121,7 +113,6 @@ class newConnection(threading.Thread):
   def __init__(self, detailsPair, databaseIP, dbUser, dbPassword):
     channel , address = detailsPair
     self.channel = channel
-    self.connectionImei = None
     self.address = address
     #self.approvedImei = False # this has been moved to gpsObject class
     self.splitedGpsData = ''
@@ -141,81 +132,70 @@ class newConnection(threading.Thread):
      	self.cursor.close()
     if self.channel:
      	self.channel.shutdown(2)
-    self.channel.close()
+    	self.channel.close()
     return False
    
-  def reciveGpsData(self):
-    try_count = 0
-    while True:
-        try:
-              try_count +=1
-              print "{}try to read data from device".format(try_count)
-              recivedDataFromGpsDevice = self.channel.recv(4096)	# 4096 is the buffer size
-              return recivedDataFromGpsDevice
-              #print recivedDataFromGpsDevice # for debuging only
-    			
-        except socket.error as e:
-              logging.error(e)
-              print "Error connection to vehicle (disconnect without FIN packet) error = {}".format(e)
-              if try_count < 2:
-                  continue
-              return ''
-              
-# this method is called when thread is created
+  def reciveGpsData(self):  		
+		try:
+			recivedDataFromGpsDevice = self.channel.recv(4096)	# 4096 is the buffer size
+			#print recivedDataFromGpsDevice # for debuging only
+			
+		except socket.error as e:
+			logging.error(e)
+		
+		return recivedDataFromGpsDevice
+  # this method is called when thread is created
   def run(self):
     # allow viewing server connection log via web page
     print "Device connected from {} via its port {}".format(self.address[0], self.address[1])
     
     gpsObject = gpsString(self.reciveGpsData())
     
-    # Change mode to blocking after connecting device 
-    self.channel.setblocking(0) # set channel(or socket) to non-blocking mode
-    self.channel.settimeout(14) # wait 15 second blocked if not receve data rise exception
-
     print "---------Initial check complete---------\n gpsObject is {}".format(gpsObject.isValidGpsString) #for debuging use only
     
     #check this algo short curcuite matter?
-    if not (gpsObject.isValidGpsString and gpsObject.validateVehicleFromDB(self.cursor)):#pass the connection cursor to validator
-        	print "Recived GPS String is invalid" # for debuging purpose
-        	self.disconnect("Recived GPS String is invalid")
-        	return False
+   # if not (gpsObject.isValidGpsString and gpsObject.validateVehicleFromDB(self.cursor)):#pass the connection cursor to validator
+    #	print "Recived GPS String is invalid" # for debuging purpose
+    #	self.disconnect("Recived GPS String is invalid")
+    #	return False
     
     print "-----Continue to recive data IMEI number is valid and approved -----"
     
     # finally if everything went correctly , set online status 1 to that truck
     connectionImei = gpsObject.imei  # this `connectionImei` i s created to use on when device disconnected from device
-    self.connectionImei = connectionImei
     #current_status = 1 means online 0 means offline
     setOnlineFlag = """insert into vehicle_status values("{}",now(),null,1) ON DUPLICATE KEY update connected_on = now() , current_status = 1""".format(gpsObject.imei)
     print setOnlineFlag
     print "Vehicle Flag set to online"
     print self.cursor.execute(setOnlineFlag)
     self.connection.commit() #commit changes to DB imediatly 
+    reTryCount = 0
     while True:
       #recivedDataFromGpsDevice = self.channel.recv(2048)  # 2048 is the buffer size
       gpsObject = gpsString(self.reciveGpsData())
       
-      if not gpsObject.isValidGpsString:
-          #ping = self.channel.send("1") # FIXME have to ping to server and confirm its disconnected befor we drop connection
-          
-          print "Device has been disconnected from remote end no retrying "
-          setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
-          self.cursor.execute(setOnlineFlag)
-          self.connection.commit()
-          self.disconnect("Device has been disconnected from remote end DB Flag set To Disconnected")
-          print ("Device has been disconnected from remote end DB Flag set To Disconnected")
-          return False
+#      if not gpsObject.isValidGpsString:
+ #     	reTryCount +=1
+  #    	print "Device has been disconnected from remote end retrying {}".format(reTryCount)
+   #   	if reTryCount > 2:
+    #  		setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
+     #   	self.cursor.execute(setOnlineFlag)
+      #  	self.connection.commit()
+	   #    	self.disconnect("Device has been disconnected from remote end DB Flag set To Disconnected")
+	  #     	print ("Device has been disconnected from remote end DB Flag set To Disconnected")
+	 #     	print "Retrying Faild"
+	    #  	return False
+     # 	continue
       	
-      	
-      elif not gpsObject.isConnectedToSatellites:
-      	print "Device is not connected to GPS Satellites"
-      	continue #waiting to connect device to GPS Satellites
+     # elif not gpsObject.isConnectedToSatellites:
+      #	print "Device is not connected to GPS Satellites"
+      #	continue #waiting to connect device to GPS Satellites
 
       print "Receiving GPS coordinates....(Thread Name: {})".format(self.getName())
 
       try:
         #print sat_time
-        sql = """ insert into coordinates(sat_time,sat_status,latitude,longitude,speed,bearing,imei,location_area_code,cell_id) values("{}",'{}',{},{},{},{},"{}","{}","{}")""".format(gpsObject.sat_time,gpsObject.sat_status,gpsObject.latitude,gpsObject.longitude,gpsObject.speed,gpsObject.bearing,gpsObject.imei,gpsObject.location_area_code,gpsObject.cell_id)
+        sql = """ insert into coordinates(serial,phone_number,sat_time,sat_status,latitude,longitude,speed,bearing,imei,location_area_code,cell_id) values("{}","{}","{}",'{}',{},{},{},{},"{}","{}","{}")""".format(gpsObject.serial,gpsObject.phone_number,gpsObject.sat_time,gpsObject.sat_status,gpsObject.latitude,gpsObject.longitude,gpsObject.speed,gpsObject.bearing,gpsObject.imei,gpsObject.location_area_code,gpsObject.cell_id)
 
       except ValueError:
         sql = ""
@@ -236,7 +216,7 @@ class newConnection(threading.Thread):
 #this class is for future advancements
 class vehicle():
 	pass
-
+	
 
 def createSocket(portNumber=9090, serverIP=""):
   server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
