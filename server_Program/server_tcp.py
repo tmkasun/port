@@ -74,11 +74,11 @@ import threading
 # import Queue
 from gpsString import *
 from newConnection import *
-import socket #documentation http://docs.python.org/2/howto/sockets.html , http://docs.python.org/2/library/socket.html
+import socket  # documentation http://docs.python.org/2/howto/sockets.html , http://docs.python.org/2/library/socket.html
 from fileinput import filename
 try:
 	# try to install MySQLdb module
-  import MySQLdb #Documentation http://mysql-python.sourceforge.net/MySQLdb.html
+  import MySQLdb  # Documentation http://mysql-python.sourceforge.net/MySQLdb.html
 
 except ImportError:
   # apt get code apt-get install python-mysqldb
@@ -112,18 +112,18 @@ def main():
 			continue
 
 	while True:
-		print "Current Connections= {}".format(threading.activeCount()-1)
+		print "Current Connections= {}".format(threading.activeCount() - 1)
 		newConnection(serverSocket.accept(), configInfoDict.get("databaseIP"), configInfoDict.get("dbUser"), configInfoDict.get("dbPassword")).start()
 
 
-#new Connection object for every connection creat between GPS/GPRS device and local server
+# new Connection object for every connection creat between GPS/GPRS device and local server
 class newConnection(threading.Thread):
   def __init__(self, detailsPair, databaseIP, dbUser, dbPassword):
     channel , address = detailsPair
     self.channel = channel
     self.connectionImei = None
     self.address = address
-    #self.approvedImei = False # this has been moved to gpsObject class
+    # self.approvedImei = False # this has been moved to gpsObject class
     self.splitedGpsData = ''
     self.connectToDB(databaseIP, dbUser, dbPassword)
     threading.Thread.__init__(self)
@@ -134,7 +134,7 @@ class newConnection(threading.Thread):
     self.connection.select_db("syscall")
     self.cursor = self.connection.cursor()
   
-  def disconnect(self,reson="No reson specified"):
+  def disconnect(self, reson="No reson specified"):
     logging.warn("Connection has been disconnected due to >" + reson)
     self.connection.commit()
     if self.cursor:
@@ -148,11 +148,11 @@ class newConnection(threading.Thread):
     try_count = 0
     while True:
         try:
-              try_count +=1
+              try_count += 1
               print "{}try to read data from device".format(try_count)
-              recivedDataFromGpsDevice = self.channel.recv(4096)	# 4096 is the buffer size
+              recivedDataFromGpsDevice = self.channel.recv(4096)  # 4096 is the buffer size
               return recivedDataFromGpsDevice
-              #print recivedDataFromGpsDevice # for debuging only
+              # print recivedDataFromGpsDevice # for debuging only
     			
         except socket.error as e:
               logging.error(e)
@@ -169,14 +169,14 @@ class newConnection(threading.Thread):
     gpsObject = gpsString(self.reciveGpsData())
     
     # Change mode to blocking after connecting device 
-    self.channel.setblocking(0) # set channel(or socket) to non-blocking mode
-    self.channel.settimeout(14) # wait 15 second blocked if not receve data rise exception
+    self.channel.setblocking(0)  # set channel(or socket) to non-blocking mode
+    self.channel.settimeout(14)  # wait 15 second blocked if not receve data rise exception
 
-    print "---------Initial check complete---------\n gpsObject is {}".format(gpsObject.isValidGpsString) #for debuging use only
+    print "---------Initial check complete---------\n gpsObject is {}".format(gpsObject.isValidGpsString)  # for debuging use only
     
-    #check this algo short curcuite matter?
-    if not (gpsObject.isValidGpsString and gpsObject.validateVehicleFromDB(self.cursor)):#pass the connection cursor to validator
-        	print "Recived GPS String is invalid" # for debuging purpose
+    # check this algo short curcuite matter?
+    if not (gpsObject.isValidGpsString and gpsObject.validateVehicleFromDB(self.cursor)):  # pass the connection cursor to validator
+        	print "Recived GPS String is invalid"  # for debuging purpose
         	self.disconnect("Recived GPS String is invalid")
         	return False
     
@@ -185,18 +185,18 @@ class newConnection(threading.Thread):
     # finally if everything went correctly , set online status 1 to that truck
     connectionImei = gpsObject.imei  # this `connectionImei` i s created to use on when device disconnected from device
     self.connectionImei = connectionImei
-    #current_status = 1 means online 0 means offline
+    # current_status = 1 means online 0 means offline
     setOnlineFlag = """insert into vehicle_status values("{}",now(),null,1) ON DUPLICATE KEY update connected_on = now() , current_status = 1""".format(gpsObject.imei)
     print setOnlineFlag
     print "Vehicle Flag set to online"
     print self.cursor.execute(setOnlineFlag)
-    self.connection.commit() #commit changes to DB imediatly 
+    self.connection.commit()  # commit changes to DB imediatly 
     while True:
-      #recivedDataFromGpsDevice = self.channel.recv(2048)  # 2048 is the buffer size
+      # recivedDataFromGpsDevice = self.channel.recv(2048)  # 2048 is the buffer size
       gpsObject = gpsString(self.reciveGpsData())
       
       if not gpsObject.isValidGpsString:
-          #ping = self.channel.send("1") # FIXME have to ping to server and confirm its disconnected befor we drop connection
+          # ping = self.channel.send("1") # FIXME have to ping to server and confirm its disconnected befor we drop connection
           
           print "Device has been disconnected from remote end no retrying "
           setOnlineFlag = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(connectionImei)
@@ -209,13 +209,13 @@ class newConnection(threading.Thread):
       	
       elif not gpsObject.isConnectedToSatellites:
       	print "Device is not connected to GPS Satellites"
-      	continue #waiting to connect device to GPS Satellites
+      	continue  # waiting to connect device to GPS Satellites
 
       print "Receiving GPS coordinates....(Thread Name: {})".format(self.getName())
 
       try:
-        #print sat_time
-        sql = """ insert into coordinates(sat_time,sat_status,latitude,longitude,speed,bearing,imei,location_area_code,cell_id) values("{}",'{}',{},{},{},{},"{}","{}","{}")""".format(gpsObject.sat_time,gpsObject.sat_status,gpsObject.latitude,gpsObject.longitude,gpsObject.speed,gpsObject.bearing,gpsObject.imei,gpsObject.location_area_code,gpsObject.cell_id)
+        # print sat_time
+        sql = """ insert into coordinates(sat_time,sat_status,latitude,longitude,speed,bearing,imei,location_area_code,cell_id) values("{}",'{}',{},{},{},{},"{}","{}","{}")""".format(gpsObject.sat_time, gpsObject.sat_status, gpsObject.latitude, gpsObject.longitude, gpsObject.speed, gpsObject.bearing, gpsObject.imei, gpsObject.location_area_code, gpsObject.cell_id)
 
       except ValueError:
         sql = ""
@@ -233,7 +233,7 @@ class newConnection(threading.Thread):
         self.connection.rollback()
 
 
-#this class is for future advancements
+# this class is for future advancements
 class vehicle():
 	pass
 

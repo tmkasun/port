@@ -3612,3 +3612,7 @@ The event WARNING was occored in 2013-11-04 15:27:29,854 : PID : 12093 when exec
 The event ERROR was occored in 2013-11-04 15:31:15,549 : PID : 12093 when executing : reciveGpsData @ line number : 158
 The event ERROR was occored in 2013-11-04 15:31:20,415 : PID : 12093 when executing : __init__ @ line number : 71
 The event WARNING was occored in 2013-11-04 15:31:20,416 : PID : 12093 when executing : disconnect @ line number : 138
+The event INFO was occored in 2014-01-08 08:48:42,659 : PID : 12321 when executing : configServer @ line number : 280
+The event INFO was occored in 2014-01-08 08:48:42,667 : PID : 12321 when executing : main @ line number : 100
+The event INFO was occored in 2014-01-08 08:48:58,693 : PID : 13386 when executing : configServer @ line number : 280
+The event INFO was occored in 2014-01-08 08:48:58,693 : PID : 13386 when executing : main @ line number : 100
