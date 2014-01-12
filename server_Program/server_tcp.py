@@ -1,35 +1,17 @@
 #! /usr/bin/python
+
 from dis import dis
 import sys
 
 #===============================================================================
-# PortAuthority project  (syscall 001)
-#
-# portp/server/port-listner/main
-#
-# A uthor: syscall
-# Creation date: 01th january 2013 #@bug: not sure
-#
-#  Moratuwa University 2013
-#
-# # # Modification history
-# Version     Modifier     Date         Change         Reason
-# 1 .0 k.     kasun        5-25-2013    Add header     Submit tedt oC M
-#
-#===============================================================================
-
-#===============================================================================
 """
-Copyright (c) 2013 All Right Reserved, http://www.itfac.mrt.ac.lk
-This source is subject to the GNU General Public Licen
-</copyright>
+Copyright (c) 2013 http://www.itfac.mrt.ac.lk
 <author>UOM.itfac</author>
 <email>syscall@knnect.com</email>
-<date>2013-04-25</date>
-<summary>Contains a linux, (server) service for listen port 9090
-This programm is designed to run on Amazone EC2 instances, running in other platforms may result in unexpected outputs,
+<summary>
+Port listener to handle GPS data send from GPS/GPRS devices, using Twisted framework.
 This is an Open source project and you may take  this program as u wish with some rights reserved by www.itfac.mrt.ac.lk
-Be open :)</summary>
+</summary>
  """
 #===============================================================================
 
