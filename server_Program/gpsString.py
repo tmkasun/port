@@ -67,7 +67,7 @@ class gpsString:
       
       self.imei = self.splitedGpsData[1]#[16][5:] #tk102  
     except IndexError as e:
-      print "eexception passed ({}) IMEI split error or wrong position in IMEI in GPS string".format(e)
+      print "exception passed ({}) IMEI split error or wrong position in IMEI in GPS string".format(e)
       logging.error("exception passed for IMEI split error or wrong position in IMEI in GPS string")
       self.isValidGpsString = False
       return None
@@ -99,7 +99,7 @@ class gpsString:
         hours = hours%24
         date += 1
         
-    # convert single digit number to tow digits
+    # convert single digit number to two digits
     minutes = "%02d" %(minutes,)
     hours = "%02d" %(hours,)
     date = "%02d" %(date,)
@@ -119,7 +119,7 @@ class gpsString:
     cell_info = self.splitedGpsData[16].split("|")
     self.location_area_code = cell_info[2]#self.splitedGpsData[25] 
     self.cell_id = cell_info[3]#self.splitedGpsData[26]
-    print self.splitedGpsData # for debuging purpose
+    print self.splitedGpsData # for debugging purpose
 
 
   #(__Currently not using___)
@@ -127,8 +127,8 @@ class gpsString:
   # Check weather the IMIE number has desired pattern   
   def validateImie(self):
     if not self.isValidLuhnChecksum(imei): # need to debug were this imei coming from :P
-      print imei  # only for debuging
-      self.disconnect("invalid" + imie)
+      print imei  # only for debugging 
+      self.disconnect("invalid" + imie) #generalize disconnection methods 
       return False
   
   def isValidLuhnChecksum(self, card_number):
