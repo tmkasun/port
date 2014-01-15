@@ -16,16 +16,6 @@ from syscall.devices import devices
 
 
 
-class GpsValidation():
-    """
-    Validation of IMIE, connection , Users are perform by me
-    all the types of validations related to GPS data is performed by me
-    """
-    
-    pass
-
-
-
 class GpsDataProcessor():
     """
     Process data send by GPRS/GPS device 
@@ -34,11 +24,12 @@ class GpsDataProcessor():
     according to the line encoding methods unique to each device.
     """
     
-    def __init__(self,lineReceived):
+    def __init__(self, lineReceived, delimiter = ','):
         self.receivedCsvLine = lineReceived
-        self.deviceType = None
+        self.splitedString = self.splitString(delimiter)
+        self.deviceType = self.identifyDevice()
         
-    
+        
     def splitString(self, delimiter = ','):
         """
         Use comma(,) as default delimiter for CSV string
@@ -47,13 +38,31 @@ class GpsDataProcessor():
         self.splitedString = self.receivedCsvLine.split(delimiter)
         return self.splitedString   
     
+    
     def identifyDevice(self):
         """
         Identify the type of device which has send the given string pattern
         """
-        
-        self.deviceType = None
+        if self.validateIMEI(self.splitedString[0]):
+            self.deviceType = "tk102"
         return self.deviceType
+    
+    
+    def validateIMEI(self,imei):
+        """
+        Validation of IMIE, connection , Users are perform by me
+        all the types of validations related to GPS data is performed by me
+        """
+        def digits_of(n):
+            return [int(d) for d in str(n)]
+        digits = digits_of(card_number)
+        odd_digits = digits[-1::-2]
+        even_digits = digits[-2::-2]
+        checksum = 0
+        checksum += sum(odd_digits)
+        for d in even_digits:
+            checksum += sum(digits_of(d * 2))
+        return checksum % 10 == 0
 
 
 
@@ -61,8 +70,31 @@ class DbManager():
     """
     Manage connections and data in/out flow with server 
     """
-
-    pass
+    def __init__(self,dbConfiguration):
+        """
+        argument is a dictionary
+        dbAipName like MySQLdb 
+        """
+        self.dbpool = adbapi.ConnectionPool(dbConfiguration['dbApiName'],dbConfiguration['host'],dbConfiguration['username'],dbConfiguration['password'],dbConfiguration['database'])
+    
+    
+    
+    def validateVehicleFromDB(self,gpsData): 
+        print "### Starting approval of vehicle from DB"
+        databaseCursor.execute("select imei from approved_imei where imei = '{}'".format(self.imei))
+        approvedImeiList = databaseCursor.fetchall()
+        print approvedImeiList
+        print self.imei
+        
+        if len(approvedImeiList) > 0:
+            self.isApprovedImei = True
+            print "IMEI Number is already approved"
+            return self.isApprovedImei
+        
+        print "Not an approved IMEI number ({}),this IMEI number will send to approval ".format(self.imei)
+        sql = """ insert IGNORE into not_approved_imei values("{}",{},"{}") """.format(self.imei, 0, datetime.now())
+        databaseCursor.execute(sql) 
+        return self.isApprovedImei
 
 
 
@@ -111,6 +143,7 @@ class GpsStringReceiverFactory(ServerFactory):
         print "### Starting GpsStringReceiverFactory \nsupported devices {}".format(d.supportedDevices)
 
 
+
 def main():
     
     print "### Runing main()"
@@ -118,7 +151,9 @@ def main():
     reactor.listenTCP(9090, factory, 100)
     reactor.run()
     print "### Listning on port 9090....."
-    
+  
+  
+  
 if __name__ == '__main__':
     main()
     
