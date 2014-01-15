@@ -55,7 +55,6 @@ Because each of these threads only communicates with one client, any blockage do
 import threading
 # import Queue
 from gpsString import *
-from newConnection import *
 import socket  # documentation http://docs.python.org/2/howto/sockets.html , http://docs.python.org/2/library/socket.html
 from fileinput import filename
 try:

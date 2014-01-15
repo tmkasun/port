@@ -41,13 +41,17 @@ class GpsDataProcessor():
     
     def splitString(self, delimiter = ','):
         """
-        Use comma as default delimiter for CSV string
+        Use comma(,) as default delimiter for CSV string
         """
         print "### data = {}".format(self.receivedCsvLine)
         self.splitedString = self.receivedCsvLine.split(delimiter)
         return self.splitedString   
     
     def identifyDevice(self):
+        """
+        Identify the type of device which has send the given string pattern
+        """
+        
         self.deviceType = None
         return self.deviceType
 
