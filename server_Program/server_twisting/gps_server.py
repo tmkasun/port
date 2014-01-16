@@ -26,8 +26,7 @@ class GpsDataProcessor():
     
     def __init__(self, lineReceived, delimiter = ','):
         self.receivedCsvLine = lineReceived
-        self.splitedString = self.splitString(delimiter)
-        self.deviceType = self.identifyDevice()
+        self.processed = False
         
         
     def splitString(self, delimiter = ','):
@@ -63,7 +62,13 @@ class GpsDataProcessor():
         for d in even_digits:
             checksum += sum(digits_of(d * 2))
         return checksum % 10 == 0
-
+    
+    
+    def process(self):
+        self.splitedString = self.splitString(delimiter)
+        self.deviceType = self.identifyDevice()
+        self.processed = True
+        
 
 
 class DbManager():
@@ -103,7 +108,17 @@ class GpsData():
     Keep all the data about single gps object
     ie: coordinates(latitude longitude) , time stamp, heading and etc
     """
+    def __init__(self,processedGpsData):
+        self.processedGpsData = processedGpsData
+        self.position = {}
+        self.speed = {}
+        self.time = {}
     
+    def decodeData(self):
+        device = devices()
+        
+        
+        
     def save(self):
         print "### Saving GpsData object in database (ORM)"
 
@@ -115,11 +130,9 @@ class GpsStringReceiver(LineReceiver):
     def lineReceived(self, line):
         peer = self.transport.getPeer()
         print "### This is the received line = {} from '{}'".format(line, peer)
-        gpsDataprocess = GpsDataProcessor(line)
-        gpsDataprocess.splitString()
-        gpsDataprocess.identifyDevice()
-        position = GpsData()
-        position.save() 
+        processor = GpsDataProcessor(line)
+        processor.process()
+        gpsData = GpsData(processor)
         
 
     def connectionMade(self):

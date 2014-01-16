@@ -11,6 +11,14 @@ class devices():
         raise NotImplementedError( "Should have implemented this" )
         
     
+    def decodeGeneralData(self):
+        pass
+    
+    
+    def decodeDeviceSpecificData(self):
+        pass
+    
+    
 
 class deviceTk102(devices):
     
