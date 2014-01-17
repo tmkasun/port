@@ -6,10 +6,9 @@ import sys
 #===============================================================================
 """
 Copyright (c) 2013 http://www.itfac.mrt.ac.lk
-<author>UOM.itfac</author>
 <email>syscall@knnect.com</email>
 <summary>
-Port listener to handle GPS data send from GPS/GPRS devices, using Twisted framework.
+Port listener to handle GPS data send from GPS/GPRS devices.
 This is an Open source project and you may take  this program as u wish with some rights reserved by www.itfac.mrt.ac.lk
 </summary>
  """
