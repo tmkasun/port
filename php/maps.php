@@ -170,7 +170,7 @@ var currentOnlinePrimovers = 0;
  
 function createMap(){
  	 
-	map = L.map('map').setView([7.059000, 79.96119], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
+	map = L.map('map').setView([6.934846, 79.851980], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
 	tiles = L.tileLayer(tileServerList["openStreetMaps"], { //set tile server URL for openStreet maps 
 		maxZoom: 18,
         minZoom: 0,

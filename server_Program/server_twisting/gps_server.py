@@ -68,6 +68,22 @@ class GpsDataProcessor():
         self.splitedString = self.splitString(delimiter)
         self.deviceType = self.identifyDevice()
         self.processed = True
+    
+    previousCoordinate = (0.0,0.0)
+    def isMoving(self,currentCoordinate):
+        
+        minimumChange = deviceAccuracy
+        minimumCountForRejection = 0
+        if distanceBetweenCoordinates(previousCoordinate, currentCoordinate) > minimumChange and minimumCountForRejection > 2:
+            previousCoordinate = currentCoordinate
+            minimumCountForRejection +=1
+            return True
+        else:
+            previousCoordinate = currentCoordinate
+            minimumCountForRejection = 0
+            return False
+        
+        
         
 
 
@@ -159,11 +175,11 @@ class GpsStringReceiverFactory(ServerFactory):
 
 def main():
     
-    print "### Runing main()"
+    print "### Running main()"
     factory = GpsStringReceiverFactory()
     reactor.listenTCP(9090, factory, 100)
     reactor.run()
-    print "### Listning on port 9090....."
+    print "### Listening on port 9090....."
   
   
   
