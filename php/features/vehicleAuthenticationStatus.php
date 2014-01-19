@@ -156,7 +156,7 @@ error_reporting(E_PARSE);
                <td>Pending</td>
           </tr>
           <?php
-          
+               }
 		  for($i = 0 ; $i < $count_approved ; $i++)
 		  {
 			  echo "<tr><td>";
@@ -179,11 +179,7 @@ error_reporting(E_PARSE);
 		  }
 ?>
 
-          <?php
-
-     }
-
-     ?>
+         
      </table>
 </div>
 <?php
