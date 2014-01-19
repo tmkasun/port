@@ -306,7 +306,7 @@ $(document).ready(
 												totalNumberOfPrimovers +=1;
 													
 														}
-											map.setView([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])], 15);
+										//	map.setView([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])], 15);
                                             $("#totalRegisterdPrimovers").html(totalNumberOfPrimovers); 
                                             
 	                                        setInterval(ajaxCheck, 1000);
