@@ -13,6 +13,7 @@ from twisted.internet.defer import Deferred
 from twisted.internet.protocol import Protocol, ServerFactory
 from twisted.protocols.basic import LineReceiver
 from syscall.devices import devices
+from syscall.mvt380 import *
 
 
 
@@ -140,15 +141,15 @@ class GpsData():
 
 
 
-class GpsStringReceiver(LineReceiver):
+class GpsStringReceiver(NMEAProtocol):
     
     
-    def lineReceived(self, line):
-        peer = self.transport.getPeer()
-        print "### This is the received line = {} from '{}'".format(line, peer)
-        processor = GpsDataProcessor(line)
-        processor.process()
-        gpsData = GpsData(processor)
+#     def lineReceived(self, line):
+#         peer = self.transport.getPeer()
+#         print "### This is the received line = {} from '{}'".format(line, peer)
+#         processor = GpsDataProcessor(line)
+#         processor.process()
+#         gpsData = GpsData(processor)
         
 
     def connectionMade(self):
@@ -166,6 +167,10 @@ class GpsStringReceiverFactory(ServerFactory):
     
     number_of_connections = 0
     protocol = GpsStringReceiver
+    
+#     def buildProtocol(self, addr):
+#         print "### Building protocol address = {}".format(addr)
+#         return GpsStringReceiver("ok")
     
     def startFactory(self):
         d = devices()

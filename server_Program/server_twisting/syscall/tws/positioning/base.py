@@ -11,7 +11,7 @@ from operator import attrgetter
 from zope.interface import implementer
 from twisted.python.constants import Names, NamedConstant
 from twisted.python.util import FancyEqMixin
-from positioning import ipositioning
+from . import ipositioning
 
 
 MPS_PER_KNOT = 0.5144444444444444
