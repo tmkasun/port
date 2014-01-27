@@ -192,16 +192,17 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         splitSentence = _split(sentence)
 
         commandType, contents = splitSentence[1], splitSentence[:1]+splitSentence[2:]
-        print commandType, contents
-        if True:
-            return 0
-
 
         try:
             keys = self._SENTENCE_CONTENTS[commandType]
         except KeyError:
             raise ValueError("unknown sentence type %s" % commandType)
-
+        
+        print contents
+        print keys
+        if True:
+            return 0
+        
         sentenceData = {"type": commandType}
         for key, value in itertools.izip(keys, contents):
             if key is not None and value != "":
@@ -218,11 +219,11 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
 
     _SENTENCE_CONTENTS = {
         'AAA': [
-            'IMEI', #Tracker’s IMEI is normally 15 digitals
+            'IMEI', # Trackers IMEI is normally 15 digitals
             
             'eventCode', #Event code. Decimal.
             
-            'latitudeFloat', #Latitude: in unit of degree. Decimal. ‘-’ means south, no minutesmeans north yy = degrees; dddddd = decimal part of degree
+            'latitudeFloat', #Latitude: in unit of degree. Decimal. - means south, no minutesmeans north yy = degrees; dddddd = decimal part of degree
             'longitudeFloat', # same above (-)xxx.dddddd
             
             'dateTimestamp', #yymmddHHMMSS yy = year mm = month dd = date HH = hour MM = minute SS = second Decimal digit
@@ -240,26 +241,9 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
             'runtime', #In unit of second. Decimal. The total accumulated runtime and maximum4294967295 seconds
             'baseID', #ID of the base station including MCC|MNC|LAC|CI Note: for SMS report, the Base ID is empty. MCC and MNC are decimal; LAC and CI are Hex. 
 
-            'IOState', #Status of 8 inputs and 8 outputs. Hex. Bit0…Bit7 is output state, Bit0 is Ouput1 state Bit8…Bit15 is input state, Bit8 is Input1 state
+            'IOState', #Status of 8 inputs and 8 outputs. Hex. Bit0 Bit7 is output state, Bit0 is Ouput1 state Bit8 Bit15 is input state, Bit8 is Input1 state
 
             'analogDigitalInfo', 
-
-#             Separated by ‘|’. Hex. 
-#             AD1|AD2|AD3|Battery AD|External Power AD 
-#             Note: for SMS report, AD is empty. 
-#             Analog AD1,AD2,AD3 Voltage formula: 
-#             MVT100/MVT340/MVT380：(AD*6)/1024 
-#             T1/T3/MVT600/MVT800：(AD*3.3*2)/4096 
-#             Battery AD (AD4) formula: 
-#             MVT100/MVT340/MVT380：(AD4*3*2)/1024 
-#             MT90/T1/T3/MVT600/MVT800/TC68/TC68S：
-#             (AD4*3.3*2)/4096 
-#             T311: AD4/100 
-#             External Power AD (AD5) formula: 
-#             MVT100/MVT340/MVT380：(AD5*3*16)/1024 
-#             T1/T3/MVT600/MVT800/TC68/TC68S：
-#             (AD5*3.3*16)/4096 
-#             T311: AD5/100
 
             # The next parts are DGPS information, currently unused.
             None, # Time since last DGPS update
