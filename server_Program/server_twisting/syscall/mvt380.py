@@ -175,7 +175,7 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
             particularly misbehaving NMEA receivers.
         @type sentenceCallback: unary callable
         """
-        self._receiver = receiver
+        self._receiver = receiver or NMEAAdapter()
         self._sentenceCallback = sentenceCallback
 
 
@@ -198,16 +198,12 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         except KeyError:
             raise ValueError("unknown sentence type %s" % commandType)
         
-        print contents
-        print keys
-        if True:
-            return 0
         
         sentenceData = {"type": commandType}
-        for key, value in itertools.izip(keys, contents):
+        for key, value in itertools.izip(keys, contents): 
             if key is not None and value != "":
                 sentenceData[key] = value
-
+    
         sentence = NMEASentence(sentenceData)
 
         if self._sentenceCallback is not None:
@@ -473,7 +469,7 @@ class NMEAAdapter(object):
     @ivar _receiver: The positioning receiver that will receive parsed data.
     @type _receiver: L{ipositioning.IPositioningReceiver}
     """
-    def __init__(self, receiver):
+    def __init__(self, receiver= None):
         """
         Initializes a new NMEA adapter.
 

@@ -109,8 +109,7 @@ class INMEAReceiver(Interface):
         @param sentence: The received NMEA sentence.
         @type L{twisted.positioning.nmea.NMEASentence}
         """
-        print "### Sentence recive this is data ipos = {}".format(sentence)
-
+        
 
 __all__ = [
     "IPositioningReceiver",
