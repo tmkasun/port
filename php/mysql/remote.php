@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 2<?php session_start();
+=======
+<?php session_start();
+>>>>>>> 315fa9931739d48f3c1d813f47767ab4798c3855
 //session start to identify login users and etc
 
 /*

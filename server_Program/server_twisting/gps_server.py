@@ -13,7 +13,10 @@ from twisted.internet.defer import Deferred
 from twisted.internet.protocol import Protocol, ServerFactory
 from twisted.protocols.basic import LineReceiver
 from syscall.devices import devices
+<<<<<<< HEAD
 from syscall.mvt380 import *
+=======
+>>>>>>> 315fa9931739d48f3c1d813f47767ab4798c3855
 
 
 
@@ -69,6 +72,7 @@ class GpsDataProcessor():
         self.splitedString = self.splitString(delimiter)
         self.deviceType = self.identifyDevice()
         self.processed = True
+<<<<<<< HEAD
     
     previousCoordinate = (0.0,0.0)
     def isMoving(self,currentCoordinate):
@@ -85,6 +89,8 @@ class GpsDataProcessor():
             return False
         
         
+=======
+>>>>>>> 315fa9931739d48f3c1d813f47767ab4798c3855
         
 
 
@@ -141,6 +147,7 @@ class GpsData():
 
 
 
+<<<<<<< HEAD
 class GpsStringReceiver(NMEAProtocol):
     
     
@@ -150,6 +157,17 @@ class GpsStringReceiver(NMEAProtocol):
 #         processor = GpsDataProcessor(line)
 #         processor.process()
 #         gpsData = GpsData(processor)
+=======
+class GpsStringReceiver(LineReceiver):
+    
+    
+    def lineReceived(self, line):
+        peer = self.transport.getPeer()
+        print "### This is the received line = {} from '{}'".format(line, peer)
+        processor = GpsDataProcessor(line)
+        processor.process()
+        gpsData = GpsData(processor)
+>>>>>>> 315fa9931739d48f3c1d813f47767ab4798c3855
         
 
     def connectionMade(self):
@@ -168,10 +186,13 @@ class GpsStringReceiverFactory(ServerFactory):
     number_of_connections = 0
     protocol = GpsStringReceiver
     
+<<<<<<< HEAD
 #     def buildProtocol(self, addr):
 #         print "### Building protocol address = {}".format(addr)
 #         return GpsStringReceiver("ok")
     
+=======
+>>>>>>> 315fa9931739d48f3c1d813f47767ab4798c3855
     def startFactory(self):
         d = devices()
         print "### Starting GpsStringReceiverFactory \nsupported devices {}".format(d.supportedDevices)
@@ -180,11 +201,19 @@ class GpsStringReceiverFactory(ServerFactory):
 
 def main():
     
+<<<<<<< HEAD
     print "### Running main()"
     factory = GpsStringReceiverFactory()
     reactor.listenTCP(9090, factory, 100)
     reactor.run()
     print "### Listening on port 9090....."
+=======
+    print "### Runing main()"
+    factory = GpsStringReceiverFactory()
+    reactor.listenTCP(9090, factory, 100)
+    reactor.run()
+    print "### Listning on port 9090....."
+>>>>>>> 315fa9931739d48f3c1d813f47767ab4798c3855
   
   
   
