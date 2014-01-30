@@ -523,10 +523,17 @@ class NMEAAdapter(object):
         else: # coordinateType is Angles.LONGITUDE
             coordinateName = "longitude"
         nmeaCoordinate = getattr(self.currentSentence, coordinateName + "Float")
-
+        
         left, right = nmeaCoordinate.split('.')
+        
+        rightFloatTempory = float(right)
+        right = str(right*60) # convert to Hybdri coordinate representation 
+        
+        print left, right
 
         degrees, minutes = int(left[:-2]), float("%s.%s" % (left[-2:], right))
+        
+        print degrees, minutes
         angle = degrees + minutes/60
         coordinate = base.Coordinate(angle, coordinateType)
         self._sentenceData[coordinateName] = coordinate
@@ -839,13 +846,16 @@ class NMEAAdapter(object):
         @type sentence: L{NMEASentence}
         """
         self.currentSentence = sentence
-
+        #<NMEASentence (AAA) {GSMSignal: 6, IMEI: 862170013556541, IOState: 0000, altitude: 30, analogDigitalInfo: 000A|0006||02D9|0103, baseID: 413|1|EB8C|7353, dateTimestamp: 140119023128, eventCode: 35, fixQuality: A, horizontalDilutionOfPrecision: 1, latitudeFloat: 6.887935, longitudeFloat: 79.890790, mileage: 107318, numberOfSatellitesSeen: 8, runtime: 274806, speedInKMh: 0, trueHeading: 24}>
+        
         try:
             self._validateCurrentSentence()
             self._cleanCurrentSentence()
         except base.InvalidSentence:
             self.clear()
-
+        
+        print "### Stoped"
+        return 0 
         self._updateState()
         self._fireSentenceCallbacks()
 
@@ -864,9 +874,10 @@ class NMEAAdapter(object):
         """
         Cleans the current sentence.
         """
+        print "Cleaning"
         for key in sorted(self.currentSentence.presentAttributes):
             fixer = self._FIXERS.get(key, None)
-
+            print fixer,key
             if fixer is not None:
                 fixer(self)
 
