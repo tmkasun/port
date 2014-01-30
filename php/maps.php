@@ -828,6 +828,12 @@ return '#'+rstr + gstr + bstr;
 			onclick="changeMap()">
 				Change map type
 			</button>
+			
+			<button id="get_administrators" class="styled-button-8"
+			onclick="window.location.href = 'features/displayEngineFuelState.php'">
+				See Fuel Level
+			</button>
+			
 			<a id="currentVehicleStatus" style="color: red;font-size: small;">Total Primovers <span id = "totalRegisterdPrimovers" style="color: activecaption;font-size: x-large;"></span> Online Primovers <span id = "currentOnlinePrimovers" style="color: aqua;font-size: x-large;"></span> </a>
 
 			<button id="loguot_button" class="styled-button-8"
