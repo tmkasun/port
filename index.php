@@ -6,6 +6,7 @@ if(isset($_SESSION["computer_number"])){
      
 }
 
+include_once("./php/features/googleAnalyticsTracking.php")
 
 
 ?>
@@ -234,7 +235,7 @@ if(isset($_SESSION["computer_number"])){
 		<h1 id="Sign_in" style="display: none;">Sign in</h1>
 		
 <!-- Loging form tag(DOM) start -->
-		<form id="login_form" name="signin" action="/php/signin.php" method="post"
+		<form id="login_form" name="signin"  action="/php/signin.php" method="post"
 			onsubmit="<!-- return ajax_signin() -->" style="display: none;">
 			
 			<!-- Computer number in SL Port has been used as unique identifier for user login -->
@@ -260,12 +261,18 @@ if(isset($_SESSION["computer_number"])){
 					src="./media/images/logins/login_loading.gif" />
 			
 			<!-- input type = "submit"  style="visibility: hidden;"/ -->
-			<button class="action bluebtn" type="button" id="submit_button" name="submit"
-				class="def_button" target="_self" onclick="ajax_signin()" style="position: relative;float: left;">
+			<!--<input type="image" class="action bluebtn"  id="error" name="submit" style="text-align: left;" width="16" height="16"
+					style="border: 1px;"
+				class="def_button" target="_self" onclick="ajax_signin()" style="position: relative;float: left;" value=''  />
+               <span  style="color:#0080C0; font-size:24px" >Sign in</span>
+			-->
+             <button class="action bluebtn" type="button" id="submit_button" name="submit"
+                                class="def_button" target="_self" onclick="ajax_signin()" style="position: relative;float: left;">
+                                
+                                <img id="error" style="text-align: right;" width="16" height="16"
+                                        style="border: 0px;"></img> <span class="label">Sign in</span>
+                        </button>	
 				
-				<img  id="error" style="text-align: right;" width="16" height="16"
-					style="border: 0px;"></img> <span class="label">Sign in</span>
-			</button>
 		</form>
 <!-- Loging form tag(DOM) End -->
 		
