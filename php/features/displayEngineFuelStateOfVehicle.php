@@ -90,7 +90,7 @@ $results_details = array();
   <body>
   	<div class="container">
      <div class="alert alert-warning">   	
-	     <h3>The following Graph describe the fuel level of the vehicle of Today</h3>
+	     <h3>The following Graph describe the fuel level of the vehicle for Today</h3>
 	  	 <div id='chart_div'></div> 
 	  	 <div class="alert alert-success">
 	  		<table>
