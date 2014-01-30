@@ -488,7 +488,8 @@ class NMEAAdapter(object):
 
         datetimestamp = self.currentSentence.dateTimestamp
         print datetimestamp
-        timeObject = datetime.datetime.strptime(timestamp, '%y%m%d').time()
+        timeObject = datetime.datetime.strptime(datetimestamp, '%y%m%d%H%M%S')
+        print timeObject
         self._sentenceData['time'] = timeObject
 
     def _fixTimestamp(self):
@@ -537,10 +538,8 @@ class NMEAAdapter(object):
         
         left, right = nmeaCoordinate.split('.')
         right = '.' + right
-        print left, right
         degrees, minutes = int(left),float(right)*60
         #degrees, minutes = int(left[:-2]), float("%s.%s" % (left[-2:], right))
-        print degrees, minutes
         
         angle = degrees + minutes/60
         coordinate = base.Coordinate(angle, coordinateType)
@@ -614,11 +613,13 @@ class NMEAAdapter(object):
             C{None}, same as C{sourceKey}.
         @type destinationKey: C{str} (Python identifier)
         """
+        print "fixing Altitude"
         currentValue = getattr(self.currentSentence, sourceKey)
 
         if destinationKey is None:
             destinationKey = sourceKey
-
+        
+        print converter(currentValue)
         self._sentenceData[destinationKey] = converter(currentValue)
 
 
@@ -864,9 +865,15 @@ class NMEAAdapter(object):
         except base.InvalidSentence:
             self.clear()
         
+        self._updateState()
+        
+        
+        
+        print "self._state",self._state
+        print "self._sentenceData",self._sentenceData
+        print "self._receiver",self._receiver
         print "### Stoped"
         return 0 
-        self._updateState()
         self._fireSentenceCallbacks()
 
 
@@ -897,7 +904,8 @@ class NMEAAdapter(object):
         Updates the current state with the new information from the sentence.
         """
         #self._updateBeaconInformation()
-        self._combineDateAndTime()
+        #self._combineDateAndTime()
+        print "#### _updateState"
         self._state.update(self._sentenceData)
 
 
