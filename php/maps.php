@@ -168,14 +168,16 @@ var currentOnlinePrimovers = 0;
  
  tileServerList = {"mapbox":"http://api.tiles.mapbox.com/v2/sysccall.map-wuiel8n4/{z}/{x}/{y}.png","cloudeMade":"http://{s}.tile.cloudmade.com/45b5101290e74ac29b24ff40cfd7e3ab/1/256/{z}/{x}/{y}.png","localhost":"http://slpa.local.knnect.com/tiles/GoogleMaps/{z}/{x}/{y}.png","googleHybrid":"http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}","googleMaps":"http://khm1.google.com/kh/v=49&x=[x]&y=[y]&z=[z]","openStreetMaps":"http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"};
  
-function createMap(){
+function createMap(){ 
  	  
 	map = L.map('map').setView([6.934846, 79.851980], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
 	map = L.map('map').setView([7.059000, 79.96119], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
  
 	map = L.map('map').setView([6.934846, 79.851980], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
  tiles = L.tileLayer(tileServerList["openStreetMaps"], { //set tile server URL for openStreet maps 
-		maxZoom: 18,
+ 
+   
+ 	maxZoom: 18,
         minZoom: 0,
         //zoomOffset: 1,
           //continuousWorld : true,
@@ -826,21 +828,23 @@ return '#'+rstr + gstr + bstr;
 			<button id="showVehicleHistory" class="styled-button-8"
 			onclick="showVehicleHistory()">
 				Show Vehicle History
-			</button>
+			</button> 
  <button id="get_administrators" class="styled-button-8"
 			onclick="changeMap()">
 				Change map type
 			</button> 
-			
-			<button id="get_administrators" class="styled-button-8"
+ 
+ 	  <button id="get_administrators" class="styled-button-8"
 			onclick="window.location.href = 'features/displayEngineFuelState.php'">
 				See Fuel Level
 			</button>
 			
 			<!--<a href= "features/displayEngineFuelState.php">See fuel levels</a>-->
-		 
-			<a id="currentVehicleStatus" style="color: red;font-size: small;">Total Primovers <span id = "totalRegisterdPrimovers" style="color: activecaption;font-size: x-large;"></span> Online Primovers <span id = "currentOnlinePrimovers" style="color: aqua;font-size: x-large;"></span> </a>
 
+		 
+			 
+ 			<a id="currentVehicleStatus" style="color: red;font-size: small;">Total Primovers <span id = "totalRegisterdPrimovers" style="color: activecaption;font-size: x-large;"></span> Online Primovers <span id = "currentOnlinePrimovers" style="color: aqua;font-size: x-large;"></span> </a>
+ 
 			<button id="loguot_button" class="styled-button-8"
 			style="float: right;"
 			onclick="window.location.href = './logout.php' ">
