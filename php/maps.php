@@ -170,7 +170,15 @@ var currentOnlinePrimovers = 0;
  
 function createMap(){
  	 
+<<<<<<< HEAD
+<<<<<<< HEAD
 	map = L.map('map').setView([6.934846, 79.851980], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
+=======
+	map = L.map('map').setView([7.059000, 79.96119], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
+>>>>>>> 315fa9931739d48f3c1d813f47767ab4798c3855
+=======
+	map = L.map('map').setView([6.934846, 79.851980], 15);//7.059000 and 79.96119 is longitude(or) and latitude and 10 is the zoom level
+>>>>>>> 6f1a59d61f1550f2eb067f330d117f1bd40af3e1
 	tiles = L.tileLayer(tileServerList["openStreetMaps"], { //set tile server URL for openStreet maps 
 		maxZoom: 18,
         minZoom: 0,
@@ -824,10 +832,25 @@ return '#'+rstr + gstr + bstr;
 			onclick="showVehicleHistory()">
 				Show Vehicle History
 			</button>
+<<<<<<< HEAD
+			
+=======
+>>>>>>> 315fa9931739d48f3c1d813f47767ab4798c3855
 			<button id="get_administrators" class="styled-button-8"
 			onclick="changeMap()">
 				Change map type
 			</button>
+<<<<<<< HEAD
+			
+			<button id="get_administrators" class="styled-button-8"
+			onclick="window.location.href = 'features/displayEngineFuelState.php'">
+				See Fuel Level
+			</button>
+			
+			<!--<a href= "features/displayEngineFuelState.php">See fuel levels</a>-->
+			
+=======
+>>>>>>> 315fa9931739d48f3c1d813f47767ab4798c3855
 			<a id="currentVehicleStatus" style="color: red;font-size: small;">Total Primovers <span id = "totalRegisterdPrimovers" style="color: activecaption;font-size: x-large;"></span> Online Primovers <span id = "currentOnlinePrimovers" style="color: aqua;font-size: x-large;"></span> </a>
 
 			<button id="loguot_button" class="styled-button-8"

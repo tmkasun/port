@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+
+=======
+>>>>>>> 315fa9931739d48f3c1d813f47767ab4798c3855
 <?php session_start();
 //session start to identify login users and etc
 
