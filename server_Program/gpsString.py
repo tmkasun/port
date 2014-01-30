@@ -105,6 +105,7 @@ class gpsString:
     date = "%02d" %(date,)
     
     self.sat_time = time[:4]+date+hours+minutes+seconds
+    print self.sat_time
     #self.serial = self.splitedGpsData[0] # serial = sat_time = date
     #self.phone_number = self.splitedGpsData[1] #useless data
     self.sat_status = self.splitedGpsData[7] #self.splitedGpsData[4]

@@ -480,12 +480,23 @@ class NMEAAdapter(object):
         self._sentenceData = {}
         self._receiver = receiver
 
+    def _fixDateTimeStamp(self):
+        """
+        Turns the MVT380 protocol timestamp notation into a datetime.time object.
+        The time in this object is expressed as Zulu time.
+        """
+
+        datetimestamp = self.currentSentence.dateTimestamp
+        print datetimestamp
+        timeObject = datetime.datetime.strptime(timestamp, '%y%m%d').time()
+        self._sentenceData['time'] = timeObject
 
     def _fixTimestamp(self):
         """
         Turns the NMEAProtocol timestamp notation into a datetime.time object.
         The time in this object is expressed as Zulu time.
         """
+        
         timestamp = self.currentSentence.timestamp.split('.')[0]
         timeObject = datetime.datetime.strptime(timestamp, '%H%M%S').time()
         self._sentenceData['_time'] = timeObject
@@ -525,15 +536,12 @@ class NMEAAdapter(object):
         nmeaCoordinate = getattr(self.currentSentence, coordinateName + "Float")
         
         left, right = nmeaCoordinate.split('.')
-        
-        rightFloatTempory = float(right)
-        right = str(right*60) # convert to Hybdri coordinate representation 
-        
+        right = '.' + right
         print left, right
-
-        degrees, minutes = int(left[:-2]), float("%s.%s" % (left[-2:], right))
-        
+        degrees, minutes = int(left),float(right)*60
+        #degrees, minutes = int(left[:-2]), float("%s.%s" % (left[-2:], right))
         print degrees, minutes
+        
         angle = degrees + minutes/60
         coordinate = base.Coordinate(angle, coordinateType)
         self._sentenceData[coordinateName] = coordinate
@@ -768,11 +776,13 @@ class NMEAAdapter(object):
         if fixer is not None:
             fixer(self)
 
-
+    #<NMEASentence (AAA) {GSMSignal: 6, IMEI: 862170013556541, IOState: 0000, altitude: 30, analogDigitalInfo: 000A|0006||02D9|0103, baseID: 413|1|EB8C|7353, dateTimestamp: 140119023128, eventCode: 35, fixQuality: A, horizontalDilutionOfPrecision: 1, latitudeFloat: 6.887935, longitudeFloat: 79.890790, mileage: 107318, numberOfSatellitesSeen: 8, runtime: 274806, speedInKMh: 0, trueHeading: 24}>
     _FIXERS = {
         'type':
             lambda self: self._sentenceSpecificFix(),
 
+        'dateTimestamp':
+            lambda self: self._fixDateTimeStamp() , 
         'timestamp':
             lambda self: self._fixTimestamp(),
         'datestamp':
@@ -886,7 +896,7 @@ class NMEAAdapter(object):
         """
         Updates the current state with the new information from the sentence.
         """
-        self._updateBeaconInformation()
+        #self._updateBeaconInformation()
         self._combineDateAndTime()
         self._state.update(self._sentenceData)
 
