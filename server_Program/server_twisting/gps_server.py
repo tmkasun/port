@@ -103,7 +103,7 @@ class DBAdapter(object):
         @type dbConfiguration:  C{dict}
         dbAipName like MySQLdb 
         """
-        self.dbpool = adbapi.ConnectionPool(*dbConfiguration)
+        self._dbpool = adbapi.ConnectionPool(*dbConfiguration)
 
     
     def validateVehicleFromDB(self,gpsData): 
@@ -139,10 +139,34 @@ class DBAdapter(object):
         , gpsObject.location_area_code, gpsObject.cell_id)
 
         """
-        for key,val in positionData.items():
-            print key,val 
-            
+        print "####savePosition **************************************\n"
         
+        print positionData['altitude'].inMeters
+        print positionData['longitude'].inDecimalDegrees
+        print positionData['latitude'].inDecimalDegrees
+        print positionData['time']
+        print positionData['IMEI']
+        print positionData['speed'].inMetersPerSecond
+        print positionData['heading'].inDecimalDegrees
+        
+        print "####loop **************************************\n"
+        
+        for key,val in positionData.items():
+            print key,val,val.__class__
+        
+        query = """insert into coordinates \
+        (sat_time,latitude,longitude,speed,bearing,imei)\
+        values("{}",{},{},{},{},{})\
+        """.format\
+        (positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,positionData['speed'].inMetersPerSecond,\
+         positionData['heading'].inDecimalDegrees,positionData['IMEI'])
+        #print query
+        return self._dbpool.runQuery(query)#.addBoth(self.testPrint)
+        
+        
+    def testPrint(self,data):
+        print "###testPrint \n\n"
+        print data.__class__,data
 
 
 class GpsData():
@@ -171,8 +195,8 @@ class GpsStringReceiver(NMEAProtocol):
     def __init__(self):
         configurationDetails = ['MySQLdb',
                                 '127.0.0.1',
-                                'kasun123',
                                 'root',
+                                'kasun123',
                                 'syscall'
                                 ]
         _dbBridge = DBAdapter(configurationDetails)

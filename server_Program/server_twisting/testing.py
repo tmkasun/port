@@ -1,53 +1,53 @@
-
-class A(object):
-    
-    def aMethod(self):
-        print "This is class A method "
-        
-    def stest(self):
-        print "This is class A super test"
-
-    def psupper(self):
-        super(A, self).cMethod()
-
-class B(object):
-    
-    def bMethod(self):
-        print "This is class B method "
-        
-        
-class C(object):
-    
-    def bMethod(self):
-        print "This is class C method "
-
-    def cMethod(self):
-        print "This is class C method "
-
-class Noo():
-
-    def normal_method(self):
-        print "This is a normal method" 
-        
-    @classmethod
-    def  alone(cls):
-        
-        print "This is noo method ..................................."
-
-    @staticmethod
-
-    def staticm():
-
-        print "This is a static method"
-        
-class Mixed(A,C,B):
-    
-    def mixed_class(self):
-        print "This is mixed class"
-
-    def supr(self):
-        super(Mixed, self).stest()
-        
+##
+##class A(object):
+##    
+##    def aMethod(self):
+##        print "This is class A method "
+##        
+##    def stest(self):
+##        print "This is class A super test"
+##
+##    def psupper(self):
+##        super(A, self).cMethod()
+##
+##class B(object):
+##    
+##    def bMethod(self):
+##        print "This is class B method "
+##        
+##        
+##class C(object):
+##    
+##    def bMethod(self):
+##        print "This is class C method "
+##
+##    def cMethod(self):
+##        print "This is class C method "
+##
+##class Noo():
+##
+##    def normal_method(self):
+##        print "This is a normal method" 
+##        
+##    @classmethod
+##    def  alone(cls):
+##        
+##        print "This is noo method ..................................."
+##
+##    @staticmethod
+##
+##    def staticm():
+##
+##        print "This is a static method"
+##        
+##class Mixed(A,C,B):
+##    
+##    def mixed_class(self):
+##        print "This is mixed class"
+##
+##    def supr(self):
+##        super(Mixed, self).stest()
+##        
 ##class Other(object):
 ##
 ##    def override(self):
@@ -80,3 +80,546 @@ class Mixed(A,C,B):
 ##son.implicit()
 ##son.override()
 ##son.altered()
+
+raw = """
+1	101087D 	WALAWAGE H.D.A.  	 
+2	104109B 	PEIRIS T.J.S.M.  	 
+3	104111A 	PERERA D.M.D.N.  	 
+4	104114K 	ARANNYA S  	 
+5	114001V 	AAZEER M.A.M.  	 
+6	114002B 	ACHUTHAN S.  	 
+7	114003E 	ADHEEB M.F.H.M.  	 
+8	114004H 	AJANTHAN T.  	 
+9	114005L 	ALWIS M.K.D.K.  	 
+10	114006P 	AMARASOORIYA B.F.L.P.  	 
+11	114007U 	ANTHONY C.M.R.  	 
+12	114008A 	ARIYAWANSHA M.D.M.  	 
+13	114009D 	ATHEESAN S.  	 
+14	114010X 	ATHUKORALA L.A.D.P.  	 
+15	114012F 	BANDARANAYAKE G.M.D.  	 
+16	114014M 	CHAMARA H.G.  	 
+17	114015R 	CHAMINDA D.M.G.U.  	 
+18	114016V 	CHANDRASEKARA C.P.  	 
+19	114018E 	CHATHURANGA B.A.L.L.  	 
+20	114019H 	CHATHURANGA U.P.  	 
+21	114020D 	CHATHURANGANI D.S.  	 
+22	114022K 	CHIRANJITH W.M.G.  	 
+23	114023N 	CHIRANTHA S.W.T.  	 
+24	114024T 	CHIRANTHANA M.K.P.  	 
+25	114025X 	DARSHANA S.H.S.  	 
+26	114026C 	DE SILVA M.H.R.M.  	 
+27	114027F 	DE SILVA N.S.P.  	 
+28	114028J 	DESHAPRIYA K.V.L.  	 
+29	114029M 	DHARMAPALA K.A.K.N.D.  	 
+30	114032P 	DISSANAYAKE D.M.I.M.B.  	 
+31	114034A 	DISSANAYAKE R.B.  	 
+32	114035D 	EKANAYAKE A.S.S.  	 
+33	114036G 	EKANAYAKE E.M.S.S.L.  	 
+34	114037K 	EPA W.A.I.  	 
+35	114039T 	FAYAZA M.S.F.  	 
+36	114041R 	GANHEWA H.H.  	 
+37	114043B 	GUNASEKARA E.D.S.I.  	 
+38	114044E 	GUNASENA A.K.D.E.  	 
+39	114045H 	GUNATHILAKA W.D.S.E.  	 
+40	114046L 	GUNAWARDANA W.D.P.S.  	 
+41	114047P 	HAPUGODA C.U.  	 
+42	114048U 	HARISHCHANDRA P.D.M.  	 
+43	114049A 	HARSHANA W.K.S.  	 
+44	114050T 	HASTHANAYAKE B.J.  	 
+45	114051X 	HENNAYAKE K.M.S.A.  	 
+46	114054J 	ILANGASINGHE C.D.K.  	 
+47	114055M 	JANARTHAN P.  	 
+48	114057V 	JAYALATH G.K.  	 
+49	114058B 	JAYASINGHE M.H.U.K.  	 
+50	114059E 	JAYATHILAKA M.R.C.P.  	 
+51	114060A 	JAYAWARDANA D.M.R.P.  	 
+52	114061D 	JEGATHEEPAN S.  	 
+53	114062G 	KAJAVATHANAN T.  	 
+54	114064N 	KANNANGARA S.S.  	 
+55	114065T 	KAPILARATHNA H.M.J.S.  	 
+56	114066X 	KARUNARATHNA A.K.D.M.  	 
+57	114067C 	KARUNARATHNA T.M.S.R.T.  	 
+58	114069J 	KASTHURI S.  	 
+59	114071H 	KITHMAL H.M.D.  	 
+60	114072L 	KORALA H.C.  	 
+61	114073P 	KULARATHNE S.D.  	 
+62	114074U 	KULATHILAKE P.A.  	 
+63	114077G 	KUMARAPPERUMA J.W.  	 
+64	114078K 	KUMARIHAMY M.V.H.E.  	 
+65	114079N 	LAKMINA H.W.C.  	 
+66	114080J 	LATHIFF F.N.A.  	 
+67	114081M 	LIYANAGE G.S.  	 
+68	114082R 	MAATHANGI M.  	 
+69	114083V 	MADHAWI P.I.  	 
+70	114086H 	MADURANGA M.A.K.  	 
+71	114088P 	MADUSHAN J.A.H.  	 
+72	114089U 	MADUWANTHI K.A.N.  	 
+73	114090N 	MAHAGAMAGE D.C.  	 
+74	114091T 	MAHENDRARAJAH D.  	 
+75	114093C 	MENUWAN H.O.  	 
+76	114096M 	NERANSUTHAN C.  	 
+77	114097R 	NILONI R.  	 
+78	114098V 	NIROSHANI K.K.C.  	 
+79	114099B 	NUWANTHIKA W.N.P.S.  	 
+80	114100A 	PARANAMANA Y.S.I.  	 
+81	114101D 	PEIRIS O.W.G.  	 
+82	114102G 	PERERA D.A.P.N.  	 
+83	114104N 	PERERA D.S.R.  	 
+84	114105T 	PERERA H.B.M.T.  	 
+85	114106X 	PRABODANI A.A.  	 
+86	114108F 	PRASANNA S.  	 
+87	114109J 	PREMAKUMARA G.S.  	 
+88	114110E 	PREMALAL L.P.G.  	 
+89	114111H 	PRIYADARSHANA K.L.  	 
+90	114113P 	RANWALA R.A.C.M.  	 
+91	114114U 	RATHNAPRIYA U.K.A.U.  	 
+92	114115A 	RATHNAYAKA R.M.A.U.B.  	 
+93	114116D 	RODRIGO B.A.S.  	 
+94	114117G 	RUWAN S.V.A.L.  	 
+95	114118K 	SAMARATHUNGA S.A.R.B.P.  	 
+96	114119N 	SAMEERA K.N.S.  	 
+97	114120J 	SANJAYA H.M.A.  	 
+98	114121M 	SANJEEWA K.W.C.K.  	 
+99	114122R 	SELVANATHAN N.  	 
+100	114123V 	SENANAYAKE L.A.  	 
+101	114124B 	SHAFNY M.M.A.  	 
+102	114126H 	SHANMUGARASA Y.  	 
+103	114127L 	SHANTHIDEWA N.D.  	 
+104	114128P 	SHARONYAH B.  	 
+105	114129U 	SIRAJ A.N.I.N.  	 
+106	114130N 	SOMARATHNA H.A.P.P.  	 
+107	114131T 	SOMASIRI T.D.S.T.  	 
+108	114132X 	THAKSHALA P.M.  	 
+109	114133C 	THARSIGA M.  	 
+110	114135J 	VARATHARAJAH H.  	 
+111	114137R 	WANATHUNGA W.M.M.L.  	 
+112	114138V 	WANNIARACHCHI R.K.S.  	 
+113	114140U 	WASANA W.V.R.D.  	 
+114	114141A 	WEERASOORIYA G.N.R.  	 
+115	114143G 	WIJAYATHILAKE H.M.T.K.  	 
+116	114144K 	WIJERATHNA R.D.S.T.  	 
+117	114146T 	WIJESOORIYA W.P.M.V.  	 
+118	114147X 	WIJETHUNGA M.P.  	 
+119	114148C 	WIJETHUNGA P.W.G.G.S.  	 
+120	114150B 	THENNAKOON T.M.K.B.  	 
+121	114151E 	CHATHURANGA R.M.S.  	 
+122	114152H 	MADUSANKA K.D.K  	 
+123	114153L 	DILSHAN L.P.N.  	 
+124	114154P 	DE CROOS J.D.C.  	 
+125	114155U 	JAYAMANNA J.A.L.S.  	 
+126	114157D 	SAMARAWEERA C.R.L.  	 
+127	114158G 	PERERA M.D.N.  	 
+128	114159K 	MANOJ R.C.S.  	 
+129	114160F 	THARAKA S.P.S.  	 
+130	114161J 	MADHURANGA M.P.  	 
+131	114162M 	INDEEWARA T.G.H.  	 
+132	114163R 	SAMARASINGHE N.D.  	 
+133	114164V 	DE SOYSA A.D.D.L.  	 
+134	114165B 	JAYASINGHE D.S.K.  	 
+135	114166E 	HATHNAGODA S.D.U.E.  	 
+136	114167H 	PERERA M.U.L.  	 
+137	114168L 	HERATH H.M.T.N.  	 
+138	114169P 	LIYANAGE A.L.H.H.  	 
+139	114170K 	WIJETHUNGE J.U.  	 
+140	114171N 	SAMANTHIKA H.E.R.  	 
+141	114173X 	DAUGLAS D.L.N.C.  	 
+142	114174C 	KUMARA J.H.C.P.  	 
+143	114175F 	NIROECHKUMAR S  	 
+144	114177M 	Dissanayaka D.M.S.M  	 
+145	114178R 	Fernanndo C.C.M.T  	 
+146	114179V 	Cooray W.A.V.S  	 
+147	114180P 	Dharmabandu D.L..W.T.N  	 
+148	114181U 	Tennakoon T.M.R.B  	 
+149	114182A 	SANDAKELUM D.A.  	 
+150	114183D 	KASTHURI G  	 
+151	114184G 	MUHAIMINAH K.F.  	 
+152	114185K 	SENANAYAKE G.H.M.C  	 
+153	114186N 	DUNUKARA D.M.A.M.  	 
+154	115001E 	ABEYSEKARA M.  	 
+155	115002H 	ANOLIN S.E.  	 
+156	115003L 	ANURANGA D.S.B.J.P.  	 
+157	115005U 	BANDARANAYAKA K.R.  	 
+158	115006A 	DE SILVA A.T.C.  	 
+159	115007D 	DILRUKSHI H.M.A.  	 
+160	115008G 	FARANA A.N.A.  	 
+161	115010F 	GUNATHILAKA N.P.S.R.  	 
+162	115011J 	GUNAWARDHANA P.A.  	 
+163	115012M 	GURUSINGHE P.S.  	 
+164	115013R 	HEMAKUMARA T.I.  	 
+165	115014V 	HERATH H.M.P.  	 
+166	115015B 	HETTIHEWA H.L.  	 
+167	115016E 	ISHANI K.D.A.  	 
+168	115017H 	KANESAN E.  	 
+169	115018L 	KANISHKA G.A.  	 
+170	115019P 	KARUNARATHNA P.D.N.D.  	 
+171	115020K 	KEMIJAH T.  	 
+172	115021N 	KUMARI D.M.D.  	 
+173	115022T 	KUMARI K.K.S.V.  	 
+174	115023X 	LAKMALI L.A.L.  	 
+175	115024C 	LANKA S.M.S.S.  	 
+176	115025F 	MAHAGAMAGE U.M.  	 
+177	115027M 	MASAKORALA M.D.  	 
+178	115030P 	NIMANTHA K.C.  	 
+179	115031U 	NIROSHAN N.  	 
+180	115033D 	PREMATHILAKE H.M.S.M.  	 
+181	115035K 	RAMANAYAKA R.M.T.S.  	 
+182	115036N 	RUPASINGHE J.A.P.N.S.  	 
+183	115037T 	SARANYA N.  	 
+184	115039C 	SILVA L.S.  	 
+185	115040V 	SIRIWARDANA D.J.S.G.  	 
+186	115042E 	SUBASINGHE D.P.  	 
+187	115043H 	THALEWELA T.P.M.N.  	 
+188	115044L 	THILAKARATHNA H.D.I.  	 
+189	115045P 	THILAKARATHNE H.H.T.D.  	 
+190	115046U 	THILAKASOORIYA H.P.  	 
+191	115047A 	WAJEETHU A.L.A.  	 
+192	115048D 	WEERASINGHA A.C.  	 
+193	115049G 	WELLAGE C.H.  	 
+194	115050C 	WIJESINGHE K.S.L.  	 
+195	115051F 	WIMALASOORIYA S.A.Y.A.  	 
+196	115052J 	JAYAWARDENA K.T.L  	 
+197	115053M 	SHANIKA H.V.R.  	 
+198	115054R 	RATHNAYAKA R.M.A.U.  	 
+199	115055V 	PRASANGA R.K.M.  	 
+200	115056B 	SAMEERA M.G.G.N.  	 
+201	115057E 	PREMASINGHE R.H.J.I.K.  	 
+202	115058H 	RATHNAYAKE S.A.T.L
+
+"""
+b11all = ['101087D', '104109B', '104111A', '104114K', '114001V', '114002B', '114003E', '114004H', '114005L', '114006P', '114007U', '114008A', '114009D', '114010X', '114012F', '114014M', '114015R', '114016V', '114018E', '114019H', '114020D', '114022K', '114023N', '114024T', '114025X', '114026C', '114027F', '114028J', '114029M', '114032P', '114034A', '114035D', '114036G', '114037K', '114039T', '114041R', '114043B', '114044E', '114045H', '114046L', '114047P', '114048U', '114049A', '114050T', '114051X', '114054J', '114055M', '114057V', '114058B', '114059E', '114060A', '114061D', '114062G', '114064N', '114065T', '114066X', '114067C', '114069J', '114071H', '114072L', '114073P', '114074U', '114077G', '114078K', '114079N', '114080J', '114081M', '114082R', '114083V', '114086H', '114088P', '114089U', '114090N', '114091T', '114093C', '114096M', '114097R', '114098V', '114099B', '114100A', '114101D', '114102G', '114104N', '114105T', '114106X', '114108F', '114109J', '114110E', '114111H', '114113P', '114114U', '114115A', '114116D', '114117G', '114118K', '114119N', '114120J', '114121M', '114122R', '114123V', '114124B', '114126H', '114127L', '114128P', '114129U', '114130N', '114131T', '114132X', '114133C', '114135J', '114137R', '114138V', '114140U', '114141A', '114143G', '114144K', '114146T', '114147X', '114148C', '114150B', '114151E', '114152H', '114153L', '114154P', '114155U', '114157D', '114158G', '114159K', '114160F', '114161J', '114162M', '114163R', '114164V', '114165B', '114166E', '114167H', '114168L', '114169P', '114170K', '114171N', '114173X', '114174C', '114175F', '114177M', '114178R', '114179V', '114180P', '114181U', '114182A', '114183D', '114184G', '114185K', '114186N', '115001E', '115002H', '115003L', '115005U', '115006A', '115007D', '115008G', '115010F', '115011J', '115012M', '115013R', '115014V', '115015B', '115016E', '115017H', '115018L', '115019P', '115020K', '115021N', '115022T', '115023X', '115024C', '115025F', '115027M', '115030P', '115031U', '115033D', '115035K', '115036N', '115037T', '115039C', '115040V', '115042E', '115043H', '115044L', '115045P', '115046U', '115047A', '115048D', '115049G', '115050C', '115051F', '115052J', '115053M', '115054R', '115055V', '115056B', '115057E', '115058H']
+b10itm = ['105001U', '105003D', '105004G', '105005K', '105006N', '105007T', '105008X', '105009C', '105010V', '105011B', '105012E', '105013H', '105014L', '105015P', '105016E', '105016U', '105017A', '105018D', '105019G', '105021F', '105022J', '105023M', '105024R', '105025V', '105026B', '105027E', '105028H', '105029L', '105030G', '105032N', '105033T', '105034x', '105035C', '105036F', '105037J']
+
+b10it = """
+| 105001U   |
+| 105003D   |
+| 105004G   |
+| 105005K   |
+| 105006N   |
+| 105007T   |
+| 105008X   |
+| 105009C   |
+| 105010V   |
+| 105011B   |
+| 105012E   |
+| 105013H   |
+| 105014L   |
+| 105015P   |
+| 105016E   |
+| 105016U   |
+| 105017A   |
+| 105018D   |
+| 105019G   |
+| 105021F   |
+| 105022J   |
+| 105023M   |
+| 105024R   |
+| 105025V   |
+| 105026B   |
+| 105027E   |
+| 105028H   |
+| 105029L   |
+| 105030G   |
+| 105032N   |
+| 105033T   |
+| 105034x   |
+| 105035C   |
+| 105036F   |
+| 105037J   |
+| 104001L   |
+| 104002P   |
+| 104003U   |
+| 104004A   |
+| 104005D   |
+| 104006G   |
+| 104007K   |
+| 104008N   |
+| 104009T   |
+| 104010M   |
+| 104011R   |
+| 104012V   |
+| 104013B   |
+| 104014E   |
+| 104015H   |
+| 104016L   |
+| 104017P   |
+| 104018U   |
+| 104019A   |
+| 104020T   |
+| 104021X   |
+| 104023F   |
+| 104026R   |
+| 104027V   |
+| 104028B   |
+| 104029E   |
+| 104030A   |
+| 104031D   |
+| 104032G   |
+| 104033K   |
+| 104034N   |
+| 104035T   |
+| 104036X   |
+| 104037C   |
+| 104039J   |
+| 104039J   |
+| 104040E   |
+| 104041H   |
+| 104042L   |
+| 104045A   |
+| 104046D   |
+| 104047G   |
+| 104049N   |
+| 104050J   |
+| 104051X   |
+| 104052R   |
+| 104053V   |
+| 104054B   |
+| 104055E   |
+| 104056H   |
+| 104057L   |
+| 104058P   |
+| 104059U   |
+| 104060N   |
+| 104061T   |
+| 104062X   |
+| 104063C   |
+| 104065J   |
+| 104066M   |
+| 104067R   |
+| 104068V   |
+| 104069B   |
+| 104070U   |
+| 104071A   |
+| 104072D   |
+| 104073G   |
+| 104074K   |
+| 104075N   |
+| 104076T   |
+| 104077X   |
+| 104079F   |
+| 104080B   |
+| 104081E   |
+| 104082H   |
+| 104083L   |
+| 104084P   |
+| 104085U   |
+| 104086A   |
+| 104087D   |
+| 104088G   |
+| 104089K   |
+| 104090F   |
+| 104091J   |
+| 104092M   |
+| 104093R   |
+| 104094V   |
+| 104095B   |
+| 104096E   |
+| 104097H   |
+| 104098L   |
+| 104099P   |
+| 104100N   |
+| 104101T   |
+| 104102X   |
+| 104103C   |
+| 104104F   |
+| 104105J   |
+| 104106M   |
+| 104107R   |
+| 104108V   |
+| 104109B   |
+| 10410T    |
+| 104110U   |
+| 104111A   |
+| 104112D   |
+| 104113G   |
+| 104114K   |
+| 104119A   |
+| 104487S   |
+| 104887D   |
+
+"""
+
+
+b9 = """
+| 094001R   |
+| 094002V   |
+| 094003B   |
+| 094004E   |
+| 094005H   |
+| 094006L   |
+| 094007P   |
+| 094008U   |
+| 094009A   |
+| 094010T   |
+| 094011X   |
+| 094013F   |
+| 094014J   |
+| 094015M   |
+| 094016R   |
+| 094017V   |
+| 094018B   |
+| 094019E   |
+| 094020A   |
+| 094021D   |
+| 094022G   |
+| 094023K   |
+| 094024N   |
+| 094025T   |
+| 094026X   |
+| 094027C   |
+| 094028F   |
+| 094029J   |
+| 094030E   |
+| 094031H   |
+| 094032L   |
+| 094033P   |
+| 094035A   |
+| 094036D   |
+| 094037G   |
+| 094038K   |
+| 094039N   |
+| 094040J   |
+| 094041M   |
+| 094042R   |
+| 094043V   |
+| 094044B   |
+| 094046H   |
+| 094047L   |
+| 094048P   |
+| 094049U   |
+| 094050N   |
+| 094051T   |
+| 094052X   |
+| 094053C   |
+| 094054F   |
+| 094055J   |
+| 094056M   |
+| 094057R   |
+| 094058V   |
+| 094059B   |
+| 094060U   |
+| 094061A   |
+| 094062D   |
+| 094064K   |
+| 094065N   |
+| 094066T   |
+| 094067X   |
+| 094068C   |
+| 094069F   |
+| 094070B   |
+| 094071E   |
+| 094072H   |
+| 094073L   |
+| 094074P   |
+| 094075U   |
+| 094076A   |
+| 094077D   |
+| 094078G   |
+| 094079K   |
+| 094080F   |
+| 094081J   |
+| 094082M   |
+| 094083R   |
+| 094084V   |
+| 094085B   |
+| 094086E   |
+| 094087H   |
+| 094089P   |
+| 094091N   |
+| 094092T   |
+| 094093X   |
+| 094094C   |
+| 094094M   |
+| 094095F   |
+| 094096J   |
+| 094097M   |
+| 094100U   |
+| 094102D   |
+| 094103G   |
+| 094104K   |
+| 094105N   |
+| 094108C   |
+| 094109F   |
+| 094112H   |
+| 094113L   |
+| 094114P   |
+| 094115U   |
+| 094116A   |
+| 094117D   |
+| 094119K   |
+"""
+
+b8 = """
+| 084001H   |
+| 084005A   |
+| 084006D   |
+| 084007G   |
+| 084008K   |
+| 084010J   |
+| 084011M   |
+| 084013V   |
+| 084014B   |
+| 084016H   |
+| 084017L   |
+| 084018P   |
+| 084020N   |
+| 084021T   |
+| 084024F   |
+| 084027R   |
+| 084028V   |
+| 084029B   |
+| 084034K   |
+| 084035N   |
+| 084036T   |
+| 084038C   |
+| 084039F   |
+| 084042H   |
+| 084043L   |
+| 084044P   |
+| 084045U   |
+| 084046A   |
+| 084048G   |
+| 084052M   |
+| 084054V   |
+| 084057H   |
+| 084058L   |
+| 084059P   |
+| 084065F   |
+| 084066J   |
+| 084068R   |
+| 084069V   |
+| 084070P   |
+| 084071U   |
+| 084072A   |
+| 084074G   |
+| 084077T   |
+| 084078X   |
+| 084079C   |
+| 084081B   |
+| 084084L   |
+| 084085P   |
+| 084086U   |
+| 084088D   |
+| 084090C   |
+| 084091F   |
+| 084092J   |
+| 084093M   |
+| 084094R   |
+| 084096B   |
+| 084098H   |
+| 084100K   |
+| 084101N   |
+| 084102T   |
+| 084103X   |
+| 084106J   |
+| 084107M   |
+| 084108R   |
+| 084109V   |
+"""
+zb10itm = b8.split('|')
+aa = []
+for n in zb10itm:
+	if len(n) < 2:
+		continue
+	#print n.strip(),len(n)
+	aa.append(n.strip())
+print aa, len(aa)
