@@ -88,18 +88,23 @@ class GpsDataProcessor():
         
 
 
-class DbManager():
+class DBAdapter(object):
     """
     Manage connections and data in/out flow with server 
     """
     def __init__(self,dbConfiguration):
         """
-        argument is a dictionary
+        ['dbApiName'],
+        ['host'],
+        ['username'],
+        ['password'],
+        ['database']
+        @param dbConfiguration: The DB connection configuration details
+        @type dbConfiguration:  C{dict}
         dbAipName like MySQLdb 
         """
-        self.dbpool = adbapi.ConnectionPool(dbConfiguration['dbApiName'],dbConfiguration['host'],dbConfiguration['username'],dbConfiguration['password'],dbConfiguration['database'])
-    
-    
+        self.dbpool = adbapi.ConnectionPool(*dbConfiguration)
+
     
     def validateVehicleFromDB(self,gpsData): 
         print "### Starting approval of vehicle from DB"
@@ -118,6 +123,26 @@ class DbManager():
         databaseCursor.execute(sql) 
         return self.isApprovedImei
 
+
+    def savePosition(self,positionData):
+        """
+        Store information in database 
+        @param positionData: contains positioning data speed, altitute, loggitute , latitude and IMEI
+        @type positionData: C{MVT380Protocol}
+        
+        sql = 
+        insert into coordinates
+        (sat_time,sat_status,latitude,longitude,speed,bearing,imei,location_area_code,cell_id) 
+        values("{}",'{}',{},{},{},{},"{}","{}","{}")
+        .format(gpsObject.sat_time, gpsObject.sat_status, gpsObject.latitude, 
+        gpsObject.longitude, gpsObject.speed, gpsObject.bearing, gpsObject.imei
+        , gpsObject.location_area_code, gpsObject.cell_id)
+
+        """
+        for key,val in positionData.items():
+            print key,val 
+            
+        
 
 
 class GpsData():
@@ -143,6 +168,15 @@ class GpsData():
 
 class GpsStringReceiver(NMEAProtocol):
     
+    def __init__(self):
+        configurationDetails = ['MySQLdb',
+                                '127.0.0.1',
+                                'kasun123',
+                                'root',
+                                'syscall'
+                                ]
+        _dbBridge = DBAdapter(configurationDetails)
+        NMEAProtocol.__init__(self,_dbBridge)
     
 #     def lineReceived(self, line):
 #         peer = self.transport.getPeer()

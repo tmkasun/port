@@ -164,7 +164,7 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         particularly misbehaving NMEA receivers.
     @type _sentenceCallback: unary callable
     """
-    def __init__(self, receiver= None, sentenceCallback=None):
+    def __init__(self, dbBridge,receiver= None, sentenceCallback=None):
         """
         Initializes an NMEAProtocol.
 
@@ -175,7 +175,8 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
             particularly misbehaving NMEA receivers.
         @type sentenceCallback: unary callable
         """
-        self._receiver = receiver or NMEAAdapter()
+        self.dbBridge = dbBridge
+        self._receiver = receiver or NMEAAdapter(dbBridge)
         self._sentenceCallback = sentenceCallback
 
 
@@ -469,7 +470,7 @@ class NMEAAdapter(object):
     @ivar _receiver: The positioning receiver that will receive parsed data.
     @type _receiver: L{ipositioning.IPositioningReceiver}
     """
-    def __init__(self, receiver= None):
+    def __init__(self, dbBridge=None,receiver= None):
         """
         Initializes a new NMEA adapter.
 
@@ -479,6 +480,7 @@ class NMEAAdapter(object):
         self._state = {}
         self._sentenceData = {}
         self._receiver = receiver
+        self.dbBridge = dbBridge
 
     def _fixDateTimeStamp(self):
         """
@@ -705,6 +707,7 @@ class NMEAAdapter(object):
             raises C{ValueError}.
         @type valueKey: C{str}
         """
+        print "### value fix started"
         if unit is None:
             unit = getattr(self.currentSentence, unitKey)
         if valueKey is None:
@@ -719,7 +722,7 @@ class NMEAAdapter(object):
             converter = self._UNIT_CONVERTERS[unit]
             currentValue = getattr(self.currentSentence, sourceKey)
             self._sentenceData[valueKey] = converter(currentValue)
-
+            
 
     def _fixGSV(self):
         """
@@ -776,9 +779,22 @@ class NMEAAdapter(object):
         fixer = self._SPECIFIC_SENTENCE_FIXES.get(self.currentSentence.type)
         if fixer is not None:
             fixer(self)
+            
+    def _fixIMEI(self):
+        """
+        Fix IMEI number to convert it to an integer type
+        """
+        print "### start fixing imei"
+        imei = getattr(self.currentSentence, 'IMEI', None)
+        print "### imei = {}".format(imei)
+        self._sentenceData['IMEI'] = int(imei)
+        
 
     #<NMEASentence (AAA) {GSMSignal: 6, IMEI: 862170013556541, IOState: 0000, altitude: 30, analogDigitalInfo: 000A|0006||02D9|0103, baseID: 413|1|EB8C|7353, dateTimestamp: 140119023128, eventCode: 35, fixQuality: A, horizontalDilutionOfPrecision: 1, latitudeFloat: 6.887935, longitudeFloat: 79.890790, mileage: 107318, numberOfSatellitesSeen: 8, runtime: 274806, speedInKMh: 0, trueHeading: 24}>
     _FIXERS = {
+               
+        'IMEI': 
+            lambda self: self._fixIMEI(),
         'type':
             lambda self: self._sentenceSpecificFix(),
 
@@ -819,6 +835,11 @@ class NMEAAdapter(object):
         'magneticVariationDirection':
             lambda self: self._fixHemisphereSign(Angles.VARIATION,
                                             'heading'),
+
+        'speedInKMh':
+            lambda self: self._fixUnits(valueKey='speed',
+                                   sourceKey='speedInKMh',
+                                   unit='K'),
 
         'speedInKnots':
             lambda self: self._fixUnits(valueKey='speed',
@@ -866,15 +887,8 @@ class NMEAAdapter(object):
             self.clear()
         
         self._updateState()
-        
-        
-        
-        print "self._state",self._state
-        print "self._sentenceData",self._sentenceData
-        print "self._receiver",self._receiver
-        print "### Stoped"
-        return 0 
         self._fireSentenceCallbacks()
+        
 
 
     def _validateCurrentSentence(self):
@@ -1003,23 +1017,25 @@ class NMEAAdapter(object):
 
         The callbacks will only be fired with data from L{self._state}.
         """
-        iface = ipositioning.IPositioningReceiver
-        for name, method in iface.namesAndDescriptions():
-            callback = getattr(self._receiver, name)
-
-            kwargs = {}
-            atLeastOnePresentInSentence = False
-
-            try:
-                for field in method.positional:
-                    if field in self._sentenceData:
-                        atLeastOnePresentInSentence = True
-                    kwargs[field] = self._state[field]
-            except KeyError:
-                continue
-
-            if atLeastOnePresentInSentence:
-                callback(**kwargs)
+        callback = self.dbBridge.savePosition
+        callback(self._sentenceData)
+#         iface = ipositioning.IPositioningReceiver
+#         for name, method in iface.namesAndDescriptions():
+#             callback = getattr(self._receiver, name)
+# 
+#             kwargs = {}
+#             atLeastOnePresentInSentence = False
+# 
+#             try:
+#                 for field in method.positional:
+#                     if field in self._sentenceData:
+#                         atLeastOnePresentInSentence = True
+#                     kwargs[field] = self._state[field]
+#             except KeyError:
+#                 continue
+# 
+#             if atLeastOnePresentInSentence:
+#                 callback(**kwargs)
 
 
 
