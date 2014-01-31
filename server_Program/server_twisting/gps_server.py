@@ -146,18 +146,18 @@ class DBAdapter(object):
         """
         #print "####savePosition **************************************\n"
         
-        #print positionData['altitude'].inMeters
-        #print positionData['longitude'].inDecimalDegrees
-        #print positionData['latitude'].inDecimalDegrees
-        #print positionData['time']
-        #print positionData['IMEI']
-        #print positionData['speed'].inMetersPerSecond
-        #print positionData['heading'].inDecimalDegrees
-        
+        print positionData['altitude'].inMeters
+        print positionData['longitude'].inDecimalDegrees
+        print positionData['latitude'].inDecimalDegrees
+        print positionData['time']
+        print positionData['IMEI']
+        print positionData['speed'].inMetersPerSecond
+        print positionData['heading'].inDecimalDegrees
+         
         #print "####loop **************************************\n"
         
         query = """insert into coordinates (sat_time,latitude,longitude,speed,bearing,imei) values("{}",{},{},{},{},{})""".format(positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,positionData['speed'].inMetersPerSecond,positionData['heading'].inDecimalDegrees,positionData['IMEI'])
-        #print query
+        print query
         return self._dbpool.runQuery(query).addCallbacks(self.DbSucesses, self.DbError)#.addBoth(self.testPrint)
                 
     def DbError(self,error):
