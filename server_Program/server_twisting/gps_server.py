@@ -34,7 +34,7 @@ class GpsDataProcessor():
         """
         Use comma(,) as default delimiter for CSV string
         """
-        print "### data = {}".format(self.receivedCsvLine)
+        #print "### data = {}".format(self.receivedCsvLine)
         self.splitedString = self.receivedCsvLine.split(delimiter)
         return self.splitedString   
     
@@ -82,10 +82,32 @@ class GpsDataProcessor():
         else:
             previousCoordinate = currentCoordinate
             minimumCountForRejection = 0
-            return False
+            return Fal
+                
+
+
+class Validator(object):
+    """
+    Validater Object for validate all the type of data
+    """
+    
+    def validateVehicleFromDB(self,gpsData): 
+        #print "### Starting approval of vehicle from DB"
+        databaseCursor.execute("select imei from approved_imei where imei = '{}'".format(self.imei))
+        approvedImeiList = databaseCursor.fetchall()
+        #print approvedImeiList
+        #print self.imei
         
+        if len(approvedImeiList) > 0:
+            self.isApprovedImei = True
+            #print "IMEI Number is already approved"
+            return self.isApprovedImei
         
-        
+        #print "Not an approved IMEI number ({}),this IMEI number will send to approval ".format(self.imei)
+        sql = """ insert IGNORE into not_approved_imei values("{}",{},"{}") """.format(self.imei, 0, datetime.now())
+        databaseCursor.execute(sql) 
+        return self.isApprovedImei
+
 
 
 class DBAdapter(object):
@@ -106,23 +128,6 @@ class DBAdapter(object):
         self._dbpool = adbapi.ConnectionPool(*dbConfiguration)
 
     
-    def validateVehicleFromDB(self,gpsData): 
-        print "### Starting approval of vehicle from DB"
-        databaseCursor.execute("select imei from approved_imei where imei = '{}'".format(self.imei))
-        approvedImeiList = databaseCursor.fetchall()
-        print approvedImeiList
-        print self.imei
-        
-        if len(approvedImeiList) > 0:
-            self.isApprovedImei = True
-            print "IMEI Number is already approved"
-            return self.isApprovedImei
-        
-        print "Not an approved IMEI number ({}),this IMEI number will send to approval ".format(self.imei)
-        sql = """ insert IGNORE into not_approved_imei values("{}",{},"{}") """.format(self.imei, 0, datetime.now())
-        databaseCursor.execute(sql) 
-        return self.isApprovedImei
-
 
     def savePosition(self,positionData):
         """
@@ -139,55 +144,27 @@ class DBAdapter(object):
         , gpsObject.location_area_code, gpsObject.cell_id)
 
         """
-        print "####savePosition **************************************\n"
+        #print "####savePosition **************************************\n"
         
-        print positionData['altitude'].inMeters
-        print positionData['longitude'].inDecimalDegrees
-        print positionData['latitude'].inDecimalDegrees
-        print positionData['time']
-        print positionData['IMEI']
-        print positionData['speed'].inMetersPerSecond
-        print positionData['heading'].inDecimalDegrees
+        #print positionData['altitude'].inMeters
+        #print positionData['longitude'].inDecimalDegrees
+        #print positionData['latitude'].inDecimalDegrees
+        #print positionData['time']
+        #print positionData['IMEI']
+        #print positionData['speed'].inMetersPerSecond
+        #print positionData['heading'].inDecimalDegrees
         
-        print "####loop **************************************\n"
+        #print "####loop **************************************\n"
         
-        for key,val in positionData.items():
-            print key,val,val.__class__
-        
-        query = """insert into coordinates \
-        (sat_time,latitude,longitude,speed,bearing,imei)\
-        values("{}",{},{},{},{},{})\
-        """.format\
-        (positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,positionData['speed'].inMetersPerSecond,\
-         positionData['heading'].inDecimalDegrees,positionData['IMEI'])
+        query = """insert into coordinates (sat_time,latitude,longitude,speed,bearing,imei) values("{}",{},{},{},{},{})""".format(positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,positionData['speed'].inMetersPerSecond,positionData['heading'].inDecimalDegrees,positionData['IMEI'])
         #print query
-        return self._dbpool.runQuery(query)#.addBoth(self.testPrint)
+        return self._dbpool.runQuery(query).addCallbacks(self.DbSucesses, self.DbError)#.addBoth(self.testPrint)
+                
+    def DbError(self,error):
+        print error
         
-        
-    def testPrint(self,data):
-        print "###testPrint \n\n"
-        print data.__class__,data
-
-
-class GpsData():
-    """
-    Keep all the data about single gps object
-    ie: coordinates(latitude longitude) , time stamp, heading and etc
-    """
-    def __init__(self,processedGpsData):
-        self.processedGpsData = processedGpsData
-        self.position = {}
-        self.speed = {}
-        self.time = {}
-    
-    def decodeData(self):
-        device = devices()
-        
-        
-        
-    def save(self):
-        print "### Saving GpsData object in database (ORM)"
-
+    def DbSucesses(self,sucess):
+        pass
 
 
 class GpsStringReceiver(NMEAProtocol):
@@ -202,22 +179,15 @@ class GpsStringReceiver(NMEAProtocol):
         _dbBridge = DBAdapter(configurationDetails)
         NMEAProtocol.__init__(self,_dbBridge)
     
-#     def lineReceived(self, line):
-#         peer = self.transport.getPeer()
-#         print "### This is the received line = {} from '{}'".format(line, peer)
-#         processor = GpsDataProcessor(line)
-#         processor.process()
-#         gpsData = GpsData(processor)
-        
 
     def connectionMade(self):
         self.factory.number_of_connections +=1
-        print "### Connection made, current connected clients = {}".format(self.factory.number_of_connections)
+        #print "### Connection made, current connected clients = {}".format(self.factory.number_of_connections)
 
         
     def connectionLost(self, reason):
         self.factory.number_of_connections -=1
-        print "### Connection lost from the client, current connected clients = {}".format(self.factory.number_of_connections)
+        #print "### Connection lost from the client, current connected clients = {}".format(self.factory.number_of_connections)
          
 
 
@@ -226,10 +196,7 @@ class GpsStringReceiverFactory(ServerFactory):
     number_of_connections = 0
     protocol = GpsStringReceiver
     
-#     def buildProtocol(self, addr):
-#         print "### Building protocol address = {}".format(addr)
-#         return GpsStringReceiver("ok")
-    
+        
     def startFactory(self):
         d = devices()
         print "### Starting GpsStringReceiverFactory \nsupported devices {}".format(d.supportedDevices)
@@ -238,11 +205,11 @@ class GpsStringReceiverFactory(ServerFactory):
 
 def main():
     
-    print "### Running main()"
+    #print "### Running main()"
     factory = GpsStringReceiverFactory()
     reactor.listenTCP(9090, factory, 100)
     reactor.run()
-    print "### Listening on port 9090....."
+    #print "### Listening on port 9090....."
   
   
   
