@@ -175,6 +175,7 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
             particularly misbehaving NMEA receivers.
         @type sentenceCallback: unary callable
         """
+        print "initializing NMEAProtocol"
         self.dbBridge = dbBridge
         self._receiver = receiver or NMEAAdapter(dbBridge)
         self._sentenceCallback = sentenceCallback
@@ -477,6 +478,8 @@ class NMEAAdapter(object):
         @param receiver: The receiver for positioning sentences.
         @type receiver: L{ipositioning.IPositioningReceiver}
         """
+        print "initing NMEAAdapter"
+        self._conditionalCallbak = '_initialData'
         self._state = {}
         self._sentenceData = {}
         self._receiver = receiver
@@ -887,7 +890,10 @@ class NMEAAdapter(object):
             self.clear()
         
         self._updateState()
-        self._fireSentenceCallbacks()
+        
+        callback = getattr(self,self._conditionalCallbak,None)
+        callback()
+        
         
 
 
@@ -1017,6 +1023,9 @@ class NMEAAdapter(object):
 
         The callbacks will only be fired with data from L{self._state}.
         """
+        print "self._conditionalCallbak = {}".format(self._conditionalCallbak)
+        print "This is the other line received****"
+        return False
         callback = self.dbBridge.savePosition
         callback(self._sentenceData)
 #         iface = ipositioning.IPositioningReceiver
@@ -1038,6 +1047,10 @@ class NMEAAdapter(object):
 #                 callback(**kwargs)
 
 
+
+    def _initialData(self):
+        print "This is the first line received"
+        self._conditionalCallbak = "_fireSentenceCallbacks"
 
 __all__ = [
     "NMEAProtocol",

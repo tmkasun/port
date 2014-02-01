@@ -169,16 +169,20 @@ class DBAdapter(object):
 
 class GpsStringReceiver(NMEAProtocol):
     
+    
     def __init__(self):
+
         configurationDetails = ['MySQLdb',
                                 '127.0.0.1',
                                 'root',
                                 'kasun123',
                                 'syscall'
                                 ]
+        #self._AUTHORIZED_CONNECTION = False
+        print "initializing GpsStringReceiver"
         _dbBridge = DBAdapter(configurationDetails)
         NMEAProtocol.__init__(self,_dbBridge)
-    
+        
 
     def connectionMade(self):
         self.factory.number_of_connections +=1
