@@ -156,17 +156,48 @@ class DBAdapter(object):
          
         #print "####loop **************************************\n"
         
-        query = """insert into coordinates (sat_time,latitude,longitude,speed,bearing,imei) values("{}",{},{},{},{},{})""".format(positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,positionData['speed'].inMetersPerSecond,positionData['heading'].inDecimalDegrees,positionData['IMEI'])
+        query = """insert into coordinates (sat_time,latitude,longitude,speed,bearing,imei) values("{}",{},{},{},{},{})""".\
+        format(positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,\
+        positionData['speed'].inMetersPerSecond,positionData['heading'].inDecimalDegrees,positionData['IMEI'])
         print query
-        return self._dbpool.runQuery(query).addCallbacks(self.DbSucesses, self.DbError)#.addBoth(self.testPrint)
+        return self._dbpool.runQuery(query)#.addCallbacks(self.DbSucesses, self.DbError)#.addBoth(self.testPrint)
                 
     def DbError(self,error):
-        print error
+        print "###DbError = ",error
         
-    def DbSucesses(self,sucess):
-        pass
-
-
+    def DbSucesses(self,sucessResult,currentDeviceIMEI):
+        print "###DbSucesses",sucessResult
+        for element in sucessResult:
+            if currentDeviceIMEI == element[0]:
+                return True
+         
+        raise ValueError("Unauthorized IMEI")
+        
+    
+    def validateDevice(self,positionData):
+        print "#### validateDevice",positionData
+        query = """select imei from approved_imei"""
+        print query
+        return self._dbpool.runQuery(query).addCallbacks(self.DbSucesses, self.DbError,callbackArgs=(str(positionData['IMEI']),))
+        
+        
+        
+    def sendToApproval(self,imei):
+        query = """insert into not_approved_imei values("{}",0,now()) ON DUPLICATE KEY UPDATE last_connection_attempt = now()"""\
+        .format(imei)
+        return self._dbpool.runQuery(query).addBoth(self.shutdown)
+        
+    
+    def shutdown(self,*args):
+        """
+            Shutdown function
+            It's a required task to shutdown the database connection pool:
+                garbage collector doesn't shutdown associated thread
+        """
+        self._dbpool.close()
+    
+    
+    
 class GpsStringReceiver(NMEAProtocol):
     
     
@@ -175,6 +206,7 @@ class GpsStringReceiver(NMEAProtocol):
         configurationDetails = ['MySQLdb',
                                 '127.0.0.1',
                                 'root',
+                                
                                 'kasun123',
                                 'syscall'
                                 ]

@@ -133,6 +133,7 @@ def _validateChecksum(sentence):
     Simply returns on sentences that either don't have a checksum,
     or have a valid checksum.
     """
+    return True #tempory  bypass checksum test 
     if sentence[-3] == '*':  # Sentence has a checksum
         reference, source = int(sentence[-2:], 16), sentence[:-2]
         computed = 0
@@ -213,8 +214,10 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
 
         if self._receiver is not None:
             self._receiver.sentenceReceived(sentence)
-
-
+        
+        print "### end of sentence received "
+    
+    
     _SENTENCE_CONTENTS = {
         'AAA': [
             'IMEI', # Trackers IMEI is normally 15 digitals
@@ -892,7 +895,7 @@ class NMEAAdapter(object):
         self._updateState()
         
         callback = getattr(self,self._conditionalCallbak,None)
-        callback()
+        return callback()
         
         
 
@@ -1023,34 +1026,30 @@ class NMEAAdapter(object):
 
         The callbacks will only be fired with data from L{self._state}.
         """
-        print "self._conditionalCallbak = {}".format(self._conditionalCallbak)
+        print "#### _conditionalCallbak = {}".format(self._conditionalCallbak)
         print "This is the other line received****"
-        return False
-        callback = self.dbBridge.savePosition
-        callback(self._sentenceData)
-#         iface = ipositioning.IPositioningReceiver
-#         for name, method in iface.namesAndDescriptions():
-#             callback = getattr(self._receiver, name)
-# 
-#             kwargs = {}
-#             atLeastOnePresentInSentence = False
-# 
-#             try:
-#                 for field in method.positional:
-#                     if field in self._sentenceData:
-#                         atLeastOnePresentInSentence = True
-#                     kwargs[field] = self._state[field]
-#             except KeyError:
-#                 continue
-# 
-#             if atLeastOnePresentInSentence:
-#                 callback(**kwargs)
-
+        self.dbBridge.savePosition(self._sentenceData)
+        
 
 
     def _initialData(self):
-        print "This is the first line received"
-        self._conditionalCallbak = "_fireSentenceCallbacks"
+        print "### _initialData"
+        validation = self.dbBridge.validateDevice(self._sentenceData)
+        validation.addCallbacks(self._setConditionalCallbak,self._setConditionalCallbak,callbackArgs= (True,))
+
+    
+    def _setConditionalCallbak(self,condition,validDevice = False):
+        print "###setConditionalCallbak validDevice = {}".format(validDevice)
+        if validDevice:
+            self._conditionalCallbak = '_fireSentenceCallbacks'
+            self.dbBridge.savePosition(self._sentenceData)
+            print "### valid device"
+            return True
+        print "### in-valid device"
+        self.dbBridge.sendToApproval(self._sentenceData['IMEI'])
+        raise ValueError(condition)
+        print "#### ValueError(condition)"
+
 
 __all__ = [
     "NMEAProtocol",
