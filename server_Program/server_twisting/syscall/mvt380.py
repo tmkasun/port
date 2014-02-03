@@ -133,6 +133,7 @@ def _validateChecksum(sentence):
     Simply returns on sentences that either don't have a checksum,
     or have a valid checksum.
     """
+    return True #tempory  bypass checksum test 
     if sentence[-3] == '*':  # Sentence has a checksum
         reference, source = int(sentence[-2:], 16), sentence[:-2]
         computed = 0
@@ -175,6 +176,7 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
             particularly misbehaving NMEA receivers.
         @type sentenceCallback: unary callable
         """
+        #print "initializing NMEAProtocol"
         self.dbBridge = dbBridge
         self._receiver = receiver or NMEAAdapter(dbBridge)
         self._sentenceCallback = sentenceCallback
@@ -188,7 +190,7 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         @type rawSentence: C{str}
         """
         sentence = rawSentence.strip()
-        
+        #print sentence 
         _validateChecksum(sentence)
         splitSentence = _split(sentence)
 
@@ -212,8 +214,10 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
 
         if self._receiver is not None:
             self._receiver.sentenceReceived(sentence)
-
-
+        
+        #print "### end of sentence received "
+    
+    
     _SENTENCE_CONTENTS = {
         'AAA': [
             'IMEI', # Trackers IMEI is normally 15 digitals
@@ -477,6 +481,8 @@ class NMEAAdapter(object):
         @param receiver: The receiver for positioning sentences.
         @type receiver: L{ipositioning.IPositioningReceiver}
         """
+        #print "initing NMEAAdapter"
+        self._conditionalCallbak = '_initialData'
         self._state = {}
         self._sentenceData = {}
         self._receiver = receiver
@@ -489,9 +495,9 @@ class NMEAAdapter(object):
         """
 
         datetimestamp = self.currentSentence.dateTimestamp
-        print datetimestamp
+        #print datetimestamp
         timeObject = datetime.datetime.strptime(datetimestamp, '%y%m%d%H%M%S')
-        print timeObject
+        #print timeObject
         self._sentenceData['time'] = timeObject
 
     def _fixTimestamp(self):
@@ -615,13 +621,13 @@ class NMEAAdapter(object):
             C{None}, same as C{sourceKey}.
         @type destinationKey: C{str} (Python identifier)
         """
-        print "fixing Altitude"
+        #print "fixing Altitude"
         currentValue = getattr(self.currentSentence, sourceKey)
 
         if destinationKey is None:
             destinationKey = sourceKey
         
-        print converter(currentValue)
+        #print converter(currentValue)
         self._sentenceData[destinationKey] = converter(currentValue)
 
 
@@ -707,7 +713,7 @@ class NMEAAdapter(object):
             raises C{ValueError}.
         @type valueKey: C{str}
         """
-        print "### value fix started"
+        #print "### value fix started"
         if unit is None:
             unit = getattr(self.currentSentence, unitKey)
         if valueKey is None:
@@ -784,9 +790,9 @@ class NMEAAdapter(object):
         """
         Fix IMEI number to convert it to an integer type
         """
-        print "### start fixing imei"
+        #print "### start fixing imei"
         imei = getattr(self.currentSentence, 'IMEI', None)
-        print "### imei = {}".format(imei)
+        #print "### imei = {}".format(imei)
         self._sentenceData['IMEI'] = int(imei)
         
 
@@ -887,7 +893,10 @@ class NMEAAdapter(object):
             self.clear()
         
         self._updateState()
-        self._fireSentenceCallbacks()
+        
+        callback = getattr(self,self._conditionalCallbak,None)
+        return callback()
+        
         
 
 
@@ -905,10 +914,10 @@ class NMEAAdapter(object):
         """
         Cleans the current sentence.
         """
-        print "Cleaning"
+        #print "Cleaning"
         for key in sorted(self.currentSentence.presentAttributes):
             fixer = self._FIXERS.get(key, None)
-            print fixer,key
+            #print fixer,key
             if fixer is not None:
                 fixer(self)
 
@@ -919,7 +928,7 @@ class NMEAAdapter(object):
         """
         #self._updateBeaconInformation()
         #self._combineDateAndTime()
-        print "#### _updateState"
+        #print "#### _updateState"
         self._state.update(self._sentenceData)
 
 
@@ -1017,25 +1026,27 @@ class NMEAAdapter(object):
 
         The callbacks will only be fired with data from L{self._state}.
         """
-        callback = self.dbBridge.savePosition
-        callback(self._sentenceData)
-#         iface = ipositioning.IPositioningReceiver
-#         for name, method in iface.namesAndDescriptions():
-#             callback = getattr(self._receiver, name)
-# 
-#             kwargs = {}
-#             atLeastOnePresentInSentence = False
-# 
-#             try:
-#                 for field in method.positional:
-#                     if field in self._sentenceData:
-#                         atLeastOnePresentInSentence = True
-#                     kwargs[field] = self._state[field]
-#             except KeyError:
-#                 continue
-# 
-#             if atLeastOnePresentInSentence:
-#                 callback(**kwargs)
+        #print "#### _conditionalCallbak = {}".format(self._conditionalCallbak)
+        #print "This is the other line received****"
+        self.dbBridge.savePosition(self._sentenceData)
+        
+
+
+    def _initialData(self):
+        #print "### _initialData"
+        validation = self.dbBridge.validateDevice(self._sentenceData)
+        validation.addCallbacks(self._setConditionalCallbak,self._setConditionalCallbak,callbackArgs= (True,))
+
+    
+    def _setConditionalCallbak(self,condition,validDevice = False):
+        #print "###setConditionalCallbak validDevice = {}".format(validDevice)
+        if validDevice:
+            self._conditionalCallbak = '_fireSentenceCallbacks'
+            self.dbBridge.savePosition(self._sentenceData)
+            #print "### valid device"
+            return True
+        #print "### in-valid device"
+        self.dbBridge.sendToApproval(self._sentenceData['IMEI'])
 
 
 
