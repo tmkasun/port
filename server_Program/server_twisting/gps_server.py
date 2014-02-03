@@ -234,14 +234,14 @@ class GpsStringReceiver(NMEAProtocol):
         print "### _initialData"
         imei = sentenceData['IMEI']
         validationDeferred = self._dbBridge.validateDevice(str(imei))
-        validationDeferred.addCallbacks(self._authorizedDevice,self._authorizedDevice)
+        validationDeferred.addCallbacks(self._authorizedDevice,self._unauthorizedDevice)
 
     
     def _authorizedDevice(self,success):
-        print "Authorized device"
+        print "Authorized device continue and save coordinate"
     
     def _unauthorizedDevice(self,error):
-        print "Unauthorized device"
+        print "Unauthorized device disconnect device and shutdown dbPool"
     
     def _setConditionalCallbak(self,condition,validDevice = False):
         #print "###setConditionalCallbak validDevice = {}".format(validDevice)

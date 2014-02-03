@@ -217,6 +217,7 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
     
         if self._isFirstLineFromDevice:
             print "do all the preparations"
+            self._initialData(decodedSentence)
             self._isFirstLineFromDevice = False
             return
         
