@@ -110,7 +110,7 @@ class Validator(object):
 
 
 
-class DBAdapter(object):
+class DbBridge(object):
     """
     Manage connections and data in/out flow with server 
     """
@@ -164,8 +164,9 @@ class DBAdapter(object):
                 
     def DbError(self,error):
         #print "###DbError = ",error
+        pass
         
-    def DbSucesses(self,sucessResult,currentDeviceIMEI):
+    def _checkIMEI(self,sucessResult,currentDeviceIMEI):
         #print "###DbSucesses",sucessResult
         for element in sucessResult:
             if currentDeviceIMEI == element[0]:
@@ -174,11 +175,11 @@ class DBAdapter(object):
         raise ValueError("Unauthorized IMEI")
         
     
-    def validateDevice(self,positionData):
+    def validateDevice(self,imei):
         #print "#### validateDevice",positionData
         query = """select imei from approved_imei"""
         #print query
-        return self._dbpool.runQuery(query).addCallbacks(self.DbSucesses, self.DbError,callbackArgs=(str(positionData['IMEI']),))
+        return self._dbpool.runQuery(query).addCallback(self._checkIMEI,callbackArgs=(imei,))
         
         
         
@@ -212,8 +213,9 @@ class GpsStringReceiver(NMEAProtocol):
                                 ]
         #self._AUTHORIZED_CONNECTION = False
         #print "initializing GpsStringReceiver"
-        _dbBridge = DBAdapter(configurationDetails)
-        NMEAProtocol.__init__(self,_dbBridge)
+        self._dbBridge = DbBridge(configurationDetails)
+        self._isFirstLineFromDevice = True
+        NMEAProtocol.__init__(self)
         
 
     def connectionMade(self):
@@ -223,8 +225,33 @@ class GpsStringReceiver(NMEAProtocol):
         
     def connectionLost(self, reason):
         self.factory.number_of_connections -=1
-        #print "### Connection lost from the client, current connected clients = {}".format(self.factory.number_of_connections)
-         
+        print "### Connection lost from the client, current connected clients = {}".format(self.factory.number_of_connections)
+        print self.test
+        print "down the online flag and shutdown dbpool for this connection"
+
+
+    def _initialData(self, sentenceData):
+        print "### _initialData"
+        imei = sentenceData['IMEI']
+        validationDeferred = self._dbBridge.validateDevice(str(imei))
+        validationDeferred.addCallbacks(self._authorizedDevice,self._authorizedDevice)
+
+    
+    def _authorizedDevice(self,success):
+        print "Authorized device"
+    
+    def _unauthorizedDevice(self,error):
+        print "Unauthorized device"
+    
+    def _setConditionalCallbak(self,condition,validDevice = False):
+        #print "###setConditionalCallbak validDevice = {}".format(validDevice)
+        if validDevice:
+            self._conditionalCallbak = '_fireSentenceCallbacks'
+            self._dbBridge.savePosition(self._sentenceData)
+            #print "### valid device"
+            return True
+        #print "### in-valid device"
+        self._dbBridge.sendToApproval(self._sentenceData['IMEI'])
 
 
 class GpsStringReceiverFactory(ServerFactory):
