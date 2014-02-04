@@ -483,12 +483,12 @@ function leftSidePaneImageOnClick(thisVehicle){
 	$( "#commonMessageBoxResultBox").html("");
 	$( "#commonMessageBoxResultBox").hide();
 	//$( "#commonMessageBoxResultBox").removeProp("class");
-	
+	imei = $(thisVehicle).attr('imei');
 	$.ajax({
 		type : "POST",
 		url: "./features/detailedVehicleHistroy.php",
 		dataType : "JSON",
-		data : { imei: thisVehicle.id}
+		data : { imei: imei}
 
 		}
 		).done(function(jsonObject){
