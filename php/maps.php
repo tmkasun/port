@@ -555,8 +555,7 @@ function init_date_time (thisVehicle) {
 		firstTime = false;
 		}
 
-		//alert(thisVehicle.id);
-		currentDataPickerVehicleImei = thisVehicle.id;
+		currentDataPickerVehicleImei = $(thisVehicle).attr('imei');
 		$('#leftSideSlidePane').hide('slide', {
 			direction : 'left'
 		});
