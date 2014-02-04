@@ -1,4 +1,4 @@
 <?php
-header("Location: /underconstruction/"); /* Redirect browser */
+header("Location: /updating/"); /* Redirect browser */
 exit();
 ?>
