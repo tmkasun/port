@@ -110,7 +110,7 @@ class Validator(object):
 
 
 
-class DBAdapter(object):
+class DbBridge(object):
     """
     Manage connections and data in/out flow with server 
     """
@@ -144,7 +144,7 @@ class DBAdapter(object):
         , gpsObject.location_area_code, gpsObject.cell_id)
 
         """
-        #print "####savePosition **************************************\n"
+        print "####savePosition ***"
         
         #print positionData['altitude'].inMeters
         #print positionData['longitude'].inDecimalDegrees
@@ -156,39 +156,48 @@ class DBAdapter(object):
          
         #print "####loop **************************************\n"
         
+        """
+        @change: C{query} speed and heading is not need to be stored in database since those data are only
+        necessary  for live displaying vehicles on map
+        consider to update those values in new relation with imei as reference 
+        """
+        
         query = """insert into coordinates (sat_time,latitude,longitude,speed,bearing,imei) values("{}",{},{},{},{},{})""".\
         format(positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,\
         positionData['speed'].inMetersPerSecond,positionData['heading'].inDecimalDegrees,positionData['IMEI'])
         #print query
+        
+        
         return self._dbpool.runQuery(query)#.addCallbacks(self.DbSucesses, self.DbError)#.addBoth(self.testPrint)
                 
     def DbError(self,error):
         #print "###DbError = ",error
+        pass
         
-    def DbSucesses(self,sucessResult,currentDeviceIMEI):
-        #print "###DbSucesses",sucessResult
+    def _checkIMEI(self,sucessResult,imei):
+        print "###_checkIMEI and sucessResult",imei,sucessResult
         for element in sucessResult:
-            if currentDeviceIMEI == element[0]:
+            if imei == element[0]:
                 return True
          
         raise ValueError("Unauthorized IMEI")
         
     
-    def validateDevice(self,positionData):
-        #print "#### validateDevice",positionData
+    def validateDevice(self,imei):
+        print "#### validateDevice",imei
         query = """select imei from approved_imei"""
         #print query
-        return self._dbpool.runQuery(query).addCallbacks(self.DbSucesses, self.DbError,callbackArgs=(str(positionData['IMEI']),))
+        return self._dbpool.runQuery(query).addCallback(self._checkIMEI, imei)
         
         
         
     def sendToApproval(self,imei):
         query = """insert into not_approved_imei values("{}",0,now()) ON DUPLICATE KEY UPDATE last_connection_attempt = now()"""\
         .format(imei)
-        return self._dbpool.runQuery(query).addBoth(self.shutdown)
+        return self._dbpool.runQuery(query).addBoth(self.shutdownDBBridge)
         
     
-    def shutdown(self,*args):
+    def shutdownDBBridge(self,*args):
         """
             Shutdown function
             It's a required task to shutdown the database connection pool:
@@ -212,8 +221,10 @@ class GpsStringReceiver(NMEAProtocol):
                                 ]
         #self._AUTHORIZED_CONNECTION = False
         #print "initializing GpsStringReceiver"
-        _dbBridge = DBAdapter(configurationDetails)
-        NMEAProtocol.__init__(self,_dbBridge)
+        self._dbBridge = DbBridge(configurationDetails)
+        self._isFirstLineFromDevice = True
+        self._imei = None
+        NMEAProtocol.__init__(self)
         
 
     def connectionMade(self):
@@ -223,9 +234,72 @@ class GpsStringReceiver(NMEAProtocol):
         
     def connectionLost(self, reason):
         self.factory.number_of_connections -=1
-        #print "### Connection lost from the client, current connected clients = {}".format(self.factory.number_of_connections)
-         
+        print "### Connection lost from the client, current connected clients = {}".format(self.factory.number_of_connections)
+        if self._isFirstLineFromDevice:
+            print "Unauthorized device forcibly disconnected from server reason so no deal with flags = {}".format(reason)
+            return True
+        print "down the online flag and shutdown dbpool for this connection reason = {}".format(reason)
+        self._resetOnlineFlag(self._imei)
+        self._dbBridge.shutdownDBBridge()
 
+
+
+    def _initialData(self, sentenceData):
+        print "### _initialData"
+        imei = str(sentenceData['IMEI'])
+        validationDeferred = self._dbBridge.validateDevice(imei)
+        validationDeferred.addCallbacks\
+        (self._authorizedDevice, self._unauthorizedDevice, callbackArgs=(sentenceData,), errbackArgs=(imei,))
+
+    
+    def _authorizedDevice(self,success,positionData):
+        print "###success",success,positionData
+        deviceIMEI = str(positionData['IMEI'])
+        self._isFirstLineFromDevice = False
+        self._imei = deviceIMEI
+        print "###Authorized device continue and save coordinate"
+        print "###deviceIMEI",deviceIMEI 
+        saveDeferred = self._dbBridge.savePosition(positionData)
+        saveDeferred.addCallback(self._setOnlineFlag,deviceIMEI)
+        
+    def _unauthorizedDevice(self,error,imei):
+        print "Unauthorized device  send for approval + shutdown dbPool + disconnect device "
+        print "###imei ",imei
+        approvalSentDeferred = self._dbBridge.sendToApproval(imei)
+        approvalSentDeferred.addBoth(self._disconnectFromDevice)
+    
+    
+    def _disconnectFromDevice(self,*args):
+        print "####_disconnectFromDevice *args =".format(args.__class__)
+        self.transport.loseConnection()
+        #self.transport.abortConnection()
+        
+    def _setConditionalCallbak(self,condition,validDevice = False):
+        #print "###setConditionalCallbak validDevice = {}".format(validDevice)
+        if validDevice:
+            self._conditionalCallbak = '_fireSentenceCallbacks'
+            self._dbBridge.savePosition(self._sentenceData)
+            #print "### valid device"
+            return True
+        #print "### in-valid device"
+        self._dbBridge.sendToApproval(self._sentenceData['IMEI'])
+
+    def _setOnlineFlag(self,dbReturnedObject,imei):
+        print "###_setOnlineFlag dbReturnedObject = {} imei = {}".format(dbReturnedObject,imei)
+        query = """insert into vehicle_status(imei,connected_on,current_status)\
+        values("{}",now(),1) ON DUPLICATE KEY UPDATE\
+        connected_on = now(), current_status = 1 """.format(imei)
+        
+        print "###query = {}".format(query)
+        
+        self._dbBridge._dbpool.runQuery(query)
+
+    def _resetOnlineFlag(self,imei):
+        print "###_resetOnlineFlag imei = {}".format(imei)
+        query = """update vehicle_status set disconnected_on = now() where imei = "{}" """.format(imei)
+        print "###query = {}".format(query)
+        self._dbBridge._dbpool.runQuery(query)
+        
 
 class GpsStringReceiverFactory(ServerFactory):
     

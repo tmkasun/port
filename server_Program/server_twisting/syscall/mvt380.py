@@ -165,7 +165,7 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         particularly misbehaving NMEA receivers.
     @type _sentenceCallback: unary callable
     """
-    def __init__(self, dbBridge,receiver= None, sentenceCallback=None):
+    def __init__(self,receiver= None, sentenceCallback=None):
         """
         Initializes an NMEAProtocol.
 
@@ -176,9 +176,8 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
             particularly misbehaving NMEA receivers.
         @type sentenceCallback: unary callable
         """
-        #print "initializing NMEAProtocol"
-        self.dbBridge = dbBridge
-        self._receiver = receiver or NMEAAdapter(dbBridge)
+        
+        self._receiver = receiver or NMEAAdapter()
         self._sentenceCallback = sentenceCallback
 
 
@@ -212,15 +211,23 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         if self._sentenceCallback is not None:
             self._sentenceCallback(sentence)
 
-        if self._receiver is not None:
-            self._receiver.sentenceReceived(sentence)
+        decodedSentence = self._receiver.sentenceReceived(sentence)
         
-        #print "### end of sentence received "
+        print decodedSentence
     
+        if self._isFirstLineFromDevice:
+            print "do all the preparations"
+            self._initialData(decodedSentence)
+            return
+        
+        self._dbBridge.savePosition(decodedSentence) 
+        
+        print "### execute after if self._isFirstLineFromDevice*** "
+        
     
     _SENTENCE_CONTENTS = {
         'AAA': [
-            'IMEI', # Trackers IMEI is normally 15 digitals
+            'IMEI', # Trackers IMEI is normally 15 digits
             
             'eventCode', #Event code. Decimal.
             
@@ -474,20 +481,17 @@ class NMEAAdapter(object):
     @ivar _receiver: The positioning receiver that will receive parsed data.
     @type _receiver: L{ipositioning.IPositioningReceiver}
     """
-    def __init__(self, dbBridge=None,receiver= None):
+    def __init__(self,receiver= None):
         """
         Initializes a new NMEA adapter.
 
         @param receiver: The receiver for positioning sentences.
         @type receiver: L{ipositioning.IPositioningReceiver}
         """
-        #print "initing NMEAAdapter"
-        self._conditionalCallbak = '_initialData'
         self._state = {}
         self._sentenceData = {}
         self._receiver = receiver
-        self.dbBridge = dbBridge
-
+        
     def _fixDateTimeStamp(self):
         """
         Turns the MVT380 protocol timestamp notation into a datetime.time object.
@@ -893,13 +897,9 @@ class NMEAAdapter(object):
             self.clear()
         
         self._updateState()
-        
-        callback = getattr(self,self._conditionalCallbak,None)
-        return callback()
+        return self._sentenceData
         
         
-
-
     def _validateCurrentSentence(self):
         """
         Tests if a sentence contains a valid fix.
@@ -926,9 +926,6 @@ class NMEAAdapter(object):
         """
         Updates the current state with the new information from the sentence.
         """
-        #self._updateBeaconInformation()
-        #self._combineDateAndTime()
-        #print "#### _updateState"
         self._state.update(self._sentenceData)
 
 
@@ -1026,28 +1023,7 @@ class NMEAAdapter(object):
 
         The callbacks will only be fired with data from L{self._state}.
         """
-        #print "#### _conditionalCallbak = {}".format(self._conditionalCallbak)
-        #print "This is the other line received****"
-        self.dbBridge.savePosition(self._sentenceData)
         
-
-
-    def _initialData(self):
-        #print "### _initialData"
-        validation = self.dbBridge.validateDevice(self._sentenceData)
-        validation.addCallbacks(self._setConditionalCallbak,self._setConditionalCallbak,callbackArgs= (True,))
-
-    
-    def _setConditionalCallbak(self,condition,validDevice = False):
-        #print "###setConditionalCallbak validDevice = {}".format(validDevice)
-        if validDevice:
-            self._conditionalCallbak = '_fireSentenceCallbacks'
-            self.dbBridge.savePosition(self._sentenceData)
-            #print "### valid device"
-            return True
-        #print "### in-valid device"
-        self.dbBridge.sendToApproval(self._sentenceData['IMEI'])
-
 
 
 __all__ = [
