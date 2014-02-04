@@ -12,7 +12,7 @@ require_once '../mysql/local.php';
 
 $getVehicleListSQL = "select latitude,longitude,sat_time from coordinates where imei = '$imei' and date(sat_time) = '$year-$month-$date' and  time(sat_time) between '$start:00' and '$end:00'";
 //die($year.">>>>>".$month.">>>".$date.">>>>>".$getVehicleListSQL);
-
+die($getVehicleListSQL);
 $sqlResultObject = mysql_query($getVehicleListSQL,$connection);
 
 
