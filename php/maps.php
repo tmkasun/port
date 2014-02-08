@@ -104,9 +104,9 @@ include_once("./features/googleAnalyticsTracking.php")
 <link rel="stylesheet" href="../css/leaflet.css" />
 <link rel="stylesheet" href="../css/leaflet.label.css" />
 
+
 <!-- CSS style sheet for date and time picker -->
 <link rel="stylesheet" href="../css/jquery-ui-timepicker-addon.css" />
-
 
 <!------------------------------------------------ End ------------------------------------------------>
 
