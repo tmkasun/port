@@ -599,26 +599,74 @@ function getVehiclePath(selectedDateObject,start,end) {
                 //return 0;
                 var startingPointLatLng = new L.LatLng(jsonObject[0]["latitude"],jsonObject[0]["longitude"]);
                 var polyLineDistanceInMeters = 0;
-                var polyLine = L.polyline([],{weight: 12,color:get_random_color()});//.addLatLng([7.060015,79.96121]).addTo(map);
+                var polyLine = L.polyline([],{weight: 10,color:get_random_color()});//.addLatLng([7.060015,79.96121]).addTo(map);
                 var currentLatLng = startingPointLatLng;
+                var bearings = new Array();
+                var stopedCount = new Array();
+                var distanceDiff = 0;
+                var currentTime = null;
+                
+                var stoppedAt = null;
+                var continueAt = null;
+                
                 for ( var sections in jsonObject) {
                 		for ( var pass in sections) {
                     	currentLongitude = jsonObject[sections]["longitude"];
                         currentLatitude = jsonObject[sections]["latitude"];
                         var nextLatLng = new L.LatLng(currentLatitude,currentLongitude); 
-                        polyLineDistanceInMeters += currentLatLng.distanceTo(nextLatLng);
-                        //alert(polyLineDistanceInMeters);         
+                        distanceDiff = currentLatLng.distanceTo(nextLatLng);
                         currentLatLng = nextLatLng;
-
+                        
+                        polyLineDistanceInMeters += distanceDiff;
+                        //alert(polyLineDistanceInMeters);         
+                        bearings.push(parseFloat(jsonObject[sections]["bearing"]));
+						// marker.setIconAngle(parseFloat(jsonData[items]["bearing"]));
+                       
                         polyLine.addLatLng([currentLatitude,currentLongitude]);
+                        
+                        if(distanceDiff == 0){
+                        	if(! stoppedAt){
+								splitedTime = jsonObject[sections]["sat_time"].split(" ");
+	                        	date = splitedTime[0].split("-");
+	                        	time = splitedTime[1].split(":");
+	                        	currentTime = new Date(date[0],date[1],date[2],time[0],time[1],time[2],0);
+	                        	stoppedAt = currentTime;
+                        	}
+                        		
+                        	//add poit to line
+                        	continue;
+                        	//alert(currentTime.get);
+                        }
+                        
+                        
+                        if(stoppedAt){
+                        	splitedTime = jsonObject[sections]["sat_time"].split(" ");
+                        	date = splitedTime[0].split("-");
+                        	time = splitedTime[1].split(":");
+                        	currentTime = new Date(date[0],date[1],date[2],time[0],time[1],time[2],0);
+                        	continueAt = currentTime;
+                        	stoppedTime = (stoppedAt - continueAt)/1000;
+                        	
+                        	if(stoppedTime > 60){
+                        		//alert(stoppedTime);	
+	                        	stoppedPointCircle = L.circle(currentLatLng,40,{color:"red",stroke:true,fillColor:"blue",weight:2});
+	                    		stoppedPointCircle.addTo(map).bindPopup("Stopped for "+stoppedTime/60 + "Minutes").openPopup();
+                        		
+                        	}
+                	    	stoppedAt = null;
+                        }
+                        
+                        
+
                               
 					}
 					
 				}	
-					//alert("done1");
+					//alert(bearings);
 					animatedMarker = L.animatedMarker(polyLine.getLatLngs(),{
 						icon:prime_mover_icon_offline,
-						
+						bearingsArray: bearings
+									
 					});
 					map.addLayer(animatedMarker);
 					var polyLinePopupContent = "<a style = 'color:red'>Total Distance = "+polyLineDistanceInMeters.toFixed(1) +"(in meters)("+(polyLineDistanceInMeters/1000).toFixed(1)+"Km)</a>";
@@ -862,7 +910,7 @@ return '#'+rstr + gstr + bstr;
 
 			</div>
 <div id="map"
-		style="position: absolute; width: 99%; height: 100%; float: left; margin-left: auto; margin-right: auto; 
+		style="position: absolute; width: 100%; height: 100%; float: left; margin-left: auto; margin-right: auto; 
 		background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
 			OSM Layer
 

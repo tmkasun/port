@@ -1,9 +1,11 @@
 L.AnimatedMarker = L.Marker.extend({
   options: {
+  	//Collection of bearing 
+  	bearingsArray: false,
     // meters
     distance: 200,
     // ms
-    interval: 1000,
+    interval: 2000,
     // animate on add?
     autoStart: true,
     // callback onend
@@ -41,6 +43,7 @@ L.AnimatedMarker = L.Marker.extend({
         chunkedLatLngs.push(cur);
       }
     }
+    chunkedLatLngs.push(latlngs[len-1]);
 
     return chunkedLatLngs;
   },
@@ -72,6 +75,8 @@ L.AnimatedMarker = L.Marker.extend({
 
     // Move to the next vertex
     this.setLatLng(this._latlngs[this._i]);
+    this.setIconAngle(this.options.bearingsArray[this._i-1]+180.0);
+    //map.setView(this._latlngs[this._i], 15);
     this._i++;
 
     // Queue up the animation to the next next vertex
@@ -86,10 +91,6 @@ L.AnimatedMarker = L.Marker.extend({
 
   // Start the animation
   start: function() {
-    if (!this._i) {
-      this._i = 1;
-    }
-
     this.animate();
   },
 
@@ -110,6 +111,7 @@ L.AnimatedMarker = L.Marker.extend({
       this.options.distance = 10;
       this.options.interval = 30;
     }
+    this._i = 1;
   }
 
 });
