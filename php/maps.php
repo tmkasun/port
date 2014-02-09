@@ -138,6 +138,12 @@ include_once("./features/googleAnalyticsTracking.php")
 <script src="../js/jquery-ui-timepicker-addon.js"></script>
 <!------------------------------------------------ End ------------------------------------------------>
 
+		<link rel="stylesheet" href="../css/uikit.min.css" />
+
+		<script src="../js/uikit.min.js"></script>
+		
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
 <script type="text/javascript">
 
 /* ------------------------------------ current browser (client) displaying imei numbers ------------------------------------ */
@@ -745,6 +751,75 @@ return '#'+rstr + gstr + bstr;
 </head>
 <body
      style="background-image: url('../media/images/backgrounds/map_background6.jpg'); margin: 0; padding: 0;">
+     
+
+
+
+
+<!-- This is the off-canvas sidebar -->
+<div id="my-id" class="uk-offcanvas">
+    <div class="uk-offcanvas-bar">
+
+
+
+<p style="color: red;">
+	New style testing side bar buttons are not working
+</p>
+
+<ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav="">
+                                        <li><a href="">Item</a></li>
+                                        <li class="uk-active"><a href="">Active</a></li>
+
+                                        <li class="uk-parent">
+                                            <a href="#">Parent</a>
+                                            <div style="overflow:hidden;height:0;position:relative;"><ul class="uk-nav-sub">
+                                                <li><a href="">Sub item</a></li>
+                                                <li><a href="">Sub item</a>
+                                                    <ul>
+                                                        <li><a href="">Sub item</a></li>
+                                                        <li><a href="">Sub item</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul></div>
+                                        </li>
+
+                                        <li class="uk-parent">
+                                            <a href="#">Parent</a>
+                                            <div style="overflow:hidden;height:0;position:relative;"><ul class="uk-nav-sub">
+                                                <li><a href="">Sub item</a></li>
+                                                <li><a href="">Sub item</a></li>
+                                            </ul></div>
+                                        </li>
+
+                                        <li><a href="">Item</a></li>
+
+                                        <li class="uk-nav-header">Header</li>
+                                        <li class="uk-parent"><a href=""><i class="uk-icon-star"></i> Parent</a></li>
+                                        <li><a href=""><i class="uk-icon-twitter"></i> Item</a></li>
+                                        <li class="uk-nav-divider"></li>
+                                        <li><a href=""><i class="uk-icon-rss"></i> Item</a></li>
+                                    </ul>
+
+
+
+
+
+
+
+
+
+
+
+        
+    </div>
+</div>
+
+
+
+
+
+
+
      <!-- for full page background style="background-image: url('../media/images/backgrounds/map_background3.jpg'); background-size: cover; -moz-background-size: cover; -webkit-background-size: cover; margin: 0; padding: 0;" -->
      <!-- Open street maps via leaflet javascript framework-->
 
@@ -787,7 +862,7 @@ return '#'+rstr + gstr + bstr;
 
 			</div>
 <div id="map"
-		style="position: absolute; width: 95%; height: 100%; float: left; margin-left: 3%; margin-right: 3%; 
+		style="position: absolute; width: 99%; height: 100%; float: left; margin-left: auto; margin-right: auto; 
 		background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
 			OSM Layer
 
@@ -801,6 +876,10 @@ return '#'+rstr + gstr + bstr;
 
 		<div id="functionButtons"
 		style="position: relative; width: 85%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
+
+<!-- This is the button toggling the off-canvas sidebar -->
+
+<i style="cursor: pointer;color: white;" class="fa fa-th fa-3x" data-uk-offcanvas="{target:'#my-id'}"></i>
 
 			<?php if($_SESSION["admin"] == TRUE) {
 			?>
@@ -818,6 +897,9 @@ return '#'+rstr + gstr + bstr;
 
 			<?php }
 			?>
+
+
+
 
 			<button id="showVehicleHistory" class="styled-button-8"
 			onclick="showVehicleHistory()">
