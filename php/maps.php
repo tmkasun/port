@@ -805,8 +805,8 @@ return '#'+rstr + gstr + bstr;
 		<div id="left_side_pannel" class="uk-offcanvas">
 			<div class="uk-offcanvas-bar">
 
-				<p style="color: red;">
-					New style testing side bar buttons are not working
+				<p style="color: yellow">
+					New style testing side bar<span style="color: red;">**SOME** buttons</span>  are not working
 				</p>
 
 				<ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav="">
@@ -939,7 +939,7 @@ return '#'+rstr + gstr + bstr;
 
 		</div>
 
-<i style="position: fixed; float: left; left: 50px;cursor: pointer;color: white;" class="fa fa-th fa-3x" data-uk-offcanvas="{target:'#left_side_pannel'}"></i>
+<i style="position: fixed; float: left; left: 50px;cursor: pointer;color: #4862a2;" class="fa fa-globe fa-3x" data-uk-offcanvas="{target:'#left_side_pannel'}"></i>
 
 
 		<div id="functionButtons" class="text-center"
