@@ -104,9 +104,9 @@ include_once("./features/googleAnalyticsTracking.php")
 <link rel="stylesheet" href="../css/leaflet.css" />
 <link rel="stylesheet" href="../css/leaflet.label.css" />
 
+
 <!-- CSS style sheet for date and time picker -->
 <link rel="stylesheet" href="../css/jquery-ui-timepicker-addon.css" />
-
 
 <!------------------------------------------------ End ------------------------------------------------>
 
@@ -137,6 +137,12 @@ include_once("./features/googleAnalyticsTracking.php")
 
 <script src="../js/jquery-ui-timepicker-addon.js"></script>
 <!------------------------------------------------ End ------------------------------------------------>
+
+		<link rel="stylesheet" href="../css/uikit.min.css" />
+
+		<script src="../js/uikit.min.js"></script>
+		
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
 <script type="text/javascript">
 
@@ -483,12 +489,12 @@ function leftSidePaneImageOnClick(thisVehicle){
 	$( "#commonMessageBoxResultBox").html("");
 	$( "#commonMessageBoxResultBox").hide();
 	//$( "#commonMessageBoxResultBox").removeProp("class");
-	
+	imei = $(thisVehicle).attr('imei');
 	$.ajax({
 		type : "POST",
 		url: "./features/detailedVehicleHistroy.php",
 		dataType : "JSON",
-		data : { imei: thisVehicle.id}
+		data : { imei: imei}
 
 		}
 		).done(function(jsonObject){
@@ -555,8 +561,7 @@ function init_date_time (thisVehicle) {
 		firstTime = false;
 		}
 
-		//alert(thisVehicle.id);
-		currentDataPickerVehicleImei = thisVehicle.id;
+		currentDataPickerVehicleImei = $(thisVehicle).attr('imei');
 		$('#leftSideSlidePane').hide('slide', {
 			direction : 'left'
 		});
@@ -594,26 +599,74 @@ function getVehiclePath(selectedDateObject,start,end) {
                 //return 0;
                 var startingPointLatLng = new L.LatLng(jsonObject[0]["latitude"],jsonObject[0]["longitude"]);
                 var polyLineDistanceInMeters = 0;
-                var polyLine = L.polyline([],{weight: 12,color:get_random_color()});//.addLatLng([7.060015,79.96121]).addTo(map);
+                var polyLine = L.polyline([],{weight: 10,color:get_random_color()});//.addLatLng([7.060015,79.96121]).addTo(map);
                 var currentLatLng = startingPointLatLng;
+                var bearings = new Array();
+                var stopedCount = new Array();
+                var distanceDiff = 0;
+                var currentTime = null;
+                
+                var stoppedAt = null;
+                var continueAt = null;
+                
                 for ( var sections in jsonObject) {
                 		for ( var pass in sections) {
                     	currentLongitude = jsonObject[sections]["longitude"];
                         currentLatitude = jsonObject[sections]["latitude"];
                         var nextLatLng = new L.LatLng(currentLatitude,currentLongitude); 
-                        polyLineDistanceInMeters += currentLatLng.distanceTo(nextLatLng);
-                        //alert(polyLineDistanceInMeters);         
+                        distanceDiff = currentLatLng.distanceTo(nextLatLng);
                         currentLatLng = nextLatLng;
-
+                        
+                        polyLineDistanceInMeters += distanceDiff;
+                        //alert(polyLineDistanceInMeters);         
+                        bearings.push(parseFloat(jsonObject[sections]["bearing"]));
+						// marker.setIconAngle(parseFloat(jsonData[items]["bearing"]));
+                       
                         polyLine.addLatLng([currentLatitude,currentLongitude]);
+                        
+                        if(distanceDiff < 5){
+                        	if(! stoppedAt){
+								splitedTime = jsonObject[sections]["sat_time"].split(" ");
+	                        	date = splitedTime[0].split("-");
+	                        	time = splitedTime[1].split(":");
+	                        	currentTime = new Date(date[0],date[1],date[2],time[0],time[1],time[2],0);
+	                        	stoppedAt = currentTime;
+                        	}
+                        		
+                        	//add poit to line
+                        	continue;
+                        	//alert(currentTime.get);
+                        }
+                        
+                        
+                        if(stoppedAt){
+                        	splitedTime = jsonObject[sections]["sat_time"].split(" ");
+                        	date = splitedTime[0].split("-");
+                        	time = splitedTime[1].split(":");
+                        	currentTime = new Date(date[0],date[1],date[2],time[0],time[1],time[2],0);
+                        	continueAt = currentTime;
+                        	stoppedTime = (stoppedAt - continueAt)/1000;
+                        	
+                        	if(stoppedTime > 60){
+                        		//alert(stoppedTime);	
+	                        	stoppedPointCircle = L.circle(currentLatLng,40,{color:"red",stroke:true,fillColor:"blue",weight:2});
+	                    		stoppedPointCircle.addTo(map).bindPopup("Stopped for "+stoppedTime/60 + "Minutes").openPopup();
+                        		
+                        	}
+                	    	stoppedAt = null;
+                        }
+                        
+                        
+
                               
 					}
 					
 				}	
-					//alert("done1");
+					//alert(bearings);
 					animatedMarker = L.animatedMarker(polyLine.getLatLngs(),{
 						icon:prime_mover_icon_offline,
-						
+						bearingsArray: bearings
+									
 					});
 					map.addLayer(animatedMarker);
 					var polyLinePopupContent = "<a style = 'color:red'>Total Distance = "+polyLineDistanceInMeters.toFixed(1) +"(in meters)("+(polyLineDistanceInMeters/1000).toFixed(1)+"Km)</a>";
@@ -746,6 +799,96 @@ return '#'+rstr + gstr + bstr;
 </head>
 <body
      style="background-image: url('../media/images/backgrounds/map_background6.jpg'); margin: 0; padding: 0;">
+     
+
+<!-- This is the off-canvas sidebar -->
+		<div id="left_side_pannel" class="uk-offcanvas">
+			<div class="uk-offcanvas-bar">
+
+				<p style="color: red;">
+					New style testing side bar buttons are not working
+				</p>
+
+				<ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav="">
+					<li>
+						<a id="approve_vehicles_to_map"	onclick="approveVehicles()"><i class="fa fa-plus"></i> Add Vehicles to Map</a>
+					</li>
+					<!-- if want to make a button active set class="uk-active" on onClick event  -->
+					<li>
+						<a id="getActivities" onclick="getActivities()"><i class="fa fa-bell"></i> Show Web Activities</a>
+					</li>
+
+					<li class="uk-parent">
+						<a id="showVehicleHistory" onclick="showVehicleHistory()"><i class="fa fa-calendar"></i> Show Vehicle History</a>
+						<div style="overflow:hidden;height:0;position:relative;">
+							<ul class="uk-nav-sub">
+								<li>
+									<a href="">Sub item</a>
+								</li>
+								<li>
+									<a href="">Sub item</a>
+									<ul>
+										<li>
+											<a href="">Sub item</a>
+										</li>
+										<li>
+											<a href="">Sub item</a>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</li>
+
+					<li class="uk-parent">
+						<a id="get_administrators" onclick="changeMap()"><i class="fa fa-exchange"></i> Change Map Type</a>
+						<div style="overflow:hidden;height:0;position:relative;">
+							<ul class="uk-nav-sub">
+								<li>
+									<a href="">Sub item</a>
+								</li>
+								<li>
+									<a href="">Sub item</a>
+								</li>
+							</ul>
+						</div>
+					</li>
+
+					<li>
+						<!-- fa fa-tachometer -->
+						<a id="get_administrators" onclick="window.location.href = 'features/displayEngineFuelState.php'"><i class="fa fa-signal"></i> Fuel Level</a>
+					</li>
+
+
+		<?php if($_SESSION["admin"] == TRUE) {
+			?>
+					<li class="uk-nav-header">
+						System Administrtion
+					</li>
+					<li class="uk-parent">
+						<a href=""><i class="fa fa-bar-chart-o"></i> View System Status</a>
+					</li>
+					<li>
+						<a href=""><i class="fa fa-users"></i> Manage Users</a>
+					</li>
+					<li class="uk-nav-divider"></li>
+					<?php }
+			?>
+					
+					<li>						
+						<a id="loguot_button" href="./logout.php" ><i class="fa fa-sign-out"></i> Logout</a>
+					</li>
+				</ul>
+
+			</div>
+		</div>
+
+
+
+
+
+
+
      <!-- for full page background style="background-image: url('../media/images/backgrounds/map_background3.jpg'); background-size: cover; -moz-background-size: cover; -webkit-background-size: cover; margin: 0; padding: 0;" -->
      <!-- Open street maps via leaflet javascript framework-->
 
@@ -788,7 +931,7 @@ return '#'+rstr + gstr + bstr;
 
 			</div>
 <div id="map"
-		style="position: absolute; width: 95%; height: 100%; float: left; margin-left: 3%; margin-right: 3%; 
+		style="position: absolute; width: 100%; height: 100%; float: left; margin-left: auto; margin-right: auto; 
 		background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
 			OSM Layer
 
@@ -796,51 +939,24 @@ return '#'+rstr + gstr + bstr;
 
 		</div>
 
-		<img style="position: fixed; float: right; margin: 0; padding: 0;"
+<i style="position: fixed; float: left; left: 50px;cursor: pointer;color: white;" class="fa fa-th fa-3x" data-uk-offcanvas="{target:'#left_side_pannel'}"></i>
+
+
+		<div id="functionButtons" class="text-center"
+		style="position: relative; width: 25%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
+
+		<img style="position: fixed; float: right;right: 0px"
 		id="serverStatusImage" alt="serverStatus"
 		src="../media/images/icons/serverStatus/status_yellow.png">
 
-		<div id="functionButtons"
-		style="position: relative; width: 85%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
 
-			<?php if($_SESSION["admin"] == TRUE) {
-			?>
-			<button style="color: red;" id="approve_vehicles_to_map"
-			onclick="approveVehicles()" class="styled-button-10">
-				Add
-				Vehicles to map
-			</button>
+<!-- This is the button toggling the off-canvas sidebar -->
 
-			<button id="getActivities" class="styled-button-8"
-			onclick="getActivities()" style="color: red;">
-				Show Web
-				activities
-			</button>
 
-			<?php }
-			?>
-
-			<button id="showVehicleHistory" class="styled-button-8"
-			onclick="showVehicleHistory()">
-				Show Vehicle History
-			</button>
-			<button id="get_administrators" class="styled-button-8"
-			onclick="changeMap()">
-				Change map type
-			</button>
-			
-			<button id="get_administrators" class="styled-button-8"
-			onclick="window.location.href = 'features/displayEngineFuelState.php'">
-				See Fuel Level
-			</button>
+	
 			
 			<a id="currentVehicleStatus" style="color: red;font-size: small;">Total Primovers <span id = "totalRegisterdPrimovers" style="color: activecaption;font-size: x-large;"></span> Online Primovers <span id = "currentOnlinePrimovers" style="color: aqua;font-size: x-large;"></span> </a>
 
-			<button id="loguot_button" class="styled-button-8"
-			style="float: right;"
-			onclick="window.location.href = './logout.php' ">
-				Logout
-			</button>
 
 			<div id="ajax_result_div" style="position: relative;"></div>
 

@@ -71,7 +71,7 @@ $results_approved = array();
 		
 		$count_approved = sizeof($results_approved);
 		
-$not_approved_imei_display = "select imei, first_connected_on from not_approved_imei where review_status = 1  order by first_connected_on desc";
+$not_approved_imei_display = "select imei, last_connection_attempt from not_approved_imei where review_status = 1  order by first_connected_on desc";
 $query_result_not_approved = mysql_query($not_approved_imei_display,$connection);
 
 $results_not_approved = array();
@@ -87,7 +87,7 @@ $results_not_approved = array();
 		
 		$count_not_approved = sizeof($results_not_approved);
 		
-$vehicle_authentication_check = "select * from not_approved_imei where review_status = 0  order by first_connected_on desc";
+$vehicle_authentication_check = "select * from not_approved_imei where review_status = 0  order by last_connection_attempt desc";
 
 $query_result = mysql_query($vehicle_authentication_check,$connection);
 error_reporting(E_PARSE);
@@ -151,7 +151,7 @@ error_reporting(E_PARSE);
 
 
           ?></td>
-               <td><?php print $row["first_connected_on"]?>
+               <td><?php print $row["last_connection_attempt"]?>
                </td>
                <td>Pending</td>
           </tr>
