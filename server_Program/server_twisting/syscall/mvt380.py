@@ -231,7 +231,7 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
             
             'eventCode', #Event code. Decimal.
             
-            'latitudeFloat', #Latitude: in unit of degree. Decimal. - means south, no minutesmeans north yy = degrees; dddddd = decimal part of degree
+            'latitudeFloat', #Latitude: in unit of degree. Decimal. - means south, no minutes means north yy = degrees; dddddd = decimal part of degree
             'longitudeFloat', # same above (-)xxx.dddddd
             
             'dateTimestamp', #yymmddHHMMSS yy = year mm = month dd = date HH = hour MM = minute SS = second Decimal digit
@@ -256,104 +256,6 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
             # The next parts are DGPS information, currently unused.
             None, # Time since last DGPS update
             None, # DGPS reference source id
-        ],
-
-        'GPRMC': [
-            'timestamp',
-
-            'dataMode',
-
-            'latitudeFloat',
-            'latitudeHemisphere',
-            'longitudeFloat',
-            'longitudeHemisphere',
-
-            'speedInKnots',
-
-            'trueHeading',
-
-            'datestamp',
-
-            'magneticVariation',
-            'magneticVariationDirection',
-        ],
-
-        'GPGSV': [
-            'numberOfGSVSentences',
-            'GSVSentenceIndex',
-
-            'numberOfSatellitesSeen',
-
-            'satellitePRN_0',
-            'elevation_0',
-            'azimuth_0',
-            'signalToNoiseRatio_0',
-
-            'satellitePRN_1',
-            'elevation_1',
-            'azimuth_1',
-            'signalToNoiseRatio_1',
-
-            'satellitePRN_2',
-            'elevation_2',
-            'azimuth_2',
-            'signalToNoiseRatio_2',
-
-            'satellitePRN_3',
-            'elevation_3',
-            'azimuth_3',
-            'signalToNoiseRatio_3',
-        ],
-
-        'GPGLL': [
-            'latitudeFloat',
-            'latitudeHemisphere',
-            'longitudeFloat',
-            'longitudeHemisphere',
-            'timestamp',
-            'dataMode',
-        ],
-
-        'GPHDT': [
-            'trueHeading',
-        ],
-
-        'GPTRF': [
-            'datestamp',
-            'timestamp',
-
-            'latitudeFloat',
-            'latitudeHemisphere',
-            'longitudeFloat',
-            'longitudeHemisphere',
-
-            'elevation',
-            'numberOfIterations',  # Unused
-            'numberOfDopplerIntervals',  # Unused
-            'updateDistanceInNauticalMiles',  # Unused
-            'satellitePRN',
-        ],
-
-        'GPGSA': [
-            'dataMode',
-            'fixType',
-
-            'usedSatellitePRN_0',
-            'usedSatellitePRN_1',
-            'usedSatellitePRN_2',
-            'usedSatellitePRN_3',
-            'usedSatellitePRN_4',
-            'usedSatellitePRN_5',
-            'usedSatellitePRN_6',
-            'usedSatellitePRN_7',
-            'usedSatellitePRN_8',
-            'usedSatellitePRN_9',
-            'usedSatellitePRN_10',
-            'usedSatellitePRN_11',
-
-            'positionDilutionOfPrecision',
-            'horizontalDilutionOfPrecision',
-            'verticalDilutionOfPrecision',
         ]
     }
 

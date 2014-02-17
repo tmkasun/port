@@ -624,7 +624,7 @@ function getVehiclePath(selectedDateObject,start,end) {
                        
                         polyLine.addLatLng([currentLatitude,currentLongitude]);
                         
-                        if(distanceDiff == 0){
+                        if(distanceDiff < 5){
                         	if(! stoppedAt){
 								splitedTime = jsonObject[sections]["sat_time"].split(" ");
 	                        	date = splitedTime[0].split("-");
@@ -801,66 +801,87 @@ return '#'+rstr + gstr + bstr;
      style="background-image: url('../media/images/backgrounds/map_background6.jpg'); margin: 0; padding: 0;">
      
 
-
-
-
 <!-- This is the off-canvas sidebar -->
-<div id="my-id" class="uk-offcanvas">
-    <div class="uk-offcanvas-bar">
+		<div id="left_side_pannel" class="uk-offcanvas">
+			<div class="uk-offcanvas-bar">
+
+				<p style="color: red;">
+					New style testing side bar buttons are not working
+				</p>
+
+				<ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav="">
+					<li>
+						<a id="approve_vehicles_to_map"	onclick="approveVehicles()"><i class="fa fa-plus"></i> Add Vehicles to Map</a>
+					</li>
+					<!-- if want to make a button active set class="uk-active" on onClick event  -->
+					<li>
+						<a id="getActivities" onclick="getActivities()"><i class="fa fa-bell"></i> Show Web Activities</a>
+					</li>
+
+					<li class="uk-parent">
+						<a id="showVehicleHistory" onclick="showVehicleHistory()"><i class="fa fa-calendar"></i> Show Vehicle History</a>
+						<div style="overflow:hidden;height:0;position:relative;">
+							<ul class="uk-nav-sub">
+								<li>
+									<a href="">Sub item</a>
+								</li>
+								<li>
+									<a href="">Sub item</a>
+									<ul>
+										<li>
+											<a href="">Sub item</a>
+										</li>
+										<li>
+											<a href="">Sub item</a>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</li>
+
+					<li class="uk-parent">
+						<a id="get_administrators" onclick="changeMap()"><i class="fa fa-exchange"></i> Change Map Type</a>
+						<div style="overflow:hidden;height:0;position:relative;">
+							<ul class="uk-nav-sub">
+								<li>
+									<a href="">Sub item</a>
+								</li>
+								<li>
+									<a href="">Sub item</a>
+								</li>
+							</ul>
+						</div>
+					</li>
+
+					<li>
+						<!-- fa fa-tachometer -->
+						<a id="get_administrators" onclick="window.location.href = 'features/displayEngineFuelState.php'"><i class="fa fa-signal"></i> Fuel Level</a>
+					</li>
 
 
+		<?php if($_SESSION["admin"] == TRUE) {
+			?>
+					<li class="uk-nav-header">
+						System Administrtion
+					</li>
+					<li class="uk-parent">
+						<a href=""><i class="fa fa-bar-chart-o"></i> View System Status</a>
+					</li>
+					<li>
+						<a href=""><i class="fa fa-users"></i> Manage Users</a>
+					</li>
+					<li class="uk-nav-divider"></li>
+					<?php }
+			?>
+					
+					<li>						
+						<a id="loguot_button" href="./logout.php" ><i class="fa fa-sign-out"></i> Logout</a>
+					</li>
+				</ul>
 
-<p style="color: red;">
-	New style testing side bar buttons are not working
-</p>
-
-<ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav="">
-                                        <li><a href="">Item</a></li>
-                                        <li class="uk-active"><a href="">Active</a></li>
-
-                                        <li class="uk-parent">
-                                            <a href="#">Parent</a>
-                                            <div style="overflow:hidden;height:0;position:relative;"><ul class="uk-nav-sub">
-                                                <li><a href="">Sub item</a></li>
-                                                <li><a href="">Sub item</a>
-                                                    <ul>
-                                                        <li><a href="">Sub item</a></li>
-                                                        <li><a href="">Sub item</a></li>
-                                                    </ul>
-                                                </li>
-                                            </ul></div>
-                                        </li>
-
-                                        <li class="uk-parent">
-                                            <a href="#">Parent</a>
-                                            <div style="overflow:hidden;height:0;position:relative;"><ul class="uk-nav-sub">
-                                                <li><a href="">Sub item</a></li>
-                                                <li><a href="">Sub item</a></li>
-                                            </ul></div>
-                                        </li>
-
-                                        <li><a href="">Item</a></li>
-
-                                        <li class="uk-nav-header">Header</li>
-                                        <li class="uk-parent"><a href=""><i class="uk-icon-star"></i> Parent</a></li>
-                                        <li><a href=""><i class="uk-icon-twitter"></i> Item</a></li>
-                                        <li class="uk-nav-divider"></li>
-                                        <li><a href=""><i class="uk-icon-rss"></i> Item</a></li>
-                                    </ul>
-
-
-
-
-
-
-
-
-
-
-
-        
-    </div>
-</div>
+			</div>
+		</div>
 
 
 
@@ -918,58 +939,24 @@ return '#'+rstr + gstr + bstr;
 
 		</div>
 
-		<img style="position: fixed; float: right; margin: 0; padding: 0;"
+<i style="position: fixed; float: left; left: 50px;cursor: pointer;color: white;" class="fa fa-th fa-3x" data-uk-offcanvas="{target:'#left_side_pannel'}"></i>
+
+
+		<div id="functionButtons" class="text-center"
+		style="position: relative; width: 25%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
+
+		<img style="position: fixed; float: right;right: 0px"
 		id="serverStatusImage" alt="serverStatus"
 		src="../media/images/icons/serverStatus/status_yellow.png">
 
-		<div id="functionButtons"
-		style="position: relative; width: 85%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
 
 <!-- This is the button toggling the off-canvas sidebar -->
 
-<i style="cursor: pointer;color: white;" class="fa fa-th fa-3x" data-uk-offcanvas="{target:'#my-id'}"></i>
 
-			<?php if($_SESSION["admin"] == TRUE) {
-			?>
-			<button style="color: red;" id="approve_vehicles_to_map"
-			onclick="approveVehicles()" class="styled-button-10">
-				Add
-				Vehicles to map
-			</button>
-
-			<button id="getActivities" class="styled-button-8"
-			onclick="getActivities()" style="color: red;">
-				Show Web
-				activities
-			</button>
-
-			<?php }
-			?>
-
-
-
-
-			<button id="showVehicleHistory" class="styled-button-8"
-			onclick="showVehicleHistory()">
-				Show Vehicle History
-			</button>
-			<button id="get_administrators" class="styled-button-8"
-			onclick="changeMap()">
-				Change map type
-			</button>
-			
-			<button id="get_administrators" class="styled-button-8"
-			onclick="window.location.href = 'features/displayEngineFuelState.php'">
-				See Fuel Level
-			</button>
+	
 			
 			<a id="currentVehicleStatus" style="color: red;font-size: small;">Total Primovers <span id = "totalRegisterdPrimovers" style="color: activecaption;font-size: x-large;"></span> Online Primovers <span id = "currentOnlinePrimovers" style="color: aqua;font-size: x-large;"></span> </a>
 
-			<button id="loguot_button" class="styled-button-8"
-			style="float: right;"
-			onclick="window.location.href = './logout.php' ">
-				Logout
-			</button>
 
 			<div id="ajax_result_div" style="position: relative;"></div>
 
