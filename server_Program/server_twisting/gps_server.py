@@ -306,7 +306,7 @@ class GpsStringReceiver(NMEAProtocol):
 
     def _resetOnlineFlag(self,imei):
         print "###_resetOnlineFlag imei = {}".format(imei)
-        query = """update vehicle_status set disconnected_on = now() where imei = "{}" """.format(imei)
+        query = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(imei)
         print "###query = {}".format(query)
         self._dbBridge._dbpool.runQuery(query)
         
