@@ -809,8 +809,8 @@ return '#'+rstr + gstr + bstr;
 		<div class="uk-offcanvas-bar">
 
 			<p style="color: yellow">
-				New style testing side bar<span style="color: red;">**SOME** buttons</span>
-				are not working
+				New style testing side bar SOME buttons
+				are not implimented yet.
 			</p>
 
 			<ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav="">
