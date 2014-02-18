@@ -243,7 +243,6 @@ class GpsStringReceiver(NMEAProtocol):
         self._dbBridge.shutdownDBBridge()
 
 
-
     def _initialData(self, sentenceData):
         print "### _initialData"
         imei = str(sentenceData['IMEI'])
@@ -251,6 +250,13 @@ class GpsStringReceiver(NMEAProtocol):
         validationDeferred.addCallbacks\
         (self._authorizedDevice, self._unauthorizedDevice, callbackArgs=(sentenceData,), errbackArgs=(imei,))
 
+    
+    def _autharization(self):
+        """
+        @todo: combine _authorizedDevice and _unauthorizedDevice methods for simplersity  
+        """
+        pass
+    
     
     def _authorizedDevice(self,success,positionData):
         print "###success",success,positionData
@@ -261,6 +267,7 @@ class GpsStringReceiver(NMEAProtocol):
         print "###deviceIMEI",deviceIMEI 
         saveDeferred = self._dbBridge.savePosition(positionData)
         saveDeferred.addCallback(self._setOnlineFlag,deviceIMEI)
+        
         
     def _unauthorizedDevice(self,error,imei):
         print "Unauthorized device  send for approval + shutdown dbPool + disconnect device "
@@ -274,6 +281,7 @@ class GpsStringReceiver(NMEAProtocol):
         self.transport.loseConnection()
         #self.transport.abortConnection()
         
+        
     def _setConditionalCallbak(self,condition,validDevice = False):
         #print "###setConditionalCallbak validDevice = {}".format(validDevice)
         if validDevice:
@@ -284,6 +292,7 @@ class GpsStringReceiver(NMEAProtocol):
         #print "### in-valid device"
         self._dbBridge.sendToApproval(self._sentenceData['IMEI'])
 
+
     def _setOnlineFlag(self,dbReturnedObject,imei):
         print "###_setOnlineFlag dbReturnedObject = {} imei = {}".format(dbReturnedObject,imei)
         query = """insert into vehicle_status(imei,connected_on,current_status)\
@@ -293,6 +302,7 @@ class GpsStringReceiver(NMEAProtocol):
         print "###query = {}".format(query)
         
         self._dbBridge._dbpool.runQuery(query)
+
 
     def _resetOnlineFlag(self,imei):
         print "###_resetOnlineFlag imei = {}".format(imei)

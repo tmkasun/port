@@ -75,7 +75,7 @@ L.AnimatedMarker = L.Marker.extend({
 
     // Move to the next vertex
     this.setLatLng(this._latlngs[this._i]);
-    this.setIconAngle(this.options.bearingsArray[this._i-1]+180.0);
+    this.setIconAngle(this.options.bearingsArray[this._i-1]);
     //map.setView(this._latlngs[this._i], 15);
     this._i++;
 

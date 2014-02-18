@@ -27,41 +27,42 @@ include_once("./features/googleAnalyticsTracking.php")
 //print "<br/>";
 ?>
 <!DOCTYPE html>
-<html
-     lang="en-US">
+<html lang="en-US">
 <!------------------------ Html Document definitions and page setups ------------------------>
 <head>
 <link rel="shortcut icon" href="../media/fav_icon/fav.png" />
 
 <title>Welcome to SLPA Vehicle Tracking System</title>
 <meta name="keywords"
-     content="srilanka port authority, SLPA,UOM,FIT,vehicle tracking system" />
+	content="srilanka port authority, SLPA,UOM,FIT,vehicle tracking system" />
 <!--  SEO meta contents keywords -->
 <meta name="author"
-     content="University Of Moratuwa Faculty Of Information Technology" />
+	content="University Of Moratuwa Faculty Of Information Technology" />
 <meta name="description"
-     content="Vehicle Tracking System for Srilanka Port Authority" />
+	content="Vehicle Tracking System for Srilanka Port Authority" />
 <meta charset="UTF-8" />
 <!------------------------ End ------------------------>
 
 
-	<style type="text/css">
-.specialDate { background-color: #6F0 !important; }
+<style type="text/css">
+.specialDate {
+	background-color: #6F0 !important;
+}
 </style>
 
 <style type="text/css">
 .styled-button-8 {
-	cursor:pointer;
+	cursor: pointer;
 	background: #25A6E1;
 	background: -moz-linear-gradient(top, #25A6E1 0%, #188BC0 100%);
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #25A6E1),
-		color-stop(100%, #188BC0) );
+		color-stop(100%, #188BC0));
 	background: -webkit-linear-gradient(top, #25A6E1 0%, #188BC0 100%);
 	background: -o-linear-gradient(top, #25A6E1 0%, #188BC0 100%);
 	background: -ms-linear-gradient(top, #25A6E1 0%, #188BC0 100%);
 	background: linear-gradient(top, #25A6E1 0%, #188BC0 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#25A6E1',
-		endColorstr='#188BC0', GradientType=0 );
+		endColorstr='#188BC0', GradientType=0);
 	padding: 8px 13px;
 	color: #fff;
 	font-family: 'Helvetica Neue', sans-serif;
@@ -73,17 +74,17 @@ include_once("./features/googleAnalyticsTracking.php")
 }
 
 .styled-button-10 {
-	cursor:pointer;
+	cursor: pointer;
 	background: #5CCD00;
 	background: -moz-linear-gradient(top, #5CCD00 0%, #4AA400 100%);
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5CCD00),
-		color-stop(100%, #4AA400) );
+		color-stop(100%, #4AA400));
 	background: -webkit-linear-gradient(top, #5CCD00 0%, #4AA400 100%);
 	background: -o-linear-gradient(top, #5CCD00 0%, #4AA400 100%);
 	background: -ms-linear-gradient(top, #5CCD00 0%, #4AA400 100%);
 	background: linear-gradient(top, #5CCD00 0%, #4AA400 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5CCD00',
-		endColorstr='#4AA400', GradientType=0 );
+		endColorstr='#4AA400', GradientType=0);
 	padding: 10px 15px;
 	color: #fff;
 	font-family: 'Helvetica Neue', sans-serif;
@@ -138,11 +139,13 @@ include_once("./features/googleAnalyticsTracking.php")
 <script src="../js/jquery-ui-timepicker-addon.js"></script>
 <!------------------------------------------------ End ------------------------------------------------>
 
-		<link rel="stylesheet" href="../css/uikit.min.css" />
+<link rel="stylesheet" href="../css/uikit.min.css" />
 
-		<script src="../js/uikit.min.js"></script>
-		
-		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<script src="../js/uikit.min.js"></script>
+
+<link
+	href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"
+	rel="stylesheet">
 
 <script type="text/javascript">
 
@@ -798,90 +801,72 @@ return '#'+rstr + gstr + bstr;
 </script>
 </head>
 <body
-     style="background-image: url('../media/images/backgrounds/map_background6.jpg'); margin: 0; padding: 0;">
-     
+	style="background-image: url('../media/images/backgrounds/map_background6.jpg'); margin: 0; padding: 0;">
 
-<!-- This is the off-canvas sidebar -->
-		<div id="left_side_pannel" class="uk-offcanvas">
-			<div class="uk-offcanvas-bar">
 
-				<p style="color: yellow">
-					New style testing side bar<span style="color: red;">**SOME** buttons</span>  are not working
-				</p>
+	<!-- This is the off-canvas sidebar -->
+	<div id="left_side_pannel" class="uk-offcanvas">
+		<div class="uk-offcanvas-bar">
 
-				<ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav="">
-					<li>
-						<a id="approve_vehicles_to_map"	onclick="approveVehicles()"><i class="fa fa-plus"></i> Add Vehicles to Map</a>
-					</li>
-					<!-- if want to make a button active set class="uk-active" on onClick event  -->
-					<li>
-						<a id="getActivities" onclick="getActivities()"><i class="fa fa-bell"></i> Show Web Activities</a>
-					</li>
+			<p style="color: yellow">
+				New style testing side bar<span style="color: red;">**SOME** buttons</span>
+				are not working
+			</p>
 
-					<li class="uk-parent">
-						<a id="showVehicleHistory" onclick="showVehicleHistory()"><i class="fa fa-calendar"></i> Show Vehicle History</a>
-						<div style="overflow:hidden;height:0;position:relative;">
-							<ul class="uk-nav-sub">
-								<li>
-									<a href="">Sub item</a>
-								</li>
-								<li>
-									<a href="">Sub item</a>
-									<ul>
-										<li>
-											<a href="">Sub item</a>
-										</li>
-										<li>
-											<a href="">Sub item</a>
-										</li>
-									</ul>
-								</li>
-							</ul>
-						</div>
-					</li>
+			<ul class="uk-nav uk-nav-offcanvas uk-nav-parent-icon" data-uk-nav="">
+				<li><a id="approve_vehicles_to_map" onclick="approveVehicles()"><i
+						class="fa fa-plus"></i> Add Vehicles to Map</a></li>
+				<!-- if want to make a button active set class="uk-active" on onClick event  -->
+				<li><a id="getActivities" onclick="getActivities()"><i
+						class="fa fa-bell"></i> Show Web Activities</a></li>
 
-					<li class="uk-parent">
-						<a id="get_administrators" onclick="changeMap()"><i class="fa fa-exchange"></i> Change Map Type</a>
-						<div style="overflow:hidden;height:0;position:relative;">
-							<ul class="uk-nav-sub">
-								<li>
-									<a href="">Sub item</a>
-								</li>
-								<li>
-									<a href="">Sub item</a>
-								</li>
-							</ul>
-						</div>
-					</li>
+				<li class="uk-parent"><a id="showVehicleHistory"
+					onclick="showVehicleHistory()"><i class="fa fa-calendar"></i> Show
+						Vehicle History</a>
+					<div style="overflow: hidden; height: 0; position: relative;">
+						<ul class="uk-nav-sub">
+							<li><a href="">Sub item</a></li>
+							<li><a href="">Sub item</a>
+								<ul>
+									<li><a href="">Sub item</a></li>
+									<li><a href="">Sub item</a></li>
+								</ul></li>
+						</ul>
+					</div></li>
 
-					<li>
-						<!-- fa fa-tachometer -->
-						<a id="get_administrators" onclick="window.location.href = 'features/displayEngineFuelState.php'"><i class="fa fa-signal"></i> Fuel Level</a>
-					</li>
+				<li class="uk-parent"><a id="get_administrators"
+					onclick="changeMap()"><i class="fa fa-exchange"></i> Change Map
+						Type</a>
+					<div style="overflow: hidden; height: 0; position: relative;">
+						<ul class="uk-nav-sub">
+							<li><a href="">Sub item</a></li>
+							<li><a href="">Sub item</a></li>
+						</ul>
+					</div></li>
+
+				<li>
+					<!-- fa fa-tachometer --> <a id="get_administrators"
+					onclick="window.location.href = 'features/displayEngineFuelState.php'"><i
+						class="fa fa-signal"></i> Fuel Level</a>
+				</li>
 
 
 		<?php if($_SESSION["admin"] == TRUE) {
 			?>
-					<li class="uk-nav-header">
-						System Administrtion
-					</li>
-					<li class="uk-parent">
-						<a href=""><i class="fa fa-bar-chart-o"></i> View System Status</a>
-					</li>
-					<li>
-						<a href=""><i class="fa fa-users"></i> Manage Users</a>
-					</li>
-					<li class="uk-nav-divider"></li>
+					<li class="uk-nav-header">System Administrtion</li>
+				<li class="uk-parent"><a href=""><i class="fa fa-bar-chart-o"></i>
+						View System Status</a></li>
+				<li><a href=""><i class="fa fa-users"></i> Manage Users</a></li>
+				<li class="uk-nav-divider"></li>
 					<?php }
 			?>
 					
-					<li>						
-						<a id="loguot_button" href="./logout.php" ><i class="fa fa-sign-out"></i> Logout</a>
-					</li>
-				</ul>
+					<li><a id="loguot_button" href="./logout.php"><i
+						class="fa fa-sign-out"></i> Logout</a></li>
+			</ul>
 
-			</div>
 		</div>
+	</div>
 
 
 
@@ -889,112 +874,113 @@ return '#'+rstr + gstr + bstr;
 
 
 
-     <!-- for full page background style="background-image: url('../media/images/backgrounds/map_background3.jpg'); background-size: cover; -moz-background-size: cover; -webkit-background-size: cover; margin: 0; padding: 0;" -->
-     <!-- Open street maps via leaflet javascript framework-->
+	<!-- for full page background style="background-image: url('../media/images/backgrounds/map_background3.jpg'); background-size: cover; -moz-background-size: cover; -webkit-background-size: cover; margin: 0; padding: 0;" -->
+	<!-- Open street maps via leaflet javascript framework-->
 
-			<div id="commonMessageBox"
-			style="position: absolute; z-index: 4; width: 85%; height: 85%; margin-left: auto;
-			 margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; 
-			 box-shadow: 0px 0px 20px 5px #000000; display: none;top: 20px;left: 20px;cursor: move;">
+	<div id="commonMessageBox"
+		style="position: absolute; z-index: 4; width: 85%; height: 85%; margin-left: auto; margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none; top: 20px; left: 20px; cursor: move;">
 
-				<img onclick="$('#commonMessageBox').fadeOut('slow')"
-				alt="Close" src="../media/images/logins/close.png"
-				width="24" height="24"
-				alt="Close"
-				style="position: relative; float: right; top: -10px;cursor: pointer;right: -10px" />
-				<br />
-				<br />
-				<div id="vehicle_history_div" style="display: none;z-index: 999999">
+		<img onclick="$('#commonMessageBox').fadeOut('slow')" alt="Close"
+			src="../media/images/logins/close.png" width="24" height="24"
+			alt="Close"
+			style="position: relative; float: right; top: -10px; cursor: pointer; right: -10px" />
+		<br /> <br />
+		<div id="vehicle_history_div" style="display: none; z-index: 999999">
 
-					<div id="datePicker"
-					style="position: relative;float: left;left: 50px;">
-
-					</div>
-					<div id="time_picker_1" style="float: right;">
-
-					</div>
-					<div id="time_picker_2" style="float: right;top: 0px;">
-
-					</div>
-					<br />
-					<div id="histroy_dates" style="float: right;height: 300px;background-color: green;overflow: scroll;overflow-style: auto;width: 200px;">
-
-					</div>
-
-				</div>
-
-				<br />
-				<div id="commonMessageBoxResultBox"
-				style="overflow: auto; height: 75%; position: relative; width: auto; margin-right: auto; margin-left: auto;">
-
-				</div>
+			<div id="datePicker"
+				style="position: relative; float: left; left: 50px;"></div>
+			<div id="time_picker_1" style="float: right;"></div>
+			<div id="time_picker_2" style="float: right; top: 0px;"></div>
+			<br />
+			<div id="histroy_dates"
+				style="float: right; height: 300px; background-color: green; overflow: scroll; overflow-style: auto; width: 200px;">
 
 			</div>
-<div id="map"
-		style="position: absolute; width: 100%; height: 100%; float: left; margin-left: auto; margin-right: auto; 
-		background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
-			OSM Layer
-
-
 
 		</div>
 
-<i style="position: fixed; float: left; left: 50px;cursor: pointer;color: #4862a2;" class="fa fa-globe fa-3x" data-uk-offcanvas="{target:'#left_side_pannel'}"></i>
+		<br />
+		<div id="commonMessageBoxResultBox"
+			style="overflow: auto; height: 75%; position: relative; width: auto; margin-right: auto; margin-left: auto;">
+
+		</div>
+
+	</div>
+	<div id="map"
+		style="position: absolute; width: 100%; height: 100%; float: left; margin-left: auto; margin-right: auto; background: rgba(123, 98, 159, 0.9); border-radius: 15px; box-shadow: 0px 0px 20px 5px #000000;">
+		OSM Layer</div>
+
+	<i
+		style="position: fixed; float: left; left: 50px; cursor: pointer; color: #4862a2;"
+		class="fa fa-globe fa-3x"
+		data-uk-offcanvas="{target:'#left_side_pannel'}"></i>
 
 
-		<div id="functionButtons" class="text-center"
+	<div id="functionButtons" class="text-center"
 		style="position: relative; width: 25%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
 
-		<img style="position: fixed; float: right;right: 0px"
-		id="serverStatusImage" alt="serverStatus"
-		src="../media/images/icons/serverStatus/status_yellow.png">
+		<img style="position: fixed; float: right; right: 0px"
+			id="serverStatusImage" alt="serverStatus"
+			src="../media/images/icons/serverStatus/status_yellow.png">
 
 
-<!-- This is the button toggling the off-canvas sidebar -->
+		<!-- This is the button toggling the off-canvas sidebar -->
 
 
-	
+
+
+		<span id="currentVehicleStatus" style="color: red; font-size: small;">Total
+			Primovers <span id="totalRegisterdPrimovers"
+			style="color: activecaption; font-size: x-large;"></span> Online
+			Primovers <span id="currentOnlinePrimovers"
+			style="color: aqua; font-size: x-large;"></span>
 			
-			<a id="currentVehicleStatus" style="color: red;font-size: small;">Total Primovers <span id = "totalRegisterdPrimovers" style="color: activecaption;font-size: x-large;"></span> Online Primovers <span id = "currentOnlinePrimovers" style="color: aqua;font-size: x-large;"></span> </a>
+		</span>
 
-
-			<div id="ajax_result_div" style="position: relative;"></div>
+		<div id="ajax_result_div" style="position: relative;">
 
 		</div>
-		<div id="leftSideSlidePane"
+
+	</div>
+	<div id="functionButtons" class="text-center"
+		style="position: relative; width: 45%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
+	
+	<i style= "color:red;" class="fa fa-exclamation-triangle fa-2x"></i> 
+	<span style = "color: yellow;">
+	Testing new server program, Current vehicle position might not get updated
+	
+	</span>
+	</div>		
+
+	<div id="leftSideSlidePane"
 		style="position: fixed; float: left; height: 91%; width: 10%; background-color: red; z-index: 2; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none;">
-			<img
+		<img
 			onclick="$('#leftSideSlidePane').hide('slide',{direction:'left'})"
 			alt="Close" src="../media/images/logins/no.ico"
-			style="position: relative; float: right; top: 0px;" />
-			<br />
-			<br />
-			<br />
-			<div id="leftSideSlidePaneResultBox"
+			style="position: relative; float: right; top: 0px;" /> <br /> <br />
+		<br />
+		<div id="leftSideSlidePaneResultBox"
 			style="overflow: auto; height: 100%;"></div>
 
-		</div>
+	</div>
 
 
-     <script type="text/javascript">
+	<script type="text/javascript">
 		
 
 	
 	
 	</script>
-     <!-- Open street maps via leaflet javascript framework  end -->
+	<!-- Open street maps via leaflet javascript framework  end -->
 
 
 
-     <img id="serverStatusImage" style="display: none;"
-          alt="serverStatus"
-          src="../media/images/icons/serverStatus/status_yellow.png" />
-     <img id="serverStatusImage" style="display: none;"
-          alt="serverStatus"
-          src="../media/images/icons/serverStatus/status_red.png" />
-     <img id="serverStatusImage" style="display: none;"
-          alt="serverStatus"
-          src="../media/images/icons/serverStatus/status_green.png" />
+	<img id="serverStatusImage" style="display: none;" alt="serverStatus"
+		src="../media/images/icons/serverStatus/status_yellow.png" />
+	<img id="serverStatusImage" style="display: none;" alt="serverStatus"
+		src="../media/images/icons/serverStatus/status_red.png" />
+	<img id="serverStatusImage" style="display: none;" alt="serverStatus"
+		src="../media/images/icons/serverStatus/status_green.png" />
 </body>
 
 </html>
