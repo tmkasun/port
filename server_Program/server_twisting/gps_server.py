@@ -232,12 +232,16 @@ class GpsStringReceiver(NMEAProtocol):
         @change: Send device a controll commands to flush buffered coordinates 
         """
         self.factory.number_of_connections +=1
-        print "### Connection made, current connected clients = {}".format(self.factory.number_of_connections)
+        try:
+            self.transport.setTcpKeepAlive(1)i
+	    print "#### Enable Keep alive"
+        except AttributeError: pass
+	print "### Connection made, current connected clients = {} getPeer = {}".format(self.factory.number_of_connections, self.transport.getPeer())
 
         
     def connectionLost(self, reason):
         self.factory.number_of_connections -=1
-        print "### Connection lost from the client, current connected clients = {}".format(self.factory.number_of_connections)
+        print "### Connection lost from the client, current connected clients = {} getPeer = {}".format(self.factory.number_of_connections,self.transport.getPeer())
         if self._isFirstLineFromDevice:
             print "Unauthorized device forcibly disconnected from server reason so no deal with flags = {}".format(reason)
             return True
