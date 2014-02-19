@@ -108,7 +108,6 @@ include_once("./features/googleAnalyticsTracking.php")
 
 <!-- CSS style sheet for date and time picker -->
 <link rel="stylesheet" href="../css/jquery-ui-timepicker-addon.css" />
-
 <!------------------------------------------------ End ------------------------------------------------>
 
 <!-------------------------- JavaScript file for Leaflet API from online CDN -------------------------->
@@ -259,11 +258,13 @@ function primeMover(imeiNumber,currentLat,currentLong,currentSatTime,vehicleNumb
 
 var jsonData;
 $(document).ready(
+	
           
 					function (){
 						//$("#functionButtons").toggle( { effect: "slide", direction: "up" ,distance:30});                    
                       
                         // create map layer in webpage
+
 						createMap();
 						$( "#commonMessageBox" ).draggable({
 							cancel: "#commonMessageBox > div"
@@ -799,6 +800,8 @@ return '#'+rstr + gstr + bstr;
 
 
 </script>
+
+
 </head>
 <body
 	style="background-image: url('../media/images/backgrounds/map_background6.jpg'); margin: 0; padding: 0;">
@@ -915,9 +918,10 @@ return '#'+rstr + gstr + bstr;
 		class="fa fa-globe fa-3x"
 		data-uk-offcanvas="{target:'#left_side_pannel'}"></i>
 
+			
 
 	<div id="functionButtons" class="text-center"
-		style="position: relative; width: 25%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
+		style="position: relative; width: 35%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
 
 		<img style="position: fixed; float: right; right: 0px"
 			id="serverStatusImage" alt="serverStatus"
@@ -927,6 +931,11 @@ return '#'+rstr + gstr + bstr;
 		<!-- This is the button toggling the off-canvas sidebar -->
 
 
+		   <form style="border-radius: 8px;background: rgba(100, 50, 110, 0.9);" class="uk-search" data-uk-search="{source:'./features/getVehicleList.php'}">
+				<input autofocus="True" class="uk-search-field" type="search" placeholder="Search">
+
+				<button class="uk-search-close" type="reset"></button>
+			</form>
 
 
 		<span id="currentVehicleStatus" style="color: red; font-size: small;">Total
@@ -965,12 +974,6 @@ return '#'+rstr + gstr + bstr;
 	</div>
 
 
-	<script type="text/javascript">
-		
-
-	
-	
-	</script>
 	<!-- Open street maps via leaflet javascript framework  end -->
 
 

@@ -228,6 +228,9 @@ class GpsStringReceiver(NMEAProtocol):
         
 
     def connectionMade(self):
+        """
+        @change: Send device a controll commands to flush buffered coordinates 
+        """
         self.factory.number_of_connections +=1
         print "### Connection made, current connected clients = {}".format(self.factory.number_of_connections)
 
