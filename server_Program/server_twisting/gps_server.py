@@ -229,7 +229,7 @@ class GpsStringReceiver(NMEAProtocol):
 
     def connectionMade(self):
         self.factory.number_of_connections +=1
-        #print "### Connection made, current connected clients = {}".format(self.factory.number_of_connections)
+        print "### Connection made, current connected clients = {}".format(self.factory.number_of_connections)
 
         
     def connectionLost(self, reason):

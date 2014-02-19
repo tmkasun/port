@@ -188,6 +188,8 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         @param rawSentence: The NMEA positioning sentence.
         @type rawSentence: C{str}
         """
+        print "####* current connected clients = {}".format(self.factory.number_of_connections)
+
         sentence = rawSentence.strip()
         #print sentence 
         _validateChecksum(sentence)
