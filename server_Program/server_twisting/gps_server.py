@@ -233,7 +233,7 @@ class GpsStringReceiver(NMEAProtocol):
         """
         self.factory.number_of_connections +=1
         try:
-            self.transport.setTcpKeepAlive(1)i
+            self.transport.setTcpKeepAlive(1)
 	    print "#### Enable Keep alive"
         except AttributeError: pass
 	print "### Connection made, current connected clients = {} getPeer = {}".format(self.factory.number_of_connections, self.transport.getPeer())
