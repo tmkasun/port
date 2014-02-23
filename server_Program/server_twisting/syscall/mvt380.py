@@ -99,6 +99,22 @@ class GPGSAFixTypes(Values):
     GSA_2D_FIX = ValueConstant("2")
     GSA_3D_FIX = ValueConstant("3")
 
+def _validateIMEI(imei):
+    print "\n\n######### imei = {}".format(imei)
+    """
+    Validation of IMIE, connection , Users are perform by me
+    all the types of validations related to GPS data is performed by me
+    """
+    def digits_of(n):
+        return [int(d) for d in str(n)]
+    digits = digits_of(imei)
+    odd_digits = digits[-1::-2]
+    even_digits = digits[-2::-2]
+    checksum = 0
+    checksum += sum(odd_digits)
+    for d in even_digits:
+        checksum += sum(digits_of(d * 2))
+    return checksum % 10 == 0
 
 
 def _split(sentence):
@@ -116,6 +132,29 @@ def _split(sentence):
         return sentence.split(',')[1:-1]
     elif sentence[-1] == "*": # Sentence without checksum
         return sentence[1:-1].split(',')
+    
+    try:
+        splitedValue = sentence.split(',')
+        if splitedValue[2] == "GPRMC":
+            splitedValue.insert(1,"TK102")
+            print "\n\n#####################splitedValue[2],splitedValue[3],splitedValue = ",splitedValue[2],splitedValue[3],splitedValue
+            del splitedValue[3] # remove unnecessary blank value and GPRMC code name 
+            del splitedValue[2] # changing L142 and L141 will result in unexpected data miss
+            del splitedValue[13]
+            del splitedValue[13]
+            if len(splitedValue) == 24:
+                splitedValue.insert(13,"SOS_FIX")
+            print "\n\n#### len(splitedValue) = ",len(splitedValue)
+            print "\n\n#####################splitedValue[13],splitedValue[15],splitedValue = ",splitedValue[13],splitedValue[14],splitedValue
+            splitedValue[14] = splitedValue[14][5:] # IMEI fix remove preceding 'IMEI:' string
+            print "\n\n#### splitedValue[15] = ",splitedValue[14]
+            return splitedValue  
+        
+        raise Exception
+        
+    except:
+        raise base.InvalidSentence("malformed sentence %s" % (sentence,))
+    
     else:
         raise base.InvalidSentence("malformed sentence %s" % (sentence,))
 
@@ -133,7 +172,7 @@ def _validateChecksum(sentence):
     Simply returns on sentences that either don't have a checksum,
     or have a valid checksum.
     """
-    return True #tempory  bypass checksum test 
+    return True # @FIXME tempory  bypass checksum test 
     if sentence[-3] == '*':  # Sentence has a checksum
         reference, source = int(sentence[-2:], 16), sentence[:-2]
         computed = 0
@@ -188,13 +227,13 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         @param rawSentence: The NMEA positioning sentence.
         @type rawSentence: C{str}
         """
-        print "####* current connected clients = {}".format(self.factory.number_of_connections)
+        print "\n\n####* current connected clients = {}".format(self.factory.number_of_connections)
 
         sentence = rawSentence.strip()
-        #print sentence 
+        print sentence 
         _validateChecksum(sentence)
         splitSentence = _split(sentence)
-
+        print "\n\n#### splitSentence = {}".format(splitSentence)
         commandType, contents = splitSentence[1], splitSentence[:1]+splitSentence[2:]
 
         try:
@@ -204,15 +243,17 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         
         
         sentenceData = {"type": commandType}
+        print "\n\n### contents = {}".format(contents)
         for key, value in itertools.izip(keys, contents): 
             if key is not None and value != "":
                 sentenceData[key] = value
-    
+
         sentence = NMEASentence(sentenceData)
 
         if self._sentenceCallback is not None:
             self._sentenceCallback(sentence)
-
+        
+        print "\n\n#### sentence = NMEASentence(sentenceData) = ",sentence
         decodedSentence = self._receiver.sentenceReceived(sentence)
         
         print decodedSentence
@@ -224,10 +265,30 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         
         self._dbBridge.savePosition(decodedSentence) 
         
-        print "### execute after if self._isFirstLineFromDevice*** "
+        print "\n\n### execute after if self._isFirstLineFromDevice*** "
         
     
     _SENTENCE_CONTENTS = {
+        'TK102': [
+            'dateTimestamp',
+            
+            #start GPRMC data
+            'timestamp',#Time Stamp
+            'dataMode', # validity - A-ok, V-invalid
+            'latitudeFloatTK', # current Latitude
+            'latitudeHemisphere', # North/South
+            'longitudeFloatTK', # current Longitude
+            'longitudeHemisphere', # East/West
+            'speedInKnots', # Speed in knots
+            'trueHeading', # True course
+            'datestamp', # Date Stamp
+            'magneticVariation', # Variation
+            'magneticVariationDirection', # East/West
+            #end of GPRMC data
+            'sos', # 
+            'IMEI', # Trackers IMEI is normally 15 digits
+        ],
+                                                    
         'AAA': [
             'IMEI', # Trackers IMEI is normally 15 digits
             
@@ -438,6 +499,25 @@ class NMEAAdapter(object):
 
         self._sentenceData['_date'] = datetime.date(year, month, day)
 
+    def _fixCoordinateFloatTK(self, coordinateType):
+        """
+        Turns the NMEAProtocol coordinate format into Python float.
+
+        @param coordinateType: The coordinate type.
+        @type coordinateType: One of L{Angles.LATITUDE} or L{Angles.LONGITUDE}.
+        """
+        if coordinateType is Angles.LATITUDE:
+            coordinateName = "latitude"
+        else: # coordinateType is Angles.LONGITUDE
+            coordinateName = "longitude"
+        nmeaCoordinate = getattr(self.currentSentence, coordinateName + "FloatTK")
+
+        left, right = nmeaCoordinate.split('.')
+
+        degrees, minutes = int(left[:-2]), float("%s.%s" % (left[-2:], right))
+        angle = degrees + minutes/60
+        coordinate = base.Coordinate(angle, coordinateType)
+        self._sentenceData[coordinateName] = coordinate
 
     def _fixCoordinateFloat(self, coordinateType):
         """
@@ -621,7 +701,7 @@ class NMEAAdapter(object):
             raises C{ValueError}.
         @type valueKey: C{str}
         """
-        #print "### value fix started"
+        #print "\n\n### value fix started"
         if unit is None:
             unit = getattr(self.currentSentence, unitKey)
         if valueKey is None:
@@ -698,9 +778,9 @@ class NMEAAdapter(object):
         """
         Fix IMEI number to convert it to an integer type
         """
-        #print "### start fixing imei"
+        #print "\n\n### start fixing imei"
         imei = getattr(self.currentSentence, 'IMEI', None)
-        #print "### imei = {}".format(imei)
+        #print "\n\n### imei = {}".format(imei)
         self._sentenceData['IMEI'] = int(imei)
         
 
@@ -719,12 +799,17 @@ class NMEAAdapter(object):
         'datestamp':
             lambda self: self._fixDatestamp(),
 
+        'latitudeFloatTK':
+            lambda self: self._fixCoordinateFloatTK(Angles.LATITUDE),
         'latitudeFloat':
             lambda self: self._fixCoordinateFloat(Angles.LATITUDE),
         'latitudeHemisphere':
             lambda self: self._fixHemisphereSign(Angles.LATITUDE, 'latitude'),
         'longitudeFloat':
             lambda self: self._fixCoordinateFloat(Angles.LONGITUDE),
+        'longitudeFloatTK':
+            lambda self: self._fixCoordinateFloatTK(Angles.LONGITUDE),
+        
         'longitudeHemisphere':
             lambda self: self._fixHemisphereSign(Angles.LONGITUDE, 'longitude'),
 

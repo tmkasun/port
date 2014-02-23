@@ -51,11 +51,11 @@ class GpsDataProcessor():
     def validateIMEI(self,imei):
         """
         Validation of IMIE, connection , Users are perform by me
-        all the types of validations related to GPS data is performed by me
+        all the types of validations related to GPS data
         """
         def digits_of(n):
             return [int(d) for d in str(n)]
-        digits = digits_of(card_number)
+        digits = digits_of(imei)
         odd_digits = digits[-1::-2]
         even_digits = digits[-2::-2]
         checksum = 0

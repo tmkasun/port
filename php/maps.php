@@ -930,8 +930,9 @@ return '#'+rstr + gstr + bstr;
 
 		<!-- This is the button toggling the off-canvas sidebar -->
 
+<!-- http://www.arungudelli.com/jquery/simple-jquery-autocomplete-search-tutorial/ , http://www.w3resource.com/twitter-bootstrap/typehead.php, http://www.a2zwebhelp.com/bootstrap-autocomplete-->
 
-		   <form style="border-radius: 8px;background: rgba(100, 50, 110, 0.9);" class="uk-search" data-uk-search="{source:'./features/getVehicleList.php'}">
+		   <form style="border-radius: 8px;background: rgba(200, 250, 210, 0.9);" class="uk-search" data-uk-search="{source:'./features/getVehicleList.php'}">
 				<input autofocus="True" class="uk-search-field" type="search" placeholder="Search">
 
 				<button class="uk-search-close" type="reset"></button>
