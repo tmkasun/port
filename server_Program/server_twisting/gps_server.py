@@ -51,11 +51,11 @@ class GpsDataProcessor():
     def validateIMEI(self,imei):
         """
         Validation of IMIE, connection , Users are perform by me
-        all the types of validations related to GPS data is performed by me
+        all the types of validations related to GPS data
         """
         def digits_of(n):
             return [int(d) for d in str(n)]
-        digits = digits_of(card_number)
+        digits = digits_of(imei)
         odd_digits = digits[-1::-2]
         even_digits = digits[-2::-2]
         checksum = 0
@@ -228,20 +228,26 @@ class GpsStringReceiver(NMEAProtocol):
         
 
     def connectionMade(self):
+        """
+        @change: Send device a controll commands to flush buffered coordinates 
+        """
         self.factory.number_of_connections +=1
-        #print "### Connection made, current connected clients = {}".format(self.factory.number_of_connections)
+        try:
+            self.transport.setTcpKeepAlive(1)
+	    print "#### Enable Keep alive"
+        except AttributeError: pass
+	print "### Connection made, current connected clients = {} getPeer = {}".format(self.factory.number_of_connections, self.transport.getPeer())
 
         
     def connectionLost(self, reason):
         self.factory.number_of_connections -=1
-        print "### Connection lost from the client, current connected clients = {}".format(self.factory.number_of_connections)
+        print "### Connection lost from the client, current connected clients = {} getPeer = {}".format(self.factory.number_of_connections,self.transport.getPeer())
         if self._isFirstLineFromDevice:
             print "Unauthorized device forcibly disconnected from server reason so no deal with flags = {}".format(reason)
             return True
         print "down the online flag and shutdown dbpool for this connection reason = {}".format(reason)
         self._resetOnlineFlag(self._imei)
         self._dbBridge.shutdownDBBridge()
-
 
 
     def _initialData(self, sentenceData):
@@ -252,6 +258,13 @@ class GpsStringReceiver(NMEAProtocol):
         (self._authorizedDevice, self._unauthorizedDevice, callbackArgs=(sentenceData,), errbackArgs=(imei,))
 
     
+    def _autharization(self):
+        """
+        @todo: combine _authorizedDevice and _unauthorizedDevice methods for simplersity  
+        """
+        pass
+    
+    
     def _authorizedDevice(self,success,positionData):
         print "###success",success,positionData
         deviceIMEI = str(positionData['IMEI'])
@@ -261,6 +274,7 @@ class GpsStringReceiver(NMEAProtocol):
         print "###deviceIMEI",deviceIMEI 
         saveDeferred = self._dbBridge.savePosition(positionData)
         saveDeferred.addCallback(self._setOnlineFlag,deviceIMEI)
+        
         
     def _unauthorizedDevice(self,error,imei):
         print "Unauthorized device  send for approval + shutdown dbPool + disconnect device "
@@ -274,6 +288,7 @@ class GpsStringReceiver(NMEAProtocol):
         self.transport.loseConnection()
         #self.transport.abortConnection()
         
+        
     def _setConditionalCallbak(self,condition,validDevice = False):
         #print "###setConditionalCallbak validDevice = {}".format(validDevice)
         if validDevice:
@@ -283,6 +298,7 @@ class GpsStringReceiver(NMEAProtocol):
             return True
         #print "### in-valid device"
         self._dbBridge.sendToApproval(self._sentenceData['IMEI'])
+
 
     def _setOnlineFlag(self,dbReturnedObject,imei):
         print "###_setOnlineFlag dbReturnedObject = {} imei = {}".format(dbReturnedObject,imei)
@@ -294,9 +310,10 @@ class GpsStringReceiver(NMEAProtocol):
         
         self._dbBridge._dbpool.runQuery(query)
 
+
     def _resetOnlineFlag(self,imei):
         print "###_resetOnlineFlag imei = {}".format(imei)
-        query = """update vehicle_status set disconnected_on = now() where imei = "{}" """.format(imei)
+        query = """update vehicle_status set disconnected_on = now(),current_status = 0 where imei = "{}" """.format(imei)
         print "###query = {}".format(query)
         self._dbBridge._dbpool.runQuery(query)
         
