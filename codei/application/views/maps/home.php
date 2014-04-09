@@ -102,7 +102,7 @@ style="background-image: url('assets/images/images/backgrounds/map_background6.j
 				<?php } ?>
 
 				<li>
-					<a id="loguot_button" href="maps/logout"><i
+					<a id="loguot_button" href="login/logout"><i
 					class="fa fa-sign-out"></i> Logout</a>
 				</li>
 			</ul>
@@ -185,7 +185,7 @@ style="background-image: url('assets/images/images/backgrounds/map_background6.j
 	style="position: relative; width: 45%; margin-left: auto; margin-right: auto; background-color: maroon; background: rgba(20, 15, 1, 0.9); border-radius: 8px; box-shadow: 0px 0px 20px 1px #001221;">
 
 		<i style= "color:red;" class="fa fa-exclamation-triangle fa-2x"></i>
-		<span style = "color: yellow;"> Testing new server program, Current vehicle position might not get updated </span>
+		<span style = "color: yellow;"> Moving to new framework </span>
 	</div>
 
 	<div id="leftSideSlidePane"
