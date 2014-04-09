@@ -2,11 +2,16 @@
 
 class Site extends CI_Controller {
 	public function index(){
-			$this->home();
+			$this->load->model('user');
+			$res = $this->user->login("123456","123456");
+			if($res){
+				print_r($res);
+			}
 		}
 
 	public function home(){
 		$data["title"] = "kasun thennakoon";
+		$data["ret"] = $this->adders(); 
 		$this->load->view("home",$data);
 	}
 	public function about(){
@@ -14,8 +19,7 @@ class Site extends CI_Controller {
 		$this->load->view("about",$data);
 	}
 	public function adders(){
-		echo "adders";
 		$this->load->model("math");
-		echo $this->math->adder(5,6);
+		return $this->math->adder(5,6);
 	}
 }
