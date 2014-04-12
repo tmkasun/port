@@ -261,7 +261,7 @@ class GpsStringReceiver(NMEAProtocol):
     
     def _autharization(self):
         """
-        @todo: combine _authorizedDevice and _unauthorizedDevice methods for simplersity  
+        @todo: combine _authorizedDevice and _unauthorizedDevice methods for simplicity  
         """
         pass
     
