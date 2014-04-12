@@ -38,7 +38,7 @@ function createMap(){
 		attribution: 'Srilanka Port Authority'
 			}).addTo(map);
 	prime_mover_icon_offline = L.icon({
-		iconUrl : "../media/images/map/prime_mover_icon_offline.png",
+		iconUrl : "assets/images/images/map/prime_mover_icon_offline.png",
 		//shadowUrl: '',
 
 		iconSize: [24,24],
@@ -48,7 +48,7 @@ function createMap(){
 		});
 
 	prime_mover_icon_online = L.icon({
-		iconUrl : "../media/images/map/prime_mover_icon_online.png",
+		iconUrl : "assets/images/images/map/prime_mover_icon_online.png",
 		//shadowUrl: '',
 
 		iconSize: [24,24],
@@ -136,41 +136,39 @@ $(document).ready(
 											//alert(jsonObject);
 											jsonData = jsonObject;//assign to jsonData global variable to wider accecebility
 											for(items in jsonData){
-												/* debug code to check recevied values from ajax 
-												alert(" Serial "+ jsonData[items]["serial"]+" IMEI "+ jsonData[items]["imei"]+" Latitude "+ jsonData[items]["latitude"]+" longitude "+ jsonData[items]["longitude"]+" Sat_time "+ jsonData[items]["sat_time"]);
-												*/
-
-												/* ------------------------------------- Prevent addnig already exsisted vehicle to the map (no overlapping tow vehicles)-------------------------------------*/
+								
 												
-                                                            if(jsonData[items]["imei"] in currentVehicleList){
-													currentVehicleList[jsonData[items]["imei"]].marker.setLatLng([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])]);
-													currentVehicleList[jsonData[items]["imei"]].marker.setIconAngle(parseInt(jsonData[items]["bearing"]));
-													break;
-													}
-												
-												var imeiNumberAsKey = String(jsonData[items]["imei"]);
-												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["imei"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
+												var imeiNumberAsKey = String(jsonData[items]["vehicle_id"]);
+												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["vehicle_id"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
 												//alert(currentVehicleList[imeiNumberAsKey].imeiNumber);
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
 												message = '<?php if($_SESSION["admin"] == TRUE) echo "Administrator Features";else echo "Normal User Features";  ?>';//Display administrator elements 
 												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_offline,iconAngle: parseInt(jsonData[items]["bearing"])}).addTo(map);
-												//popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"+jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul>"+"<font style='color:blue'>"+message+"</font>";
+												//popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"+jsonData[items]["vehicle_id"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul>"+"<font style='color:blue'>"+message+"</font>";
 												popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"
-                                                                      +jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul><br/>"
+                                                                      +jsonData[items]["vehicle_id"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul><br/>"
                                                                       +"<font style='color:blue'>"+message+"</font>"
-                                                                      +"<br/> Current speed is <span style='color:green'> "+currentVehicleList[jsonData[items]["imei"]].currentSpeed+"</span>Kmph";
+                                                                      +"<br/> Current speed is <span style='color:green'> "+currentVehicleList[jsonData[items]["vehicle_id"]].currentSpeed+"</span>Kmph";
 
                                                             
                                                             currentVehicleList[imeiNumberAsKey].marker.bindPopup(popupCSSdisplay);//.openPopup() for open popup at the begining
-												totalNumberOfPrimovers +=1;
+												
 													
 														}
 										//	map.setView([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])], 15);
-                                            $("#totalRegisterdPrimovers").html(totalNumberOfPrimovers); 
+
                                             
 	                                        setInterval(ajaxCheck, 1000);
-                                                       
+
+		$.ajax({
+			url : "vehicles/counts",
+			type : "GET",
+		}).done(function(count) {
+			$("#totalRegisterdPrimovers").html(count);
+
+		});
+
 											}
 										
 										
@@ -186,7 +184,7 @@ $(document).ready(
 
 function ajaxCheck(){   
 	
-     					$("#serverStatusImage").attr("src","../media/images/icons/serverStatus/status_red.png");
+     					$("#serverStatusImage").attr("src","assets/images/images/icons/serverStatus/status_red.png");
 						/* ----------------------- AJAX orginal method for getting Json data ---------------------- */
 						
 						$.ajax({
@@ -197,40 +195,39 @@ function ajaxCheck(){
 							}
 								).done(
 										function (jsonObject){
-                                            //alert(jsonObject);
-                                            currentOnlinePrimovers = 0;
-                                            $("#serverStatusImage").attr("src","../media/images/icons/serverStatus/status_green.png");
+                                            // alert(jsonObject);
+                                            currentOnlinePrimovers = jsonObject.length;
+                                            $("#serverStatusImage").attr("src","assets/images/images/icons/serverStatus/status_green.png");
      										jsonData = jsonObject;
                                             offlinePrimovers = currentVehicleList;
-                                            latestRecivedImeiNumbers = [];
+                                            latestRecivedVehicleIds = [];
 											for(items in jsonData){
-												currentOnlinePrimovers +=1;
-												latestRecivedImeiNumbers.push(jsonData[items]["imei"]);  
+												latestRecivedVehicleIds.push(jsonData[items]["vehicle_id"]);  
 												/* debug code to check recevied values from ajax 
-												alert(" Serial "+ jsonData[items]["serial"]+" IMEI "+ jsonData[items]["imei"]+" Latitude "+ jsonData[items]["latitude"]+" longitude "+ jsonData[items]["longitude"]+" Sat_time "+ jsonData[items]["sat_time"]);
+												alert(" Serial "+ jsonData[items]["serial"]+" IMEI "+ jsonData[items]["vehicle_id"]+" Latitude "+ jsonData[items]["latitude"]+" longitude "+ jsonData[items]["longitude"]+" Sat_time "+ jsonData[items]["sat_time"]);
 												*/
 
 												/* ------------------------------------- Prevent addnig already exsisted vehicle to the map (no overlapping tow vehicles)-------------------------------------*/
-												if(jsonData[items]["imei"] in currentVehicleList){
-													//alert("Already In The Vehicle List"+jsonData[items]["imei"]);
-	                                                currentVehicleList[jsonData[items]["imei"]].marker.setLatLng([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])]);
-	                                                currentVehicleList[jsonData[items]["imei"]].marker.setIconAngle(parseInt(jsonData[items]["bearing"]));
-													currentVehicleList[jsonData[items]["imei"]].currentSpeed =  jsonData[items]["speed"];     
-													currentVehicleList[jsonData[items]["imei"]].marker.setIcon(prime_mover_icon_online);                    
+												if(jsonData[items]["vehicle_id"] in currentVehicleList){
+													//alert("Already In The Vehicle List"+jsonData[items]["vehicle_id"]);
+	                                                currentVehicleList[jsonData[items]["vehicle_id"]].marker.setLatLng([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])]);
+	                                                currentVehicleList[jsonData[items]["vehicle_id"]].marker.setIconAngle(parseInt(jsonData[items]["bearing"]));
+													currentVehicleList[jsonData[items]["vehicle_id"]].currentSpeed =  jsonData[items]["speed"];     
+													currentVehicleList[jsonData[items]["vehicle_id"]].marker.setIcon(prime_mover_icon_online);                    
 													//alert("New Lat Long has been set");
 													message = '<?php if($_SESSION["admin"] == TRUE) echo "Administrator Features";else echo "Normal User Features";  ?>';
 													popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"
-                                                                      +jsonData[items]["imei"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul><br/>"
+                                                                      +jsonData[items]["vehicle_id"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul><br/>"
                                                                       +"<font style='color:blue'>"+message+"</font>"
-                                                                      +"<br/> Current speed is <span style='color:green'> "+currentVehicleList[jsonData[items]["imei"]].currentSpeed+"</span>Kmph";
+                                                                      +"<br/> Current speed is <span style='color:green'> "+currentVehicleList[jsonData[items]["vehicle_id"]].currentSpeed+"</span>Kmph";
 
 
-                    													currentVehicleList[jsonData[items]["imei"]].marker._popup.setContent(popupCSSdisplay);
+                    													currentVehicleList[jsonData[items]["vehicle_id"]].marker._popup.setContent(popupCSSdisplay);
 													continue;
 													}
 												/* Add new vehicle to map if it is not in the currentVehicleList list*/
-												var imeiNumberAsKey = String(jsonData[items]["imei"]);
-												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["imei"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
+												var imeiNumberAsKey = String(jsonData[items]["vehicle_id"]);
+												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["vehicle_id"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
 												//alert(currentVehicleList[imeiNumberAsKey].imeiNumber);
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
@@ -241,7 +238,7 @@ function ajaxCheck(){
 												
 														}
 														for(imeiNumberIndex in currentVehicleList){
-															if($.inArray(currentVehicleList[imeiNumberIndex].imeiNumber,latestRecivedImeiNumbers) == -1){
+															if($.inArray(currentVehicleList[imeiNumberIndex].imeiNumber,latestRecivedVehicleIds) == -1){
 																//alert("This imei"+currentVehicleList[imeiNumberIndex].imeiNumber+"not active");
 																currentVehicleList[imeiNumberIndex].marker.setIcon(prime_mover_icon_offline);
 																
@@ -263,35 +260,38 @@ function ajaxCheck(){
  
  
 /*---------------------------------- Foo methods ----------------------------------*/
-function approveVehicles(){
-	$("#vehicle_history_div").hide(); ///need to replace with commen clear function
-	
-$.ajax({
- url : "./features/vehicleAuthenticationStatus.php",
-                
-} ).done(
-          function (returnHttpObject){
-            //alert(returnHttpObject);
-            $("#commonMessageBoxResultBox").html("");
-            document.getElementById("commonMessageBoxResultBox").innerHTML = returnHttpObject;
-            $("#commonMessageBox").fadeIn("slow");
 
-               });
+function approveVehicles() {
+	$("#vehicle_history_div").hide();
+	///need to replace with commen clear function
 
-	     
+	$.ajax({
+		url : "./features/vehicleAuthenticationStatus.php",
+
+	}).done(function(returnHttpObject) {
+		//alert(returnHttpObject);
+		$("#commonMessageBoxResultBox").html("");
+		document.getElementById("commonMessageBoxResultBox").innerHTML = returnHttpObject;
+		$("#commonMessageBox").fadeIn("slow");
+
+	});
+
 }
 
 
 
-function showVehicleHistory() {
-	
-	$("#vehicle_history_div").hide();
-	
-	//alert("Not implimented"); //for check function call working
-	$("#leftSideSlidePane").show("slide",{direction:"left"});
 
-     $("#leftSideSlidePaneResultBox").html(loadingImage).load("./features/retrieveVehicleList.php");
-     
+function showVehicleHistory() {
+
+	$("#vehicle_history_div").hide();
+
+	//alert("Not implimented"); //for check function call working
+	$("#leftSideSlidePane").show("slide", {
+		direction : "left"
+	});
+
+	$("#leftSideSlidePaneResultBox").html(loadingImage).load("./features/retrieveVehicleList.php");
+
 }
 
 
@@ -325,7 +325,7 @@ function changeMapTileServer(ServerName){
 
 // gloable variable url for loading imege in string
 
-var loadingImage = '<img alt="Loading......" src="../media/images/icons/loading.gif">';
+var loadingImage = '<img alt="Loading......" src="assets/images/images/icons/loading.gif">';
 
 function changeMap() {
 	//alert("<font color = 'red'>call get_administrators function</font>"); //for check function call working
@@ -581,7 +581,7 @@ function registerNewVehicle(){
 	vehicle_registration_number = $("#vehicle_registration_number").val();
 	vehicle_owner = $("#vehicle_owner").val();
 	
-	 $.post("./features/vehicleAuthenticationStatus.php",{"decision":decision,"imei":imeiNum,"vehicle_registration_number":vehicle_registration_number,"vehicle_owner":vehicle_owner}).done(
+	 $.post("./features/vehicleAuthenticationStatus.php",{"decision":decision,"vehicle_id":imeiNum,"vehicle_registration_number":vehicle_registration_number,"vehicle_owner":vehicle_owner}).done(
 	  function(returnData){
 	      if(decision == "approve"){
 	          alert("<"+imeiNum+">"+" will allowed to connect to main server");
