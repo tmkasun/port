@@ -230,9 +230,14 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         #print "\n\n####* current connected clients = {}".format(self.factory.number_of_connections)
         #print rawSentence
         sentence = rawSentence.strip()
-        print sentence 
-        _validateChecksum(sentence)
-        splitSentence = _split(sentence)
+#         print sentence 
+        try:
+            _validateChecksum(sentence)
+            splitSentence = _split(sentence)
+        except Exception, e:
+            print "###{}".format(e)
+            self._disconnectFromDevice()
+            return 0
         #print "\n\n#### splitSentence = {}".format(splitSentence)
         commandType, contents = splitSentence[1], splitSentence[:1]+splitSentence[2:]
 
@@ -253,17 +258,17 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         if self._sentenceCallback is not None:
             self._sentenceCallback(sentence)
         
-        #print "\n\n#### sentence = NMEASentence(sentenceData) = ",sentence
+#         print "\n\n#### sentence = NMEASentence(sentenceData) = ",sentence
         decodedSentence = self._receiver.sentenceReceived(sentence)
         
         #print decodedSentence
     
         if self._isFirstLineFromDevice:
-            #print "do all the preparations"
+#             print "###First line from the device"
             self._initialData(decodedSentence)
             return
         
-        self._dbBridge.savePosition(decodedSentence) 
+        self._dbBridge.updatePosition(decodedSentence) 
         
         #print "\n\n### execute after if self._isFirstLineFromDevice*** "
         
