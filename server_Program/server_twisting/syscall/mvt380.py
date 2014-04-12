@@ -100,7 +100,7 @@ class GPGSAFixTypes(Values):
     GSA_3D_FIX = ValueConstant("3")
 
 def _validateIMEI(imei):
-    print "\n\n######### imei = {}".format(imei)
+    #print "\n\n######### imei = {}".format(imei)
     """
     Validation of IMIE, connection , Users are perform by me
     all the types of validations related to GPS data is performed by me
@@ -137,17 +137,17 @@ def _split(sentence):
         splitedValue = sentence.split(',')
         if splitedValue[2] == "GPRMC":
             splitedValue.insert(1,"TK102")
-            print "\n\n#####################splitedValue[2],splitedValue[3],splitedValue = ",splitedValue[2],splitedValue[3],splitedValue
+            #print "\n\n#####################splitedValue[2],splitedValue[3],splitedValue = ",splitedValue[2],splitedValue[3],splitedValue
             del splitedValue[3] # remove unnecessary blank value and GPRMC code name 
             del splitedValue[2] # changing L142 and L141 will result in unexpected data miss
             del splitedValue[13]
             del splitedValue[13]
             if len(splitedValue) == 24:
                 splitedValue.insert(13,"SOS_FIX")
-            print "\n\n#### len(splitedValue) = ",len(splitedValue)
-            print "\n\n#####################splitedValue[13],splitedValue[15],splitedValue = ",splitedValue[13],splitedValue[14],splitedValue
+            #print "\n\n#### len(splitedValue) = ",len(splitedValue)
+            #print "\n\n#####################splitedValue[13],splitedValue[15],splitedValue = ",splitedValue[13],splitedValue[14],splitedValue
             splitedValue[14] = splitedValue[14][5:] # IMEI fix remove preceding 'IMEI:' string
-            print "\n\n#### splitedValue[15] = ",splitedValue[14]
+            #print "\n\n#### splitedValue[15] = ",splitedValue[14]
             return splitedValue  
         
         raise Exception
@@ -227,13 +227,13 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         @param rawSentence: The NMEA positioning sentence.
         @type rawSentence: C{str}
         """
-        print "\n\n####* current connected clients = {}".format(self.factory.number_of_connections)
-
+        #print "\n\n####* current connected clients = {}".format(self.factory.number_of_connections)
+        #print rawSentence
         sentence = rawSentence.strip()
         print sentence 
         _validateChecksum(sentence)
         splitSentence = _split(sentence)
-        print "\n\n#### splitSentence = {}".format(splitSentence)
+        #print "\n\n#### splitSentence = {}".format(splitSentence)
         commandType, contents = splitSentence[1], splitSentence[:1]+splitSentence[2:]
 
         try:
@@ -243,7 +243,7 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         
         
         sentenceData = {"type": commandType}
-        print "\n\n### contents = {}".format(contents)
+        #print "\n\n### contents = {}".format(contents)
         for key, value in itertools.izip(keys, contents): 
             if key is not None and value != "":
                 sentenceData[key] = value
@@ -253,19 +253,19 @@ class NMEAProtocol(LineReceiver, _sentence._PositioningSentenceProducerMixin):
         if self._sentenceCallback is not None:
             self._sentenceCallback(sentence)
         
-        print "\n\n#### sentence = NMEASentence(sentenceData) = ",sentence
+        #print "\n\n#### sentence = NMEASentence(sentenceData) = ",sentence
         decodedSentence = self._receiver.sentenceReceived(sentence)
         
-        print decodedSentence
+        #print decodedSentence
     
         if self._isFirstLineFromDevice:
-            print "do all the preparations"
+            #print "do all the preparations"
             self._initialData(decodedSentence)
             return
         
         self._dbBridge.savePosition(decodedSentence) 
         
-        print "\n\n### execute after if self._isFirstLineFromDevice*** "
+        #print "\n\n### execute after if self._isFirstLineFromDevice*** "
         
     
     _SENTENCE_CONTENTS = {
@@ -464,9 +464,9 @@ class NMEAAdapter(object):
         """
 
         datetimestamp = self.currentSentence.dateTimestamp
-        #print datetimestamp
+        ##print datetimestamp
         timeObject = datetime.datetime.strptime(datetimestamp, '%y%m%d%H%M%S')
-        #print timeObject
+        ##print timeObject
         self._sentenceData['time'] = timeObject
 
     def _fixTimestamp(self):
@@ -609,13 +609,13 @@ class NMEAAdapter(object):
             C{None}, same as C{sourceKey}.
         @type destinationKey: C{str} (Python identifier)
         """
-        #print "fixing Altitude"
+        ##print "fixing Altitude"
         currentValue = getattr(self.currentSentence, sourceKey)
 
         if destinationKey is None:
             destinationKey = sourceKey
         
-        #print converter(currentValue)
+        ##print converter(currentValue)
         self._sentenceData[destinationKey] = converter(currentValue)
 
 
@@ -701,7 +701,7 @@ class NMEAAdapter(object):
             raises C{ValueError}.
         @type valueKey: C{str}
         """
-        #print "\n\n### value fix started"
+        ##print "\n\n### value fix started"
         if unit is None:
             unit = getattr(self.currentSentence, unitKey)
         if valueKey is None:
@@ -778,9 +778,9 @@ class NMEAAdapter(object):
         """
         Fix IMEI number to convert it to an integer type
         """
-        #print "\n\n### start fixing imei"
+        ##print "\n\n### start fixing imei"
         imei = getattr(self.currentSentence, 'IMEI', None)
-        #print "\n\n### imei = {}".format(imei)
+        ##print "\n\n### imei = {}".format(imei)
         self._sentenceData['IMEI'] = int(imei)
         
 
@@ -877,7 +877,7 @@ class NMEAAdapter(object):
         @type sentence: L{NMEASentence}
         """
         self.currentSentence = sentence
-        print self.currentSentence
+        #print self.currentSentence
         #<NMEASentence (AAA) {GSMSignal: 6, IMEI: 862170013556541, IOState: 0000, altitude: 30, analogDigitalInfo: 000A|0006||02D9|0103, baseID: 413|1|EB8C|7353, dateTimestamp: 140119023128, eventCode: 35, fixQuality: A, horizontalDilutionOfPrecision: 1, latitudeFloat: 6.887935, longitudeFloat: 79.890790, mileage: 107318, numberOfSatellitesSeen: 8, runtime: 274806, speedInKMh: 0, trueHeading: 24}>
         
         try:
@@ -905,10 +905,10 @@ class NMEAAdapter(object):
         """
         Cleans the current sentence.
         """
-        #print "Cleaning"
+        ##print "Cleaning"
         for key in sorted(self.currentSentence.presentAttributes):
             fixer = self._FIXERS.get(key, None)
-            #print fixer,key
+            ##print fixer,key
             if fixer is not None:
                 fixer(self)
 
