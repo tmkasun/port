@@ -7,7 +7,7 @@ class Coordinate extends CI_Model {
 	public function get_live_status() {
 		$this -> db -> select('vehicle_id,longitude,latitude,speed,bearing');
 		$this -> db -> from('live_status');
-		$this -> db -> where('disconnected_on IS NOT NULL', NULL, false);
+		$this -> db -> where('disconnected_on IS NULL', NULL, false);//is null means it is connected
 		$query = $this -> db -> get();
 		return $query;
 	}
