@@ -19,7 +19,7 @@ class Maps extends CI_Controller {
 	}
 
 	public function get_coordinates() {
-		if ($this -> input -> is_ajax_request()) {
+		if ($this -> input -> is_ajax_request() || TRUE) {
 			$this -> load -> model('coordinate', "code");
 			$query = $this -> code -> get_live_status();
 			$this -> output -> set_content_type('application/json') -> set_output(json_encode($query->result()));

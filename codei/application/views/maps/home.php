@@ -15,7 +15,7 @@ rel="stylesheet">
 <script src="assets/javascript/Marker.Rotate.js"></script>
 <script src="assets/javascript/maps_handler.js"></script>
 <body
-style="background-image: url('assets/images/images/backgrounds/map_background6.jpg'); margin: 0; padding: 0;">
+style="margin: 0; padding: 0;">
 
 	<!-- This is the off-canvas sidebar -->
 	<div id="left_side_pannel" class="uk-offcanvas">
@@ -116,12 +116,17 @@ style="background-image: url('assets/images/images/backgrounds/map_background6.j
 	<div id="commonMessageBox"
 	style="position: absolute; z-index: 4; width: 85%; height: 85%; margin-left: auto; margin-right: auto; background: rgba(22, 14, 20, 0.9); border-radius: 12px; box-shadow: 0px 0px 20px 5px #000000; display: none; top: 20px; left: 20px; cursor: move;">
 
+		
+
 		<img onclick="$('#commonMessageBox').fadeOut('slow')" alt="Close"
 		src="assets/images/images/logins/close.png" width="24" height="24"
 		alt="Close"
 		style="position: relative; float: right; top: -10px; cursor: pointer; right: -10px" />
 		<br />
 		<br />
+		
+		
+
 		<div id="vehicle_history_div" style="display: none; z-index: 999999">
 
 			<div id="datePicker"
