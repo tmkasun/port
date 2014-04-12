@@ -126,10 +126,10 @@ class DbBridge(object):
         dbAipName like MySQLdb 
         """
         self._dbpool = adbapi.ConnectionPool(*dbConfiguration)
-
+        self._vehicle_id = None
     
 
-    def savePosition(self,positionData):
+    def updatePosition(self,positionData):
         """
         Store information in database 
         @param positionData: contains positioning data speed, altitute, loggitute , latitude and IMEI
@@ -144,7 +144,7 @@ class DbBridge(object):
         , gpsObject.location_area_code, gpsObject.cell_id)
 
         """
-        #print "####savePosition ***"
+        #print "####updatePosition ***"
         
         ##print positionData['altitude'].inMeters
         ##print positionData['longitude'].inDecimalDegrees
@@ -162,12 +162,26 @@ class DbBridge(object):
         consider to update those values in new relation with imei as reference 
         """
         
-        query = """insert into live_status (sat_time,latitude,longitude,speed,bearing,vehicle_id) values("{}",{},{},{},{},select vehicle_id from vehicle_details where imei = "{}")""".\
+        query = """\
+        update live_status set \
+        sat_time = "{}",\
+        latitude = {},\
+        longitude = {},\
+        speed = {},\
+        bearing = {}\
+        where vehicle_id = {} \
+        """.\
         format(positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,\
-        positionData['speed'].inMetersPerSecond,positionData['heading'].inDecimalDegrees,positionData['IMEI'])
-        ##print query
-        
-        
+        positionData['speed'].inMetersPerSecond,positionData['heading'].inDecimalDegrees,self._vehicle_id)
+        print """###Position data updated... on\n\t\
+        satalite time = {} \n\t\
+        latitude = {} \n\t\
+        longitude = {} \n\t\
+        speed = {} \n\t\
+        bearing = {} \n\t\
+        where vehicle id = {} \n\t\
+        """.format(positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,\
+        positionData['speed'].inMetersPerSecond,positionData['heading'].inDecimalDegrees,self._vehicle_id)
         return self._dbpool.runQuery(query)#.addCallbacks(self.DbSucesses, self.DbError)#.addBoth(self.test#print)
                 
     def DbError(self,error):
@@ -175,10 +189,11 @@ class DbBridge(object):
         pass
         
     def _checkIMEI(self,sucessResult,imei):
-        #print "###_checkIMEI and sucessResult",imei,sucessResult
+        print "###Check IMEI with database records..."
         for element in sucessResult:
             if imei == element[0]:
-                return element[1]
+                self._vehicle_id = element[1]
+                return True
          
         raise ValueError("Unauthorized IMEI")
         
@@ -208,7 +223,10 @@ class DbBridge(object):
     
     
 class GpsStringReceiver(NMEAProtocol):
-    
+    """
+        sample GPS strin from MVT380
+        $$A138,862170013556541,AAA,35,7.092076,79.960473,140412132808,A,10,9,57,275,1,14,5783799,7403612,413|1|F6E0|3933,0000,000B|0009||02D8|0122,*EE
+    """
     
     def __init__(self):
 
@@ -224,7 +242,6 @@ class GpsStringReceiver(NMEAProtocol):
         self._dbBridge = DbBridge(configurationDetails)
         self._isFirstLineFromDevice = True
         self._imei = None
-        self._vehicle_id = None
         NMEAProtocol.__init__(self)
         
 
@@ -237,27 +254,19 @@ class GpsStringReceiver(NMEAProtocol):
             self.transport.setTcpKeepAlive(1)
 	    #print "#### Enable Keep alive"
         except AttributeError: pass
-	#print "### Connection made, current connected clients = {} getPeer = {}".format(self.factory.number_of_connections, self.transport.getPeer())
+	print "### Connection made...\n\tcurrent connected clients = {}\n\tgetPeer = {}".format(self.factory.number_of_connections, self.transport.getPeer())
 
         
     def connectionLost(self, reason):
-        self.factory.number_of_connections -=1
-        #print "### Connection lost from the client, current connected clients = {} getPeer = {}".format(self.factory.number_of_connections,self.transport.getPeer())
-        if self._isFirstLineFromDevice:
-            #print "Unauthorized device forcibly disconnected from server reason so no deal with flags = {}".format(reason)
-            return True
-        #print "down the online flag and shutdown dbpool for this connection reason = {}".format(reason)
-        self._resetOnlineFlag(self._imei)
-        self._dbBridge.shutdownDBBridge()
+        self._disconnectFromDevice(reason)
 
 
     def _initialData(self, sentenceData):
-        #print "### _initialData"
         imei = str(sentenceData['IMEI'])
         validationDeferred = self._dbBridge.validateDevice(imei)
         validationDeferred.addCallbacks\
         (self._authorizedDevice, self._unauthorizedDevice, callbackArgs=(sentenceData,), errbackArgs=(imei,))
-
+        
     
     def _autharization(self):
         """
@@ -267,26 +276,56 @@ class GpsStringReceiver(NMEAProtocol):
     
     
     def _authorizedDevice(self,success,positionData):
-        #print "###success",success,positionData
+        print "###Authorized device...!",success
         deviceIMEI = str(positionData['IMEI'])
         self._isFirstLineFromDevice = False
-#         self._imei = deviceIMEI
-        #print "###Authorized device continue and save coordinate"
-        #print "###deviceIMEI",deviceIMEI 
-        saveDeferred = self._dbBridge.savePosition(positionData)
-        saveDeferred.addCallback(self._setOnlineFlag)
+        self._imei = deviceIMEI #FIXME this variable is not necessary
+#         query = """insert into vehicle_status(imei,connected_on,current_status)\
+#         values("{}",now(),1) ON DUPLICATE KEY UPDATE\
+#         connected_on = now(), current_status = 1 """.format(imei)
+        query = """\
+        insert into live_status (sat_time,latitude,longitude,speed,bearing,vehicle_id,connected_on,disconnected_on)\
+        values("{}",{},{},{},{},{},now(),NULL)\
+        ON DUPLICATE KEY UPDATE
+        sat_time=VALUES(sat_time),latitude=VALUES(latitude),longitude=VALUES(longitude),speed=VALUES(speed),\
+        bearing=VALUES(bearing),connected_on=now(),disconnected_on=VALUES(disconnected_on)
+        """.\
+        format(positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,\
+        positionData['speed'].inMetersPerSecond,positionData['heading'].inDecimalDegrees,self._dbBridge._vehicle_id)
+        self._dbBridge._dbpool.runQuery(query)
+        print "###Update vehicle position and set online flag..."
+#         saveDeferred = self._dbBridge.savePosition(positionData)
+#         saveDeferred.addCallback(self._setOnlineFlag)
+
+#     def _setOnlineFlag(self,dbReturnedObject,imei):# no longer needed since change the database structure
+#         #print "###_setOnlineFlag dbReturnedObject = {} imei = {}".format(dbReturnedObject,imei)
+#         query = """insert into vehicle_status(imei,connected_on,current_status)\
+#         values("{}",now(),1) ON DUPLICATE KEY UPDATE\
+#         connected_on = now(), current_status = 1 """.format(imei)
+#          
+#         #print "###query = {}".format(query)
+#          
+#         self._dbBridge._dbpool.runQuery(query)
         
         
     def _unauthorizedDevice(self,error,imei):
-        #print "Unauthorized device  send for approval + shutdown dbPool + disconnect device "
-        #print "###imei ",imei
+        print "###Unauthorized device  send for approval...\n###shutdown dbPool...\n###disconnect device... ",imei
         approvalSentDeferred = self._dbBridge.sendToApproval(imei)
         approvalSentDeferred.addBoth(self._disconnectFromDevice)
     
     
     def _disconnectFromDevice(self,*args):
-        #print "####_disconnectFromDevice *args =".format(args.__class__)
+        print "####Disconnect From Device..."
+        self.factory.number_of_connections -=1
         self.transport.loseConnection()
+        #print "### Connection lost from the client, current connected clients = {} getPeer = {}".format(self.factory.number_of_connections,self.transport.getPeer())
+        if self._isFirstLineFromDevice:
+            print "###Device init fails...!"
+            return True
+        #print "down the online flag and shutdown dbpool for this connection reason = {}".format(reason)
+        self._resetOnlineFlag(self._imei)
+        self._dbBridge.shutdownDBBridge()
+        #TODO check wheather this is a valid vehicle if so, run resetflag method to set offline
         #self.transport.abortConnection()
         
         
@@ -294,29 +333,18 @@ class GpsStringReceiver(NMEAProtocol):
         ##print "###setConditionalCallbak validDevice = {}".format(validDevice)
         if validDevice:
             self._conditionalCallbak = '_fireSentenceCallbacks'
-            self._dbBridge.savePosition(self._sentenceData)
+            self._dbBridge.updatePosition(self._sentenceData)
             ##print "### valid device"
             return True
         ##print "### in-valid device"
         self._dbBridge.sendToApproval(self._sentenceData['IMEI'])
 
 
-#     def _setOnlineFlag(self,dbReturnedObject,imei):# no longer needed since change the database structure
-#         #print "###_setOnlineFlag dbReturnedObject = {} imei = {}".format(dbReturnedObject,imei)
-#         query = """insert into vehicle_status(imei,connected_on,current_status)\
-#         values("{}",now(),1) ON DUPLICATE KEY UPDATE\
-#         connected_on = now(), current_status = 1 """.format(imei)
-#         
-#         #print "###query = {}".format(query)
-#         
-#         self._dbBridge._dbpool.runQuery(query)
-
-
     def _resetOnlineFlag(self,imei):
         #print "###_resetOnlineFlag imei = {}".format(imei)
         #FIXME chcek this query??
-        query = """update live_status set disconnected_on = now(), where vehicle_id in \{select vehicle_id from vehicle_details where imei = "{imei}" \}""".format(imei)
-        #print "###query = {}".format(query)
+        query = """update live_status set disconnected_on = now() where vehicle_id = {} """.format(self._dbBridge._vehicle_id)
+#         print "###query = {}".format(query)
         self._dbBridge._dbpool.runQuery(query)
         
 
@@ -334,11 +362,11 @@ class GpsStringReceiverFactory(ServerFactory):
 
 def main():
     
-    ##print "### Running main()"
+    print "### Running main()"
     factory = GpsStringReceiverFactory()
     reactor.listenTCP(9090, factory, 100)
     reactor.run()
-    print "### Listening on port 9090....."
+#     print "### Listening on port 9090....."
   
   
   
