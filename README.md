@@ -37,6 +37,6 @@ currently supported map types
 
 
 
-Details of the vehicles can also be viewed through this system. The operational staff can view these details real time and can use this information to effectively handle the vehicles,thus minimizing cost andwastage and discrepancies.
+Details of the vehicles can also be viewed through this system. The operational staff can view these details real time and can use this information to effectively handle the vehicles,thus minimizing cost and wastage and discrepancies.
 
 [1]: https://github.com/Leaflet/Leaflet        "Leaflet"
