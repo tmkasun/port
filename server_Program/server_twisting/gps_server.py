@@ -15,7 +15,8 @@ from twisted.protocols.basic import LineReceiver
 from syscall.devices import devices
 from syscall.mvt380 import *
 
-
+from twisted.python import log
+from twisted.python.logfile import DailyLogFile
 
 class GpsDataProcessor():
     """
@@ -254,6 +255,7 @@ class GpsStringReceiver(NMEAProtocol):
             self.transport.setTcpKeepAlive(1)
 	    #print "#### Enable Keep alive"
         except AttributeError: pass
+	log.err()
 	print "### Connection made...\n\tcurrent connected clients = {}\n\tgetPeer = {}".format(self.factory.number_of_connections, self.transport.getPeer())
 
         
@@ -365,6 +367,7 @@ def main():
     print "### Running main()"
     factory = GpsStringReceiverFactory()
     reactor.listenTCP(9090, factory, 100)
+    log.startLogging(DailyLogFile.fromFullPath("/var/log/syscall.log"))
     reactor.run()
 #     print "### Listening on port 9090....."
   
