@@ -12,5 +12,9 @@ class Coordinate extends CI_Model {
 		return $query;
 	}
 
+	public function all_last_known_positions()
+	{
+		return $this -> db -> get('live_status');
+	}
 }
 ?>
