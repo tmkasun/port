@@ -258,6 +258,7 @@ class GpsStringReceiver(NMEAProtocol):
 
         
     def connectionLost(self, reason):
+        self.factory.number_of_connections -=1
         self._disconnectFromDevice(reason)
 
 
@@ -316,7 +317,6 @@ class GpsStringReceiver(NMEAProtocol):
     
     def _disconnectFromDevice(self,*args):
         print "####Disconnect From Device..."
-        self.factory.number_of_connections -=1
         self.transport.loseConnection()
         #print "### Connection lost from the client, current connected clients = {} getPeer = {}".format(self.factory.number_of_connections,self.transport.getPeer())
         if self._isFirstLineFromDevice:

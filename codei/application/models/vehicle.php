@@ -14,6 +14,13 @@ class Vehicle extends CI_Model {
 		$query = $this -> db -> get('vehicle_details');
 		return $query;
 	}
+	
+	public function find_by_reg_number($vehicle_reg_num) {
+		$this -> db -> like('vehicle_registration_number', $vehicle_reg_num);
+		$query = $this -> db -> get('vehicle_details');
+		return $query;
+	}
+	
 
 	public function remove($vehicle_id) {
 		$this -> db -> where('vehicle_id', $vehicle_id);
