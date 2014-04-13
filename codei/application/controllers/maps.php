@@ -19,8 +19,13 @@ class Maps extends CI_Controller {
 	}
 
 	public function get_coordinates() {
-		if ($this -> input -> is_ajax_request() || TRUE) {
+		if ($this -> input -> is_ajax_request()) {
 			$this -> load -> model('coordinate', "code");
+			if( $this -> input -> post('firstTime')){
+				$query = $this -> code -> all_last_known_positions();
+				$this -> output -> set_content_type('application/json') -> set_output(json_encode($query->result()));
+				return 0;
+			}
 			$query = $this -> code -> get_live_status();
 			$this -> output -> set_content_type('application/json') -> set_output(json_encode($query->result()));
 		} else {
