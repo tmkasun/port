@@ -170,7 +170,7 @@ rel="stylesheet">
 					System Administrtion
 				</li>
 				<li class="uk-parent">
-					<a href=""><i class="fa fa-bar-chart-o"></i> View System Status</a>
+					<a href="site/logs"><i class="fa fa-bar-chart-o"></i> View System Status</a>
 				</li>
 				<li>
 					<a href=""><i class="fa fa-users"></i> Manage Users</a>
