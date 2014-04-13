@@ -22,9 +22,9 @@ class Vehicles extends CI_Controller {
 	}
 	
 	public function details() {
-		$vehicle_id = $this -> input -> post('vehicle_id');
-		
-		$query = $this -> vehicle -> find($vehicle_id);
+		// $vehicle_id = $this -> input -> get('vehicle_id');
+		$vehicle_reg_num = $this -> input -> get('reg_number');
+		$query = $this -> vehicle -> find_by_reg_number($vehicle_reg_num);
 		$this -> output -> set_content_type('application/json') -> set_output(json_encode($query -> result()));
 	}
 	
