@@ -18,6 +18,7 @@
 		<link href=<?= base_url() . 'assets/styles/Gbuttons.css' ?> rel="stylesheet" >
 		<link href=<?= base_url() . 'assets/styles/bootstrap.min.css' ?> rel="stylesheet">
 		<?php $this -> load -> file("assets/google/googleAnalyticsTracking.php"); ?>
+
 		<script src="assets/javascript/jquery-1.8.3.js"></script>
 		<script src="assets/javascript/jquery-ui-1.9.2.js"></script>
 		<script type="text/javascript" src=

@@ -1,6 +1,7 @@
 /* ------------------------------------ current browser (client) displaying imei numbers ------------------------------------ */
 
 var currentVehicleList = []; //current browser (client) displaying imei numbers
+var totalVehicleList = []; //current browser (client) displaying imei numbers
 var totalNumberOfPrimovers = 0;
 var currentOnlinePrimovers = 0;
 //currentVehicleList.push("newVehicleimeiNumber");
@@ -109,8 +110,15 @@ function primeMover(imeiNumber,currentLat,currentLong,currentSatTime,vehicleNumb
 var jsonData;
 $(document).ready(
 	
+	
+ 
+
+	
           
 					function (){
+						 $('input[name="daterange"]').daterangepicker();
+						 init_typeahead();
+        
 						//$("#functionButtons").toggle( { effect: "slide", direction: "up" ,distance:30});                    
                       
                         // create map layer in webpage
@@ -136,15 +144,26 @@ $(document).ready(
 											//alert(jsonObject);
 											jsonData = jsonObject;//assign to jsonData global variable to wider accecebility
 											for(items in jsonData){
-								
-												
 												var imeiNumberAsKey = String(jsonData[items]["vehicle_id"]);
+												// alert(jsonData[items]["disconnected_on"]);
+												if((jsonData[items]["disconnected_on"] == null)){
+													// alert(jsonData[items]["disconnected_on"]);
+													totalVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["vehicle_id"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
+													continue;
+												}
+												// alert(imeiNumberAsKey);
+												totalVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["vehicle_id"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
+												
 												currentVehicleList[imeiNumberAsKey] = new primeMover(jsonData[items]["vehicle_id"], jsonData[items]["latitude"], jsonData[items]["longitude"], jsonData[items]["sat_time"],"noDataAvailable","NoMarker",jsonData[items]["speed"]);
+												
 												//alert(currentVehicleList[imeiNumberAsKey].imeiNumber);
 												//interMidVar = parseFloat(jsonData[items]["latitude"]);
 												
 												message = '<?php if($_SESSION["admin"] == TRUE) echo "Administrator Features";else echo "Normal User Features";  ?>';//Display administrator elements 
+												
 												currentVehicleList[imeiNumberAsKey].marker = L.marker([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])],{icon:prime_mover_icon_offline,iconAngle: parseInt(jsonData[items]["bearing"])}).addTo(map);
+												
+												
 												//popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"+jsonData[items]["vehicle_id"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul>"+"<font style='color:blue'>"+message+"</font>";
 												popupCSSdisplay = "<b>GPS/GPRS Device imei Number: <font style='color:red;'>"
                                                                       +jsonData[items]["vehicle_id"]+"</font></b><br/>Current GPS Coordinates<ul><li>Latitude: "+ jsonData[items]["latitude"]+"</li><li>Longitude: "+jsonData[items]["longitude"]+"</li></ul><br/>"
@@ -208,6 +227,7 @@ function ajaxCheck(){
 												*/
 
 												/* ------------------------------------- Prevent addnig already exsisted vehicle to the map (no overlapping tow vehicles)-------------------------------------*/
+												// alert(jsonData[items]["vehicle_id"]);
 												if(jsonData[items]["vehicle_id"] in currentVehicleList){
 													//alert("Already In The Vehicle List"+jsonData[items]["vehicle_id"]);
 	                                                currentVehicleList[jsonData[items]["vehicle_id"]].marker.setLatLng([parseFloat(jsonData[items]["latitude"]),parseFloat(jsonData[items]["longitude"])]);
