@@ -70,8 +70,8 @@ rel="stylesheet">
       <ul class="nav navbar-nav navbar-right">
       	
         <p class="navbar-text ">Signed in as <span class="text-primary">
-<?php 
-          	$session_data = $this -> session -> userdata('logged_in');
+<?php
+			$session_data = $this -> session -> userdata('logged_in');
 			echo $session_data['full_name'];
           	?>
 </span>
