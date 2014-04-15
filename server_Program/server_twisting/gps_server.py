@@ -138,8 +138,8 @@ class DbBridge(object):
         
         sql = 
         insert into live_status
-        (sat_time,sat_status,latitude,longitude,speed,bearing,vehicle_id,location_area_code) 
-        values("{}",'{}',{},{},{},{},"{}","{}")
+        (sat_time,sat_status,latitude,longitude,speed,bearing,vehicle_id,location_area_code,disconnected_on) 
+        values("{}",'{}',{},{},{},{},"{}","{}",NULL)
         .format(gpsObject.sat_time, gpsObject.sat_status, gpsObject.latitude, 
         gpsObject.longitude, gpsObject.speed, gpsObject.bearing, gpsObject.imei
         , gpsObject.location_area_code, gpsObject.cell_id)
