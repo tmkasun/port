@@ -3,7 +3,7 @@
 
 """
 TCP port listener for used with SLPA vehicle tracking system.
-Coding_standards guidelines L{https://twistedmatrix.com/documents/current/core/development/policy/coding-standard.html} 
+Coding_standards guidelines L{https://twistedmatrix.com/documents/current/core/development/policy/coding-standard.html}
 """
 
 
@@ -18,28 +18,36 @@ from syscall.mvt380 import *
 from twisted.python import log
 from twisted.python.logfile import DailyLogFile
 
+# Imports for REST client
+from StringIO import StringIO
+from twisted.web.client import Agent
+from twisted.web.http_headers import Headers
+from twisted.web.client import FileBodyProducer
+
+import time
+
 class GpsDataProcessor():
     """
-    Process data send by GPRS/GPS device 
+    Process data send by GPRS/GPS device
     supported device types are described in L{syscall.devices}
     device identification will be done based in the line send by the device ,
     according to the line encoding methods unique to each device.
     """
-    
+
     def __init__(self, lineReceived, delimiter = ','):
         self.receivedCsvLine = lineReceived
         self.processed = False
-        
-        
+
+
     def splitString(self, delimiter = ','):
         """
         Use comma(,) as default delimiter for CSV string
         """
         ##print "### data = {}".format(self.receivedCsvLine)
         self.splitedString = self.receivedCsvLine.split(delimiter)
-        return self.splitedString   
-    
-    
+        return self.splitedString
+
+
     def identifyDevice(self):
         """
         Identify the type of device which has send the given string pattern
@@ -47,8 +55,8 @@ class GpsDataProcessor():
         if self.validateIMEI(self.splitedString[0]):
             self.deviceType = "tk102"
         return self.deviceType
-    
-    
+
+
     def validateIMEI(self,imei):
         """
         Validation of IMIE, connection , Users are perform by me
@@ -64,16 +72,16 @@ class GpsDataProcessor():
         for d in even_digits:
             checksum += sum(digits_of(d * 2))
         return checksum % 10 == 0
-    
-    
+
+
     def process(self):
         self.splitedString = self.splitString(delimiter)
         self.deviceType = self.identifyDevice()
         self.processed = True
-    
+
     previousCoordinate = (0.0,0.0)
     def isMoving(self,currentCoordinate):
-        
+
         minimumChange = deviceAccuracy
         minimumCountForRejection = 0
         if distanceBetweenCoordinates(previousCoordinate, currentCoordinate) > minimumChange and minimumCountForRejection > 2:
@@ -83,37 +91,35 @@ class GpsDataProcessor():
         else:
             previousCoordinate = currentCoordinate
             minimumCountForRejection = 0
-            return Fal
-                
+            return False
 
 
 class Validator(object):
     """
     Validater Object for validate all the type of data
     """
-    
-    def validateVehicleFromDB(self,gpsData): 
+
+    def validateVehicleFromDB(self,gpsData):
         ##print "### Starting approval of vehicle from DB"
         databaseCursor.execute("select imei from approved_imei where imei = '{}'".format(self.imei))
         approvedImeiList = databaseCursor.fetchall()
         ##print approvedImeiList
         ##print self.imei
-        
+
         if len(approvedImeiList) > 0:
             self.isApprovedImei = True
             ##print "IMEI Number is already approved"
             return self.isApprovedImei
-        
+
         ##print "Not an approved IMEI number ({}),this IMEI number will send to approval ".format(self.imei)
         sql = """ insert IGNORE into not_approved_imei values("{}",{},"{}") """.format(self.imei, 0, datetime.now())
-        databaseCursor.execute(sql) 
+        databaseCursor.execute(sql)
         return self.isApprovedImei
-
 
 
 class DbBridge(object):
     """
-    Manage connections and data in/out flow with server 
+    Manage connections and data in/out flow with server
     """
     def __init__(self,dbConfiguration):
         """
@@ -124,29 +130,30 @@ class DbBridge(object):
         ['database']
         @param dbConfiguration: The DB connection configuration details
         @type dbConfiguration:  C{dict}
-        dbAipName like MySQLdb 
+        dbAipName like MySQLdb
         """
         self._dbpool = adbapi.ConnectionPool(*dbConfiguration)
         self._vehicle_id = None
-    
+
 
     def updatePosition(self,positionData):
+        return True # TODO: this is tempory pass for allow web service
         """
-        Store information in database 
+        Store information in database
         @param positionData: contains positioning data speed, altitute, loggitute , latitude and IMEI
         @type positionData: C{MVT380Protocol}
-        
-        sql = 
+
+        sql =
         insert into live_status
-        (sat_time,sat_status,latitude,longitude,speed,bearing,vehicle_id,location_area_code,disconnected_on) 
+        (sat_time,sat_status,latitude,longitude,speed,bearing,vehicle_id,location_area_code,disconnected_on)
         values("{}",'{}',{},{},{},{},"{}","{}",NULL)
-        .format(gpsObject.sat_time, gpsObject.sat_status, gpsObject.latitude, 
+        .format(gpsObject.sat_time, gpsObject.sat_status, gpsObject.latitude,
         gpsObject.longitude, gpsObject.speed, gpsObject.bearing, gpsObject.imei
         , gpsObject.location_area_code, gpsObject.cell_id)
 
         """
         #print "####updatePosition ***"
-        
+
         ##print positionData['altitude'].inMeters
         ##print positionData['longitude'].inDecimalDegrees
         ##print positionData['latitude'].inDecimalDegrees
@@ -154,15 +161,15 @@ class DbBridge(object):
         ##print positionData['IMEI']
         ##print positionData['speed'].inMetersPerSecond
         ##print positionData['heading'].inDecimalDegrees
-         
+
         ##print "####loop **************************************\n"
-        
+
         """
         @change: C{query} speed and heading is not need to be stored in database since those data are only
         necessary  for live displaying vehicles on map
-        consider to update those values in new relation with imei as reference 
+        consider to update those values in new relation with imei as reference
         """
-        
+
         query = """\
         update live_status set \
         sat_time = "{}",\
@@ -184,35 +191,35 @@ class DbBridge(object):
         """.format(positionData['time'],positionData['latitude'].inDecimalDegrees,positionData['longitude'].inDecimalDegrees,\
         positionData['speed'].inMetersPerSecond,positionData['heading'].inDecimalDegrees,self._vehicle_id)
         return self._dbpool.runQuery(query)#.addCallbacks(self.DbSucesses, self.DbError)#.addBoth(self.test#print)
-                
+
     def DbError(self,error):
         ##print "###DbError = ",error
         pass
-        
+
     def _checkIMEI(self,sucessResult,imei):
+        return True # TODO: this is for tempory to work with REST service implementation and testing
         print "###Check IMEI with database records..."
         for element in sucessResult:
             if imei == element[0]:
                 self._vehicle_id = element[1]
                 return True
-         
+
         raise ValueError("Unauthorized IMEI")
-        
-    
+
+
     def validateDevice(self,imei):
         #print "#### validateDevice",imei
         query = """select imei,vehicle_id from vehicle_details where imei = {} """.format(imei)
         ##print query
         return self._dbpool.runQuery(query).addCallback(self._checkIMEI, imei)
-        
-        
-        
+
+
     def sendToApproval(self,imei):
         query = """insert into not_approved_imei values("{}",0,now()) ON DUPLICATE KEY UPDATE last_connection_attempt = now()"""\
         .format(imei)
         return self._dbpool.runQuery(query).addBoth(self.shutdownDBBridge)
-        
-    
+
+
     def shutdownDBBridge(self,*args):
         """
             Shutdown function
@@ -220,45 +227,77 @@ class DbBridge(object):
                 garbage collector doesn't shutdown associated thread
         """
         self._dbpool.close()
-    
-    
-    
+
+class restService(object):
+
+    def __init__(self,config):
+        self.method = config['requestType']
+        self.uri = config['uri']
+        self.headers = Headers(config['headers'])
+        self.body = None
+        self.agent = Agent(reactor)
+
+    def sendJsonData(self, dataDic):
+        self.body = FileBodyProducer(StringIO(self._dataToJson(dataDic)))
+        self.agent.request(
+            self.method,
+            self.uri,
+            self.headers,
+            self.body
+        )
+
+    def _dataToJson(self, dataDic):
+        import json
+        data = {'id': dataDic['IMEI'], 'timeStamp': time.mktime(dataDic['time'].timetuple()), 'lattitude': dataDic['latitude'].inDecimalDegrees, 'longitude': dataDic['longitude'].inDecimalDegrees,
+                'angle': dataDic['heading'].inDecimalDegrees, 'speed': dataDic['speed'].inMetersPerSecond}
+        return json.dumps(data, ensure_ascii=False)
+
 class GpsStringReceiver(NMEAProtocol):
     """
         sample GPS strin from MVT380
         $$A138,862170013556541,AAA,35,7.092076,79.960473,140412132808,A,10,9,57,275,1,14,5783799,7403612,413|1|F6E0|3933,0000,000B|0009||02D8|0122,*EE
     """
-    
+
     def __init__(self):
 
         configurationDetails = ['MySQLdb',
                                 '127.0.0.1',
                                 'root',
-                                
+
                                 'kasun123',
                                 'syscall'
                                 ]
+
+        # restConfig = {'requestType': 'POST', 'uri': 'http://localhost:3000/gps_service',
+        #               'headers': {'Content-Type': ['application/json']}
+        #              }
+
+        restConfig = {'requestType': 'POST', 'uri': 'http://localhost:9764/endpoints/GPSStreamAdaptor/trackingstream',
+                      'headers': {'Content-Type': ['application/json']}
+                     }
+
         #self._AUTHORIZED_CONNECTION = False
         ##print "initializing GpsStringReceiver"
         self._dbBridge = DbBridge(configurationDetails)
-        self._isFirstLineFromDevice = True
+        self.restClient = restService(restConfig)
+        self._isFirstLineFromDevice = False # TODO: restore this value to True , tempory change to workwith CEP
         self._imei = None
         NMEAProtocol.__init__(self)
-        
+
 
     def connectionMade(self):
         """
-        @change: Send device a controll commands to flush buffered coordinates 
+        @change: Send device a controll commands to flush buffered coordinates
         """
         self.factory.number_of_connections +=1
         try:
             self.transport.setTcpKeepAlive(1)
-	    #print "#### Enable Keep alive"
+	    print "#### Enable Keep alive"
         except AttributeError: pass
 	log.err()
 	print "### Connection made...\n\tcurrent connected clients = {}\n\tgetPeer = {}".format(self.factory.number_of_connections, self.transport.getPeer())
 
-        
+
     def connectionLost(self, reason):
         self.factory.number_of_connections -=1
         self._disconnectFromDevice(reason)
@@ -266,23 +305,25 @@ class GpsStringReceiver(NMEAProtocol):
 
     def _initialData(self, sentenceData):
         imei = str(sentenceData['IMEI'])
+        self.restClient.sendJsonData(sentenceData)
         validationDeferred = self._dbBridge.validateDevice(imei)
         validationDeferred.addCallbacks\
         (self._authorizedDevice, self._unauthorizedDevice, callbackArgs=(sentenceData,), errbackArgs=(imei,))
-        
-    
+
+
     def _autharization(self):
         """
-        @todo: combine _authorizedDevice and _unauthorizedDevice methods for simplicity  
+        @todo: combine _authorizedDevice and _unauthorizedDevice methods for simplicity
         """
         pass
-    
-    
+
+
     def _authorizedDevice(self,success,positionData):
         print "###Authorized device...!",success
         deviceIMEI = str(positionData['IMEI'])
         self._isFirstLineFromDevice = False
         self._imei = deviceIMEI #FIXME this variable is not necessary
+        print "### positionData :".format(positionData)
 #         query = """insert into vehicle_status(imei,connected_on,current_status)\
 #         values("{}",now(),1) ON DUPLICATE KEY UPDATE\
 #         connected_on = now(), current_status = 1 """.format(imei)
@@ -305,18 +346,18 @@ class GpsStringReceiver(NMEAProtocol):
 #         query = """insert into vehicle_status(imei,connected_on,current_status)\
 #         values("{}",now(),1) ON DUPLICATE KEY UPDATE\
 #         connected_on = now(), current_status = 1 """.format(imei)
-#          
+#
 #         #print "###query = {}".format(query)
-#          
+#
 #         self._dbBridge._dbpool.runQuery(query)
-        
-        
+
+
     def _unauthorizedDevice(self,error,imei):
         print "###Unauthorized device  send for approval...\n###shutdown dbPool...\n###disconnect device... ",imei
         approvalSentDeferred = self._dbBridge.sendToApproval(imei)
         approvalSentDeferred.addBoth(self._disconnectFromDevice)
-    
-    
+
+
     def _disconnectFromDevice(self,*args):
         print "####Disconnect From Device..."
         self.transport.loseConnection()
@@ -329,8 +370,8 @@ class GpsStringReceiver(NMEAProtocol):
         self._dbBridge.shutdownDBBridge()
         #TODO check wheather this is a valid vehicle if so, run resetflag method to set offline
         #self.transport.abortConnection()
-        
-        
+
+
     def _setConditionalCallbak(self,condition,validDevice = False):
         ##print "###setConditionalCallbak validDevice = {}".format(validDevice)
         if validDevice:
@@ -348,31 +389,29 @@ class GpsStringReceiver(NMEAProtocol):
         query = """update live_status set disconnected_on = now() where vehicle_id = {} """.format(self._dbBridge._vehicle_id)
 #         print "###query = {}".format(query)
         self._dbBridge._dbpool.runQuery(query)
-        
+
 
 class GpsStringReceiverFactory(ServerFactory):
-    
+
     number_of_connections = 0
     protocol = GpsStringReceiver
-    
-        
+
+
     def startFactory(self):
         d = devices()
         #print "### Starting GpsStringReceiverFactory \nsupported devices {}".format(d.supportedDevices)
 
 
-
 def main():
-    
+
     print "### Running main()"
     factory = GpsStringReceiverFactory()
     reactor.listenTCP(9090, factory, 100)
-    log.startLogging(DailyLogFile.fromFullPath("/var/log/syscall.log"))
+    # log.startLogging(DailyLogFile.fromFullPath("/var/log/syscall.log"))
     reactor.run()
-#     print "### Listening on port 9090....."
-  
-  
-  
+    print "### Listening on port 9090....."
+
+
 if __name__ == '__main__':
     main()
-    
+
