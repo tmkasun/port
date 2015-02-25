@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" hash="4098192985">
+    <data-source source="LOCAL" name="MySQL - testing@localhost" uuid="16721907-05b7-49b6-862c-16c0aa12fee5">
+      <driver-ref>mysql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306/testing</jdbc-url>
+      <user-name>root</user-name>
+      <user-password>dfdcdfdedfd9dfeadf9bdf98df99</user-password>
+      <driver-properties>
+        <property name="zeroDateTimeBehavior" value="convertToNull" />
+        <property name="tinyInt1isBit" value="false" />
+      </driver-properties>
+      <libraries />
+      <ssh-properties>
+        <enabled>true</enabled>
+        <proxy-host>vts.knnect.com</proxy-host>
+        <proxy-port>22</proxy-port>
+        <user>ubuntu</user>
+        <use-password>true</use-password>
+        <password>dfcbdf9fdf9cdfccdfcddf92dfc9</password>
+        <private-key-path />
+        <passphrase />
+      </ssh-properties>
+    </data-source>
+  </component>
+</project>
+
