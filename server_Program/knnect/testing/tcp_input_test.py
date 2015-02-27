@@ -17,6 +17,10 @@ class Capture(object, protocol.Protocol):
         self.db = DbBridge()
         super(Capture, self).__init__()
 
+    def connectionMade(self):
+        print("Connection made from ")
+        client = self.transport.client
+        self.db.addTestData("Connection Made", client)
 
     def dataReceived(self, data):
         # global do
