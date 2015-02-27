@@ -26,11 +26,12 @@
       <file leaf-file-name="tcp_input_test.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/testing/tcp_input_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5135135" vertical-offset="830" max-vertical-offset="1674">
-              <caret line="63" column="88" selection-start-line="63" selection-start-column="88" selection-end-line="63" selection-end-column="88" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1638">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
-                <marker date="1425018614800" expanded="true" signature="1761:1843" placeholder="insert into ..." />
-                <marker date="1425018614800" expanded="true" signature="1772:1822" placeholder="update live_..." />
+                <element signature="e#23#69#0" expanded="true" />
+                <marker date="1425018747192" expanded="true" signature="1702:1784" placeholder="insert into ..." />
+                <marker date="1425018747192" expanded="true" signature="1713:1763" placeholder="update live_..." />
               </folding>
             </state>
           </provider>
@@ -359,8 +360,9 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1602">
           <caret line="47" column="45" selection-start-line="47" selection-start-column="45" selection-end-line="47" selection-end-column="45" />
           <folding>
-            <marker date="1425018614800" expanded="true" signature="1761:1843" placeholder="insert into ..." />
-            <marker date="1425018614800" expanded="true" signature="1772:1822" placeholder="update live_..." />
+            <element signature="e#23#69#0" expanded="true" />
+            <marker date="1425018747192" expanded="true" signature="1702:1784" placeholder="insert into ..." />
+            <marker date="1425018747192" expanded="true" signature="1713:1763" placeholder="update live_..." />
           </folding>
         </state>
       </provider>
@@ -408,11 +410,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/testing/tcp_input_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5135135" vertical-offset="830" max-vertical-offset="1674">
-          <caret line="63" column="88" selection-start-line="63" selection-start-column="88" selection-end-line="63" selection-end-column="88" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1638">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1425018614800" expanded="true" signature="1761:1843" placeholder="insert into ..." />
-            <marker date="1425018614800" expanded="true" signature="1772:1822" placeholder="update live_..." />
+            <element signature="e#23#69#0" expanded="true" />
+            <marker date="1425018747192" expanded="true" signature="1702:1784" placeholder="insert into ..." />
+            <marker date="1425018747192" expanded="true" signature="1713:1763" placeholder="update live_..." />
           </folding>
         </state>
       </provider>

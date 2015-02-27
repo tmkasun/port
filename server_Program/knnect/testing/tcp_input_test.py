@@ -1,5 +1,3 @@
-from IPython.core.pylabtools import select_figure_formats
-
 __author__ = 'kbsoft'
 
 from twisted.internet import reactor, protocol
