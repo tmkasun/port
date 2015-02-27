@@ -61,7 +61,7 @@ class DbBridge(object):
         current_time = time.strftime("%Y-%m-%d %H:%M:%S")
         host_port = "{}:{}".format(client[0], client[1])
         query = """\
-        insert into tests(title,message,created_at,updated_at) values({},{},{},{})
+        insert into tests(title,message,created_at,updated_at) values("{}","{}","{}","{}")
         """. \
             format(host_port, test_data, current_time, current_time)
         print("Query = {}".format(query))
