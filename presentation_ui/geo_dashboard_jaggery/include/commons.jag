@@ -1,0 +1,22 @@
+<%
+var escapeXml = function (s) {
+    XML_CHAR_MAP = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '&': '&amp;',
+        '"': '&quot;',
+        "'": '&apos;'
+    };
+    return s.replace(/[<>&"']/g, function (ch) {
+        return XML_CHAR_MAP[ch];
+    });
+};
+
+var cepInfo = function () {
+    var configuration = require("../conf/cep_info.json");
+    return configuration;
+};
+
+// TODO: move to new datastore api
+var dataStore = new MetadataStore("admin", "admin");
+%>
