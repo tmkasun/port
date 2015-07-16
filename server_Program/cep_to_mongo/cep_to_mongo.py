@@ -28,14 +28,11 @@ class History(object, Resource):
         content_dict = json.loads(content)
 
         content_dict['id'] = int(content_dict['id'])
-        content_dict['properties']['cabId'] = int(content_dict['properties']['cabId'])
+        content_dict['properties']['speed'] = int(content_dict['properties']['speed'])
         timestamp = float(content_dict['properties']['timeStamp'])
         timestamp_object = datetime.utcfromtimestamp(timestamp)
         timestamp_in_local = timestamp_object + timedelta(hours=5, minutes=30)
         content_dict['properties']['timeStamp'] = timestamp_in_local
-
-        if content_dict['properties']['orderId']:
-            content_dict['properties']['orderId'] = int(content_dict['properties']['orderId'])
 
         # print(content_dict)
         self.insert_to_mongo_DB(content_dict)
